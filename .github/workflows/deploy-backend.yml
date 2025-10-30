@@ -48,7 +48,7 @@ jobs:
           az appservice plan create \
             --name kg-backend-plan \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --sku F1 \
+            --sku B1 \
             --is-linux
         fi
 
