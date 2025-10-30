@@ -1,0 +1,227 @@
+/* Import Inter font - must come first */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -------------------------------------------------------------------------- */
+/*  Design Token Baseline                                                     */
+/* -------------------------------------------------------------------------- */
+:root {
+  /* Surfaces */
+  --surface-950-rgb: 2 6 23;
+  --surface-925-rgb: 7 15 31;
+  --surface-900-rgb: 15 23 42;
+  --surface-850-rgb: 20 31 53;
+  --surface-800-rgb: 30 41 59;
+  --surface-750-rgb: 36 48 70;
+  --surface-700-rgb: 51 65 85;
+  --surface-950: rgb(var(--surface-950-rgb));
+  --surface-925: rgb(var(--surface-925-rgb));
+  --surface-900: rgb(var(--surface-900-rgb));
+  --surface-850: rgb(var(--surface-850-rgb));
+  --surface-800: rgb(var(--surface-800-rgb));
+  --surface-750: rgb(var(--surface-750-rgb));
+  --surface-700: rgb(var(--surface-700-rgb));
+
+  /* Text */
+  --text-primary-rgb: 248 250 252;
+  --text-secondary-rgb: 203 213 225;
+  --text-tertiary-rgb: 148 163 184;
+  --text-muted-rgb: 100 116 139;
+  --text-primary: rgb(var(--text-primary-rgb));
+  --text-secondary: rgb(var(--text-secondary-rgb));
+  --text-tertiary: rgb(var(--text-tertiary-rgb));
+  --text-muted: rgb(var(--text-muted-rgb));
+
+  /* Accent palette (customizable) */
+  --accent-blue-rgb: 56 189 248;
+  --accent-purple-rgb: 192 132 252;
+  --accent-green-rgb: 52 211 153;
+  --accent-orange-rgb: 249 115 22;
+  --accent-blue: rgb(var(--accent-blue-rgb));
+  --accent-purple: rgb(var(--accent-purple-rgb));
+  --accent-green: rgb(var(--accent-green-rgb));
+  --accent-orange: rgb(var(--accent-orange-rgb));
+
+  /* Agent accents */
+  --agent-mathew-rgb: 33 150 243;
+  --agent-rahil-rgb: 126 87 194;
+  --agent-shreyas-rgb: 76 175 80;
+  --agent-siddarth-rgb: 255 152 0;
+  --agent-mathew: rgb(var(--agent-mathew-rgb));
+  --agent-rahil: rgb(var(--agent-rahil-rgb));
+  --agent-shreyas: rgb(var(--agent-shreyas-rgb));
+  --agent-siddarth: rgb(var(--agent-siddarth-rgb));
+
+  /* Borders & shadows */
+  --border-soft: rgba(148, 163, 184, 0.08);
+  --border-strong: rgba(148, 163, 184, 0.18);
+  --shadow-soft: 0 12px 32px rgba(2, 6, 23, 0.35);
+  --shadow-glow-blue: 0 0 20px rgba(56, 189, 248, 0.2);
+  --shadow-glow-purple: 0 0 20px rgba(192, 132, 252, 0.25);
+
+  /* Radii */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  /* Spacing */
+  --spacing-xs: 0.375rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  color-scheme: dark;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Global Resets                                                             */
+/* -------------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background:
+    radial-gradient(100% 120% at 50% 0%, rgba(148, 163, 255, 0.06) 0%, rgba(15, 23, 42, 0.8) 50%, rgba(2, 6, 23, 0.95) 85%),
+    var(--surface-950);
+  color: var(--text-primary);
+  line-height: 1.65;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+p {
+  margin: 0;
+  line-height: 1.65;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+
+code {
+  font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.85rem;
+  padding: 0.1875rem 0.5rem;
+  border-radius: var(--radius-xs);
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--accent-blue);
+}
+
+::selection {
+  background: rgba(59, 130, 246, 0.35);
+  color: var(--text-primary);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Scrollbars & Utility Layers                                               */
+/* -------------------------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.35);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.85);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.95);
+}
+
+.glass {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border: 1px solid var(--border-soft);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.transition-smooth {
+  transition: all 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+
+*:focus-visible {
+  outline: 2px solid rgba(56, 189, 248, 0.6);
+  outline-offset: 3px;
+  }
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.08) 0%,
+    rgba(148, 163, 184, 0.14) 45%,
+    rgba(148, 163, 184, 0.08) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.45s ease-in-out infinite;
+}
+
+.cytoscape-container {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--surface-900) 0%, var(--surface-800) 100%);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -120% 0;
+  }
+  100% {
+    background-position: 120% 0;
+  }
+}

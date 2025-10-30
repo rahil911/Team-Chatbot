@@ -1,0 +1,2093 @@
+{
+  "personName": "Mathew Jerry Meleth",
+  "extractedDate": "2025-10-29T00:00:00.000Z",
+  "metadata": {
+    "resumeFile": "Mathew_Meleth_Data_Engineer.docx",
+    "nodeCount": 86,
+    "edgeCount": 124
+  },
+  "personalInfo": {
+    "name": "Mathew Jerry Meleth",
+    "email": "mathewjerry07@gmail.com",
+    "phone": "+1 (206) 941-5460",
+    "location": "Seattle, WA - 98105",
+    "linkedin": "linkedin.com/in/mathewjerrymeleth",
+    "github": null,
+    "website": null
+  },
+  "summary": "Cloud & Data Engineer with 3 years of experience and expertise in AWS (Lambda, Step Functions, S3, Glue, Athena), Azure (Databricks, Data Factory, Data Lake, DevOps), and distributed data architectures. Proven track record in building scalable ETL pipelines, orchestrating serverless workflows, migrating CI/CD pipelines, and transforming multi-terabyte datasets into actionable insights. Recognized for accelerating deployment efficiency, automating workflows, and delivering measurable business impact.",
+  "nodes": [
+    {
+      "id": "person_mathew001",
+      "type": "person",
+      "properties": {
+        "name": "Mathew Jerry Meleth",
+        "title": "Cloud & Data Engineer",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "company_rocket001",
+      "type": "company",
+      "properties": {
+        "name": "Rocket Mortgage",
+        "industry": "Financial Services",
+        "location": "Remote",
+        "size": "Enterprise"
+      }
+    },
+    {
+      "id": "company_musigma001",
+      "type": "company",
+      "properties": {
+        "name": "Mu Sigma",
+        "industry": "Data Analytics & Consulting",
+        "location": "India",
+        "size": "Large"
+      }
+    },
+    {
+      "id": "company_adobe001",
+      "type": "company",
+      "properties": {
+        "name": "Adobe",
+        "industry": "Software & Technology",
+        "location": "India",
+        "size": "Enterprise"
+      }
+    },
+    {
+      "id": "role_intern_rocket001",
+      "type": "role",
+      "properties": {
+        "name": "Cloud & Data Engineering Intern",
+        "title": "Cloud & Data Engineering Intern",
+        "level": "Intern",
+        "department": "Data Engineering"
+      }
+    },
+    {
+      "id": "role_engineer_musigma001",
+      "type": "role",
+      "properties": {
+        "name": "Data Engineer",
+        "title": "Data Engineer",
+        "level": "Mid-Level",
+        "department": "Data Engineering"
+      }
+    },
+    {
+      "id": "role_intern_adobe001",
+      "type": "role",
+      "properties": {
+        "name": "Summer Intern",
+        "title": "Summer Intern",
+        "level": "Intern",
+        "department": "Product"
+      }
+    },
+    {
+      "id": "education_uw001",
+      "type": "education",
+      "properties": {
+        "name": "University of Washington - Master of Science in Information Management",
+        "degree": "Master of Science in Information Management",
+        "school": "University of Washington, Information School",
+        "gpa": "4.0",
+        "graduation": "June 2026",
+        "location": "Seattle, WA"
+      }
+    },
+    {
+      "id": "education_vit001",
+      "type": "education",
+      "properties": {
+        "name": "Vellore Institute Of Technology - Bachelor Of Technology in Information Technology",
+        "degree": "Bachelor Of Technology in Information Technology",
+        "school": "Vellore Institute Of Technology, School of Information Technology & Engineering",
+        "gpa": "8.71",
+        "graduation": "June 2021",
+        "location": "Vellore, India"
+      }
+    },
+    {
+      "id": "certification_ischolar001",
+      "type": "certification",
+      "properties": {
+        "name": "iSchool Scholar",
+        "issuer": "University of Washington",
+        "description": "Merit & Contributions to the School"
+      }
+    },
+    {
+      "id": "certification_gta001",
+      "type": "certification",
+      "properties": {
+        "name": "Graduate Teaching Assistant",
+        "issuer": "University of Washington",
+        "description": "Organization Of Information And Resources"
+      }
+    },
+    {
+      "id": "certification_aiesec001",
+      "type": "certification",
+      "properties": {
+        "name": "International Relations Leader",
+        "issuer": "AIESEC",
+        "description": "Built strategic partnerships across five countries"
+      }
+    },
+    {
+      "id": "certification_starperformer001",
+      "type": "certification",
+      "properties": {
+        "name": "3x Star Performer Of The Team",
+        "issuer": "Mu Sigma",
+        "description": "Exemplary performance, stakeholder satisfaction & quality deliverables"
+      }
+    },
+    {
+      "id": "certification_excellence001",
+      "type": "certification",
+      "properties": {
+        "name": "Certificate of Excellence",
+        "issuer": "IEEE-Computer Society",
+        "description": "Successfully conducting two inter-college Hackathons called ARCS"
+      }
+    },
+    {
+      "id": "technology_aws_stepfunctions001",
+      "type": "technology",
+      "properties": {
+        "name": "AWS Step Functions",
+        "category": "Cloud",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_aws_lambda001",
+      "type": "technology",
+      "properties": {
+        "name": "AWS Lambda",
+        "category": "Cloud",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_aws_s3001",
+      "type": "technology",
+      "properties": {
+        "name": "AWS S3",
+        "category": "Cloud",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_aws_glue001",
+      "type": "technology",
+      "properties": {
+        "name": "AWS Glue ETL",
+        "category": "Cloud",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_aws_athena001",
+      "type": "technology",
+      "properties": {
+        "name": "AWS Athena",
+        "category": "Cloud",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_azure_databricks001",
+      "type": "technology",
+      "properties": {
+        "name": "Azure Databricks",
+        "category": "Cloud",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_azure_datafactory001",
+      "type": "technology",
+      "properties": {
+        "name": "Azure Data Factory",
+        "category": "Cloud",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_azure_datalake001",
+      "type": "technology",
+      "properties": {
+        "name": "Azure Data Lake",
+        "category": "Cloud",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_azure_devops001",
+      "type": "technology",
+      "properties": {
+        "name": "Azure DevOps",
+        "category": "Cloud",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_hadoop001",
+      "type": "technology",
+      "properties": {
+        "name": "Hadoop",
+        "category": "Tools",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_pyspark001",
+      "type": "technology",
+      "properties": {
+        "name": "PySpark",
+        "category": "Tools",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_sparksql001",
+      "type": "technology",
+      "properties": {
+        "name": "Spark SQL",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_python001",
+      "type": "technology",
+      "properties": {
+        "name": "Python",
+        "category": "Languages",
+        "isFramework": false,
+        "isLanguage": true
+      }
+    },
+    {
+      "id": "technology_java001",
+      "type": "technology",
+      "properties": {
+        "name": "Java",
+        "category": "Languages",
+        "isFramework": false,
+        "isLanguage": true
+      }
+    },
+    {
+      "id": "technology_sql001",
+      "type": "technology",
+      "properties": {
+        "name": "SQL",
+        "category": "Languages",
+        "isFramework": false,
+        "isLanguage": true
+      }
+    },
+    {
+      "id": "technology_javascript001",
+      "type": "technology",
+      "properties": {
+        "name": "JavaScript",
+        "category": "Languages",
+        "isFramework": false,
+        "isLanguage": true
+      }
+    },
+    {
+      "id": "technology_sqlserver001",
+      "type": "technology",
+      "properties": {
+        "name": "SQL Server",
+        "category": "Databases",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_mysql001",
+      "type": "technology",
+      "properties": {
+        "name": "MySQL",
+        "category": "Databases",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_postgresql001",
+      "type": "technology",
+      "properties": {
+        "name": "PostgreSQL",
+        "category": "Databases",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_mongodb001",
+      "type": "technology",
+      "properties": {
+        "name": "MongoDB",
+        "category": "Databases",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_cassandra001",
+      "type": "technology",
+      "properties": {
+        "name": "Cassandra",
+        "category": "Databases",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_powerbi001",
+      "type": "technology",
+      "properties": {
+        "name": "Power BI",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_tableau001",
+      "type": "technology",
+      "properties": {
+        "name": "Tableau",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_git001",
+      "type": "technology",
+      "properties": {
+        "name": "Git",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_jupyter001",
+      "type": "technology",
+      "properties": {
+        "name": "Jupyter Notebooks",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_postman001",
+      "type": "technology",
+      "properties": {
+        "name": "Postman",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_githubactions001",
+      "type": "technology",
+      "properties": {
+        "name": "GitHub Actions",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_circleci001",
+      "type": "technology",
+      "properties": {
+        "name": "CircleCI",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_reactnative001",
+      "type": "technology",
+      "properties": {
+        "name": "React Native",
+        "category": "Frameworks",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_django001",
+      "type": "technology",
+      "properties": {
+        "name": "Django",
+        "category": "Frameworks",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_opencv001",
+      "type": "technology",
+      "properties": {
+        "name": "OpenCV",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_yolov5001",
+      "type": "technology",
+      "properties": {
+        "name": "Yolo v5",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_pandas001",
+      "type": "technology",
+      "properties": {
+        "name": "Pandas",
+        "category": "Tools",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_tensorflow001",
+      "type": "technology",
+      "properties": {
+        "name": "TensorFlow",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_keras001",
+      "type": "technology",
+      "properties": {
+        "name": "Keras",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_mapreduce001",
+      "type": "technology",
+      "properties": {
+        "name": "MapReduce",
+        "category": "Tools",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_hive001",
+      "type": "technology",
+      "properties": {
+        "name": "Hive",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_hdfs001",
+      "type": "technology",
+      "properties": {
+        "name": "HDFS",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_googlemaps001",
+      "type": "technology",
+      "properties": {
+        "name": "Google Maps API",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_twilio001",
+      "type": "technology",
+      "properties": {
+        "name": "Twilio API",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_restapi001",
+      "type": "technology",
+      "properties": {
+        "name": "REST API",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_salesforce001",
+      "type": "technology",
+      "properties": {
+        "name": "Salesforce",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_clevertap001",
+      "type": "technology",
+      "properties": {
+        "name": "CleverTap",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "skill_cloud001",
+      "type": "skill",
+      "properties": {
+        "name": "Cloud & Big Data Analytics",
+        "category": "Cloud Platforms",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_etl001",
+      "type": "skill",
+      "properties": {
+        "name": "ETL Pipeline Automation",
+        "category": "Data Engineering",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_datawarehousing001",
+      "type": "skill",
+      "properties": {
+        "name": "Data Warehousing",
+        "category": "Data Engineering",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_serverless001",
+      "type": "skill",
+      "properties": {
+        "name": "Serverless Architecture",
+        "category": "Cloud Platforms",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_distributedprocessing001",
+      "type": "skill",
+      "properties": {
+        "name": "Distributed Data Processing",
+        "category": "Data Engineering",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_datamodeling001",
+      "type": "skill",
+      "properties": {
+        "name": "Data Modeling",
+        "category": "Data Engineering",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_visualization001",
+      "type": "skill",
+      "properties": {
+        "name": "Data Visualization",
+        "category": "Data Engineering",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_cicd001",
+      "type": "skill",
+      "properties": {
+        "name": "CI/CD",
+        "category": "DevOps",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_agile001",
+      "type": "skill",
+      "properties": {
+        "name": "Agile",
+        "category": "Product Management",
+        "proficiencyLevel": "Intermediate"
+      }
+    },
+    {
+      "id": "skill_scrum001",
+      "type": "skill",
+      "properties": {
+        "name": "Scrum",
+        "category": "Product Management",
+        "proficiencyLevel": "Intermediate"
+      }
+    },
+    {
+      "id": "skill_pipelinedesign001",
+      "type": "skill",
+      "properties": {
+        "name": "Data Pipeline Design",
+        "category": "Data Engineering",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_cloudinfra001",
+      "type": "skill",
+      "properties": {
+        "name": "Cloud Infrastructure",
+        "category": "Cloud Platforms",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "achievement_rocket_ingestion001",
+      "type": "achievement",
+      "properties": {
+        "name": "Reduced data ingestion time by 35%",
+        "description": "Designed and deployed AWS serverless pipelines processing multi-terabyte datasets",
+        "metric": "35%",
+        "impact": "Reduced data ingestion time for multi-terabyte datasets"
+      }
+    },
+    {
+      "id": "achievement_rocket_deployment001",
+      "type": "achievement",
+      "properties": {
+        "name": "Improved deployment efficiency by 40%",
+        "description": "Migrated 20+ CI/CD pipelines from CircleCI to GitHub Actions",
+        "metric": "40%",
+        "impact": "Improved deployment efficiency through standardized workflows"
+      }
+    },
+    {
+      "id": "achievement_rocket_reliability001",
+      "type": "achievement",
+      "properties": {
+        "name": "Improved pipeline reliability by 25%",
+        "description": "Engineered automated logging, monitoring, and error-handling frameworks",
+        "metric": "25%",
+        "impact": "Improved pipeline reliability and operational visibility"
+      }
+    },
+    {
+      "id": "achievement_musigma_processing001",
+      "type": "achievement",
+      "properties": {
+        "name": "Accelerated data processing speed by 40%",
+        "description": "Architected end-to-end big data pipelines using PySpark and Azure Data Factory",
+        "metric": "40%",
+        "impact": "Accelerated data ingestion and processing speed"
+      }
+    },
+    {
+      "id": "achievement_musigma_revenue001",
+      "type": "achievement",
+      "properties": {
+        "name": "Uncovered $250k in revenue losses",
+        "description": "Integrated external sales datasets with internal inventory",
+        "metric": "$250,000",
+        "impact": "Uncovered previously unrecognized revenue losses due to supply chain inefficiencies"
+      }
+    },
+    {
+      "id": "achievement_musigma_optimization001",
+      "type": "achievement",
+      "properties": {
+        "name": "Reduced travel time by 15 hours/month per team member",
+        "description": "Developed geospatial route optimization algorithms using Google Maps API",
+        "metric": "15 hours/month",
+        "impact": "Reduced travel time per team member through route optimization"
+      }
+    },
+    {
+      "id": "achievement_musigma_automation001",
+      "type": "achievement",
+      "properties": {
+        "name": "Reduced processing time from one month to two days",
+        "description": "Automated raw material cost analysis via Azure Databricks and Data Lake",
+        "metric": "93%",
+        "impact": "Reduced processing time from one month to two days while maintaining 100% compliance"
+      }
+    },
+    {
+      "id": "achievement_musigma_cicd001",
+      "type": "achievement",
+      "properties": {
+        "name": "Improved pipeline deployment efficiency by 40%",
+        "description": "Implemented CI/CD workflows in Azure DevOps",
+        "metric": "40%",
+        "impact": "Improved pipeline deployment efficiency and seamless integration"
+      }
+    },
+    {
+      "id": "achievement_adobe_automation001",
+      "type": "achievement",
+      "properties": {
+        "name": "Reduced manual effort by 20%",
+        "description": "Automated customer data ingestion pipelines using Python",
+        "metric": "20%",
+        "impact": "Reduced manual effort through automation"
+      }
+    },
+    {
+      "id": "achievement_perfectvision_reporting001",
+      "type": "achievement",
+      "properties": {
+        "name": "25% faster reporting",
+        "description": "Engineered data-driven store auditing mobile app with real-time audit tracking",
+        "metric": "25%",
+        "impact": "Enabled real-time audit tracking with faster reporting"
+      }
+    },
+    {
+      "id": "achievement_perfectvision_planning001",
+      "type": "achievement",
+      "properties": {
+        "name": "Reduced inefficiencies by 30%",
+        "description": "Innovated geospatial data processing pipelines to optimize store visit planning",
+        "metric": "30%",
+        "impact": "Reduced store visit planning inefficiencies"
+      }
+    },
+    {
+      "id": "achievement_youtube_retrieval001",
+      "type": "achievement",
+      "properties": {
+        "name": "Improved data retrieval speeds by 30%",
+        "description": "Implemented efficient querying methods through MapReduce and Hive on Hadoop",
+        "metric": "30%",
+        "impact": "Improved data retrieval speeds for YouTube analytics"
+      }
+    },
+    {
+      "id": "achievement_youtube_engagement001",
+      "type": "achievement",
+      "properties": {
+        "name": "40% improvement in targeted content strategies",
+        "description": "Executed advanced HiveQL queries to assess user engagement patterns",
+        "metric": "40%",
+        "impact": "Improved targeted content strategies for enhanced viewer retention"
+      }
+    },
+    {
+      "id": "achievement_aiesec_placements001",
+      "type": "achievement",
+      "properties": {
+        "name": "Secured 200+ internship placements",
+        "description": "Built strategic partnerships across five countries",
+        "metric": "200+",
+        "impact": "Secured internship placements and advanced AIESEC's global leadership objectives"
+      }
+    },
+    {
+      "id": "project_perfectvision001",
+      "type": "project",
+      "properties": {
+        "name": "Perfect Vision - Store Auditing Application",
+        "description": "Data-driven store auditing mobile app solution enabling real-time audit tracking with 25% faster reporting. Scaled globally across 10+ countries for a Fortune 100 CPG company, used daily by 1000+ sales representatives.",
+        "impact": "Used daily by 1000+ sales representatives across 10+ countries",
+        "technologies": "React Native, Azure, OpenCV, Yolo v5, Pandas, Django, REST API",
+        "duration": "Academic Project at Mu Sigma"
+      }
+    },
+    {
+      "id": "project_youtube001",
+      "type": "project",
+      "properties": {
+        "name": "YouTube Data Analysis using Apache Hadoop and MapReduce Framework",
+        "description": "Processing YouTube analytics through MapReduce and Hive on Hadoop with efficient querying methods that improved data retrieval speeds by 30%. Managed and queried up to five million records weekly.",
+        "impact": "Improved data retrieval speeds by 30% and content strategies by 40%",
+        "technologies": "Hadoop, MapReduce, Hive, HiveQL, HDFS",
+        "duration": "Academic Project"
+      }
+    },
+    {
+      "id": "project_maskdetection001",
+      "type": "project",
+      "properties": {
+        "name": "Mask Detection & Face Recognition System",
+        "description": "Advanced machine learning model using TensorFlow's Keras API and OpenCV, trained on over 10,000 images. Integrated Twilio API for automated SMS alerts with 100% coverage during high-traffic events.",
+        "impact": "100% user case coverage during high-traffic events without downtime",
+        "technologies": "TensorFlow, Keras, OpenCV, Twilio API",
+        "duration": "Academic Project"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "worked_at_rocket001",
+      "source": "person_mathew001",
+      "target": "company_rocket001",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2025-06",
+        "endDate": "2025-09",
+        "role": "Cloud & Data Engineering Intern",
+        "location": "Remote"
+      }
+    },
+    {
+      "id": "worked_at_musigma001",
+      "source": "person_mathew001",
+      "target": "company_musigma001",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2021-08",
+        "endDate": "2024-07",
+        "role": "Data Engineer",
+        "location": "India"
+      }
+    },
+    {
+      "id": "worked_at_adobe001",
+      "source": "person_mathew001",
+      "target": "company_adobe001",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2019-05",
+        "endDate": "2019-06",
+        "role": "Summer Intern",
+        "location": "India"
+      }
+    },
+    {
+      "id": "has_role_rocket001",
+      "source": "person_mathew001",
+      "target": "role_intern_rocket001",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2025-06",
+        "endDate": "2025-09"
+      }
+    },
+    {
+      "id": "has_role_musigma001",
+      "source": "person_mathew001",
+      "target": "role_engineer_musigma001",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2021-08",
+        "endDate": "2024-07"
+      }
+    },
+    {
+      "id": "has_role_adobe001",
+      "source": "person_mathew001",
+      "target": "role_intern_adobe001",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2019-05",
+        "endDate": "2019-06"
+      }
+    },
+    {
+      "id": "studied_at_uw001",
+      "source": "person_mathew001",
+      "target": "education_uw001",
+      "type": "studied_at",
+      "properties": {
+        "degree": "Master of Science in Information Management",
+        "startDate": "2024-09",
+        "endDate": "2026-06",
+        "gpa": "4.0"
+      }
+    },
+    {
+      "id": "studied_at_vit001",
+      "source": "person_mathew001",
+      "target": "education_vit001",
+      "type": "studied_at",
+      "properties": {
+        "degree": "Bachelor Of Technology in Information Technology",
+        "startDate": "2017-08",
+        "endDate": "2021-06",
+        "gpa": "8.71"
+      }
+    },
+    {
+      "id": "earned_cert_ischolar001",
+      "source": "person_mathew001",
+      "target": "certification_ischolar001",
+      "type": "earned_certification",
+      "properties": {
+        "date": "2024"
+      }
+    },
+    {
+      "id": "earned_cert_gta001",
+      "source": "person_mathew001",
+      "target": "certification_gta001",
+      "type": "earned_certification",
+      "properties": {
+        "date": "2024"
+      }
+    },
+    {
+      "id": "earned_cert_aiesec001",
+      "source": "person_mathew001",
+      "target": "certification_aiesec001",
+      "type": "earned_certification",
+      "properties": {
+        "date": "2020"
+      }
+    },
+    {
+      "id": "earned_cert_starperformer001",
+      "source": "person_mathew001",
+      "target": "certification_starperformer001",
+      "type": "earned_certification",
+      "properties": {
+        "date": "2022"
+      }
+    },
+    {
+      "id": "earned_cert_excellence001",
+      "source": "person_mathew001",
+      "target": "certification_excellence001",
+      "type": "earned_certification",
+      "properties": {
+        "date": "2020"
+      }
+    },
+    {
+      "id": "uses_tech_stepfunctions001",
+      "source": "person_mathew001",
+      "target": "technology_aws_stepfunctions001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Rocket Mortgage"
+      }
+    },
+    {
+      "id": "uses_tech_lambda001",
+      "source": "person_mathew001",
+      "target": "technology_aws_lambda001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Rocket Mortgage"
+      }
+    },
+    {
+      "id": "uses_tech_s3001",
+      "source": "person_mathew001",
+      "target": "technology_aws_s3001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Rocket Mortgage"
+      }
+    },
+    {
+      "id": "uses_tech_glue001",
+      "source": "person_mathew001",
+      "target": "technology_aws_glue001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Rocket Mortgage"
+      }
+    },
+    {
+      "id": "uses_tech_athena001",
+      "source": "person_mathew001",
+      "target": "technology_aws_athena001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Rocket Mortgage"
+      }
+    },
+    {
+      "id": "uses_tech_databricks001",
+      "source": "person_mathew001",
+      "target": "technology_azure_databricks001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Mu Sigma"
+      }
+    },
+    {
+      "id": "uses_tech_datafactory001",
+      "source": "person_mathew001",
+      "target": "technology_azure_datafactory001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Mu Sigma"
+      }
+    },
+    {
+      "id": "uses_tech_datalake001",
+      "source": "person_mathew001",
+      "target": "technology_azure_datalake001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Mu Sigma"
+      }
+    },
+    {
+      "id": "uses_tech_devops001",
+      "source": "person_mathew001",
+      "target": "technology_azure_devops001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Mu Sigma"
+      }
+    },
+    {
+      "id": "uses_tech_hadoop001",
+      "source": "person_mathew001",
+      "target": "technology_hadoop001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "Academic Projects"
+      }
+    },
+    {
+      "id": "uses_tech_pyspark001",
+      "source": "person_mathew001",
+      "target": "technology_pyspark001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Mu Sigma"
+      }
+    },
+    {
+      "id": "uses_tech_sparksql001",
+      "source": "person_mathew001",
+      "target": "technology_sparksql001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Mu Sigma"
+      }
+    },
+    {
+      "id": "uses_tech_python001",
+      "source": "person_mathew001",
+      "target": "technology_python001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "context": "All roles"
+      }
+    },
+    {
+      "id": "uses_tech_java001",
+      "source": "person_mathew001",
+      "target": "technology_java001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "General"
+      }
+    },
+    {
+      "id": "uses_tech_sql001",
+      "source": "person_mathew001",
+      "target": "technology_sql001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "context": "All roles"
+      }
+    },
+    {
+      "id": "uses_tech_javascript001",
+      "source": "person_mathew001",
+      "target": "technology_javascript001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "Projects"
+      }
+    },
+    {
+      "id": "uses_tech_sqlserver001",
+      "source": "person_mathew001",
+      "target": "technology_sqlserver001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Data Engineering"
+      }
+    },
+    {
+      "id": "uses_tech_mysql001",
+      "source": "person_mathew001",
+      "target": "technology_mysql001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Data Engineering"
+      }
+    },
+    {
+      "id": "uses_tech_postgresql001",
+      "source": "person_mathew001",
+      "target": "technology_postgresql001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Data Engineering"
+      }
+    },
+    {
+      "id": "uses_tech_mongodb001",
+      "source": "person_mathew001",
+      "target": "technology_mongodb001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Data Engineering"
+      }
+    },
+    {
+      "id": "uses_tech_cassandra001",
+      "source": "person_mathew001",
+      "target": "technology_cassandra001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "Data Engineering"
+      }
+    },
+    {
+      "id": "uses_tech_powerbi001",
+      "source": "person_mathew001",
+      "target": "technology_powerbi001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Mu Sigma"
+      }
+    },
+    {
+      "id": "uses_tech_tableau001",
+      "source": "person_mathew001",
+      "target": "technology_tableau001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Data Visualization"
+      }
+    },
+    {
+      "id": "uses_tech_git001",
+      "source": "person_mathew001",
+      "target": "technology_git001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "All roles"
+      }
+    },
+    {
+      "id": "uses_tech_jupyter001",
+      "source": "person_mathew001",
+      "target": "technology_jupyter001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Data Analysis"
+      }
+    },
+    {
+      "id": "uses_tech_postman001",
+      "source": "person_mathew001",
+      "target": "technology_postman001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "API Development"
+      }
+    },
+    {
+      "id": "uses_tech_githubactions001",
+      "source": "person_mathew001",
+      "target": "technology_githubactions001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Rocket Mortgage"
+      }
+    },
+    {
+      "id": "uses_tech_circleci001",
+      "source": "person_mathew001",
+      "target": "technology_circleci001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "Rocket Mortgage"
+      }
+    },
+    {
+      "id": "uses_tech_reactnative001",
+      "source": "person_mathew001",
+      "target": "technology_reactnative001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Perfect Vision Project"
+      }
+    },
+    {
+      "id": "uses_tech_django001",
+      "source": "person_mathew001",
+      "target": "technology_django001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Perfect Vision Project"
+      }
+    },
+    {
+      "id": "uses_tech_opencv001",
+      "source": "person_mathew001",
+      "target": "technology_opencv001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "ML Projects"
+      }
+    },
+    {
+      "id": "uses_tech_yolov5001",
+      "source": "person_mathew001",
+      "target": "technology_yolov5001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Perfect Vision Project"
+      }
+    },
+    {
+      "id": "uses_tech_pandas001",
+      "source": "person_mathew001",
+      "target": "technology_pandas001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Data Processing"
+      }
+    },
+    {
+      "id": "uses_tech_tensorflow001",
+      "source": "person_mathew001",
+      "target": "technology_tensorflow001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Mask Detection Project"
+      }
+    },
+    {
+      "id": "uses_tech_keras001",
+      "source": "person_mathew001",
+      "target": "technology_keras001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Mask Detection Project"
+      }
+    },
+    {
+      "id": "uses_tech_mapreduce001",
+      "source": "person_mathew001",
+      "target": "technology_mapreduce001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "YouTube Project"
+      }
+    },
+    {
+      "id": "uses_tech_hive001",
+      "source": "person_mathew001",
+      "target": "technology_hive001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "YouTube Project"
+      }
+    },
+    {
+      "id": "uses_tech_hdfs001",
+      "source": "person_mathew001",
+      "target": "technology_hdfs001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "YouTube Project"
+      }
+    },
+    {
+      "id": "uses_tech_googlemaps001",
+      "source": "person_mathew001",
+      "target": "technology_googlemaps001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "Mu Sigma"
+      }
+    },
+    {
+      "id": "uses_tech_twilio001",
+      "source": "person_mathew001",
+      "target": "technology_twilio001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "Mask Detection Project"
+      }
+    },
+    {
+      "id": "uses_tech_restapi001",
+      "source": "person_mathew001",
+      "target": "technology_restapi001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Perfect Vision Project"
+      }
+    },
+    {
+      "id": "uses_tech_salesforce001",
+      "source": "person_mathew001",
+      "target": "technology_salesforce001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "Adobe"
+      }
+    },
+    {
+      "id": "uses_tech_clevertap001",
+      "source": "person_mathew001",
+      "target": "technology_clevertap001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "Adobe"
+      }
+    },
+    {
+      "id": "has_skill_cloud001",
+      "source": "person_mathew001",
+      "target": "skill_cloud001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_etl001",
+      "source": "person_mathew001",
+      "target": "skill_etl001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_warehousing001",
+      "source": "person_mathew001",
+      "target": "skill_datawarehousing001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_serverless001",
+      "source": "person_mathew001",
+      "target": "skill_serverless001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 1
+      }
+    },
+    {
+      "id": "has_skill_distributed001",
+      "source": "person_mathew001",
+      "target": "skill_distributedprocessing001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_modeling001",
+      "source": "person_mathew001",
+      "target": "skill_datamodeling001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_visualization001",
+      "source": "person_mathew001",
+      "target": "skill_visualization001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_cicd001",
+      "source": "person_mathew001",
+      "target": "skill_cicd001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_agile001",
+      "source": "person_mathew001",
+      "target": "skill_agile001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_scrum001",
+      "source": "person_mathew001",
+      "target": "skill_scrum001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_pipelinedesign001",
+      "source": "person_mathew001",
+      "target": "skill_pipelinedesign001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_cloudinfra001",
+      "source": "person_mathew001",
+      "target": "skill_cloudinfra001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "achieved_rocket_ingestion001",
+      "source": "person_mathew001",
+      "target": "achievement_rocket_ingestion001",
+      "type": "achieved",
+      "properties": {
+        "date": "2025",
+        "context": "Rocket Mortgage",
+        "metric": "35%"
+      }
+    },
+    {
+      "id": "achieved_rocket_deployment001",
+      "source": "person_mathew001",
+      "target": "achievement_rocket_deployment001",
+      "type": "achieved",
+      "properties": {
+        "date": "2025",
+        "context": "Rocket Mortgage",
+        "metric": "40%"
+      }
+    },
+    {
+      "id": "achieved_rocket_reliability001",
+      "source": "person_mathew001",
+      "target": "achievement_rocket_reliability001",
+      "type": "achieved",
+      "properties": {
+        "date": "2025",
+        "context": "Rocket Mortgage",
+        "metric": "25%"
+      }
+    },
+    {
+      "id": "achieved_musigma_processing001",
+      "source": "person_mathew001",
+      "target": "achievement_musigma_processing001",
+      "type": "achieved",
+      "properties": {
+        "date": "2023",
+        "context": "Mu Sigma",
+        "metric": "40%"
+      }
+    },
+    {
+      "id": "achieved_musigma_revenue001",
+      "source": "person_mathew001",
+      "target": "achievement_musigma_revenue001",
+      "type": "achieved",
+      "properties": {
+        "date": "2023",
+        "context": "Mu Sigma",
+        "metric": "$250,000"
+      }
+    },
+    {
+      "id": "achieved_musigma_optimization001",
+      "source": "person_mathew001",
+      "target": "achievement_musigma_optimization001",
+      "type": "achieved",
+      "properties": {
+        "date": "2023",
+        "context": "Mu Sigma",
+        "metric": "15 hours/month"
+      }
+    },
+    {
+      "id": "achieved_musigma_automation001",
+      "source": "person_mathew001",
+      "target": "achievement_musigma_automation001",
+      "type": "achieved",
+      "properties": {
+        "date": "2023",
+        "context": "Mu Sigma",
+        "metric": "93%"
+      }
+    },
+    {
+      "id": "achieved_musigma_cicd001",
+      "source": "person_mathew001",
+      "target": "achievement_musigma_cicd001",
+      "type": "achieved",
+      "properties": {
+        "date": "2023",
+        "context": "Mu Sigma",
+        "metric": "40%"
+      }
+    },
+    {
+      "id": "achieved_adobe_automation001",
+      "source": "person_mathew001",
+      "target": "achievement_adobe_automation001",
+      "type": "achieved",
+      "properties": {
+        "date": "2019",
+        "context": "Adobe",
+        "metric": "20%"
+      }
+    },
+    {
+      "id": "achieved_perfectvision_reporting001",
+      "source": "person_mathew001",
+      "target": "achievement_perfectvision_reporting001",
+      "type": "achieved",
+      "properties": {
+        "date": "2023",
+        "context": "Perfect Vision Project",
+        "metric": "25%"
+      }
+    },
+    {
+      "id": "achieved_perfectvision_planning001",
+      "source": "person_mathew001",
+      "target": "achievement_perfectvision_planning001",
+      "type": "achieved",
+      "properties": {
+        "date": "2023",
+        "context": "Perfect Vision Project",
+        "metric": "30%"
+      }
+    },
+    {
+      "id": "achieved_youtube_retrieval001",
+      "source": "person_mathew001",
+      "target": "achievement_youtube_retrieval001",
+      "type": "achieved",
+      "properties": {
+        "date": "2021",
+        "context": "YouTube Project",
+        "metric": "30%"
+      }
+    },
+    {
+      "id": "achieved_youtube_engagement001",
+      "source": "person_mathew001",
+      "target": "achievement_youtube_engagement001",
+      "type": "achieved",
+      "properties": {
+        "date": "2021",
+        "context": "YouTube Project",
+        "metric": "40%"
+      }
+    },
+    {
+      "id": "achieved_aiesec_placements001",
+      "source": "person_mathew001",
+      "target": "achievement_aiesec_placements001",
+      "type": "achieved",
+      "properties": {
+        "date": "2020",
+        "context": "AIESEC",
+        "metric": "200+"
+      }
+    },
+    {
+      "id": "worked_on_project_perfectvision001",
+      "source": "person_mathew001",
+      "target": "project_perfectvision001",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Data Engineer",
+        "context": "Mu Sigma"
+      }
+    },
+    {
+      "id": "worked_on_project_youtube001",
+      "source": "person_mathew001",
+      "target": "project_youtube001",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Developer",
+        "context": "Academic Project"
+      }
+    },
+    {
+      "id": "worked_on_project_mask001",
+      "source": "person_mathew001",
+      "target": "project_maskdetection001",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Developer",
+        "context": "Academic Project"
+      }
+    },
+    {
+      "id": "related_to_rocket_role001",
+      "source": "role_intern_rocket001",
+      "target": "company_rocket001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_musigma_role001",
+      "source": "role_engineer_musigma001",
+      "target": "company_musigma001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_adobe_role001",
+      "source": "role_intern_adobe001",
+      "target": "company_adobe001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_pv_tech_reactnative001",
+      "source": "project_perfectvision001",
+      "target": "technology_reactnative001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_pv_tech_opencv001",
+      "source": "project_perfectvision001",
+      "target": "technology_opencv001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_pv_tech_yolov5001",
+      "source": "project_perfectvision001",
+      "target": "technology_yolov5001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_pv_tech_pandas001",
+      "source": "project_perfectvision001",
+      "target": "technology_pandas001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_pv_tech_django001",
+      "source": "project_perfectvision001",
+      "target": "technology_django001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_pv_tech_restapi001",
+      "source": "project_perfectvision001",
+      "target": "technology_restapi001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_youtube_tech_hadoop001",
+      "source": "project_youtube001",
+      "target": "technology_hadoop001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_youtube_tech_mapreduce001",
+      "source": "project_youtube001",
+      "target": "technology_mapreduce001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_youtube_tech_hive001",
+      "source": "project_youtube001",
+      "target": "technology_hive001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_youtube_tech_hdfs001",
+      "source": "project_youtube001",
+      "target": "technology_hdfs001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_mask_tech_tensorflow001",
+      "source": "project_maskdetection001",
+      "target": "technology_tensorflow001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_mask_tech_keras001",
+      "source": "project_maskdetection001",
+      "target": "technology_keras001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_mask_tech_opencv001",
+      "source": "project_maskdetection001",
+      "target": "technology_opencv001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_mask_tech_twilio001",
+      "source": "project_maskdetection001",
+      "target": "technology_twilio001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_achievement_pv_reporting_project001",
+      "source": "achievement_perfectvision_reporting001",
+      "target": "project_perfectvision001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_achievement_pv_planning_project001",
+      "source": "achievement_perfectvision_planning001",
+      "target": "project_perfectvision001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_achievement_youtube_retrieval_project001",
+      "source": "achievement_youtube_retrieval001",
+      "target": "project_youtube001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_achievement_youtube_engagement_project001",
+      "source": "achievement_youtube_engagement001",
+      "target": "project_youtube001",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "colleague_mathew_rahil",
+      "source": "person_mathew001",
+      "target": "person_rahil_main",
+      "type": "colleague",
+      "properties": {
+        "relationship": "Team Member",
+        "organization": "University of Washington - iSchool",
+        "note": "Part of the same team"
+      }
+    },
+    {
+      "id": "colleague_mathew_shreyas",
+      "source": "person_mathew001",
+      "target": "person_shreyas001",
+      "type": "colleague",
+      "properties": {
+        "relationship": "Team Member",
+        "organization": "University of Washington - iSchool",
+        "note": "Part of the same team"
+      }
+    },
+    {
+      "id": "colleague_mathew_siddarth",
+      "source": "person_mathew001",
+      "target": "person_sid001",
+      "type": "colleague",
+      "properties": {
+        "relationship": "Team Member",
+        "organization": "University of Washington - iSchool",
+        "note": "Part of the same team"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_rahil_python",
+      "source": "technology_python001",
+      "target": "person_rahil_main",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "rahil",
+        "skillName": "python"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_rahil_java",
+      "source": "technology_java001",
+      "target": "person_rahil_main",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "rahil",
+        "skillName": "java"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_rahil_sql",
+      "source": "technology_sql001",
+      "target": "person_rahil_main",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "rahil",
+        "skillName": "sql"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_shreyas_sql",
+      "source": "technology_sql001",
+      "target": "person_shreyas001",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "shreyas",
+        "skillName": "sql"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_rahil_javascript",
+      "source": "technology_javascript001",
+      "target": "person_rahil_main",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "rahil",
+        "skillName": "javascript"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_siddarth_postgresql",
+      "source": "technology_postgresql001",
+      "target": "person_sid001",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "siddarth",
+        "skillName": "postgresql"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_rahil_mongodb",
+      "source": "technology_mongodb001",
+      "target": "person_rahil_main",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "rahil",
+        "skillName": "mongodb"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_shreyas_power_bi",
+      "source": "technology_powerbi001",
+      "target": "person_shreyas001",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "shreyas",
+        "skillName": "power bi"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_shreyas_tableau",
+      "source": "technology_tableau001",
+      "target": "person_shreyas001",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "shreyas",
+        "skillName": "tableau"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_siddarth_django",
+      "source": "technology_django001",
+      "target": "person_sid001",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "siddarth",
+        "skillName": "django"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_rahil_pandas",
+      "source": "technology_pandas001",
+      "target": "person_rahil_main",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "rahil",
+        "skillName": "pandas"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_shreyas_pandas",
+      "source": "technology_pandas001",
+      "target": "person_shreyas001",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "shreyas",
+        "skillName": "pandas"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_rahil_tensorflow",
+      "source": "technology_tensorflow001",
+      "target": "person_rahil_main",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "rahil",
+        "skillName": "tensorflow"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_rahil_keras",
+      "source": "technology_keras001",
+      "target": "person_rahil_main",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "rahil",
+        "skillName": "keras"
+      }
+    },
+    {
+      "id": "shared_technology_mathew_rahil_salesforce",
+      "source": "technology_salesforce001",
+      "target": "person_rahil_main",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "rahil",
+        "skillName": "salesforce"
+      }
+    }
+  ],
+  "keyMetrics": {
+    "totalExperience": 3,
+    "companiesWorked": 3,
+    "projectsCompleted": 3,
+    "technologiesUsed": 39,
+    "topAchievement": "Uncovered $250k in previously unrecognized revenue losses",
+    "impactMetrics": [
+      "35% reduction in data ingestion time",
+      "40% improvement in deployment efficiency",
+      "25% improvement in pipeline reliability",
+      "40% acceleration in data processing speed",
+      "$250,000 in uncovered revenue losses",
+      "15 hours/month saved per team member",
+      "93% reduction in processing time (1 month to 2 days)",
+      "25% faster reporting",
+      "30% reduction in store visit inefficiencies",
+      "30% improvement in data retrieval speeds",
+      "40% improvement in targeted content strategies",
+      "200+ internship placements secured",
+      "1000+ daily users across 10+ countries"
+    ]
+  }
+}

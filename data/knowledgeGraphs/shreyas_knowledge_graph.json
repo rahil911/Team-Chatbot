@@ -1,0 +1,1485 @@
+{
+  "personName": "Shreyas B Subramanya",
+  "extractedDate": "2025-10-29T00:00:00.000Z",
+  "metadata": {
+    "resumeFile": "Shreyas B Subramanya Resume .pdf",
+    "nodeCount": 53,
+    "edgeCount": 91
+  },
+  "personalInfo": {
+    "name": "Shreyas B Subramanya",
+    "email": "shrey674@uw.edu",
+    "phone": "206-530-9975",
+    "location": "Seattle, WA, USA",
+    "linkedin": "linkedin.com/in/shreyasbsubramanya/",
+    "github": "",
+    "website": "Portfolio Website"
+  },
+  "summary": "Product Manager and Supply Chain Professional with expertise in Advanced Planning Systems, data-driven decision making, and enterprise software implementation. Currently pursuing Master of Science in Information Management at University of Washington. Experienced in developing AI-driven process automation, supply chain optimization, and performance benchmarking with proven track record of reducing batch-run times by 70% and issue resolution times by 35%. Strong technical skills in SQL, Delta Lake, Tableau, Power BI, and ETL pipelines combined with strategic product roadmap development and stakeholder management.",
+  "nodes": [
+    {
+      "id": "person_shreyas001",
+      "type": "person",
+      "properties": {
+        "name": "Shreyas B Subramanya",
+        "title": "Senior Product Management Intern",
+        "yearsOfExperience": 4.5,
+        "currentLocation": "Seattle, WA, USA"
+      }
+    },
+    {
+      "id": "company_o9solutions001",
+      "type": "company",
+      "properties": {
+        "name": "o9 Solutions",
+        "industry": "Supply Chain Planning Software",
+        "location": "Dallas, USA",
+        "size": "Enterprise"
+      }
+    },
+    {
+      "id": "company_o9solutions002",
+      "type": "company",
+      "properties": {
+        "name": "o9 Solutions",
+        "industry": "Supply Chain Planning Software",
+        "location": "Bangalore, India",
+        "size": "Enterprise"
+      }
+    },
+    {
+      "id": "company_iisc001",
+      "type": "company",
+      "properties": {
+        "name": "Indian Institute of Science",
+        "industry": "Research & Education",
+        "location": "Bangalore, India",
+        "size": "Educational Institution"
+      }
+    },
+    {
+      "id": "role_spm001",
+      "type": "role",
+      "properties": {
+        "name": "Senior Product Management Intern",
+        "title": "Senior Product Management Intern",
+        "level": "Intern",
+        "department": "Product Management"
+      }
+    },
+    {
+      "id": "role_pm2_001",
+      "type": "role",
+      "properties": {
+        "name": "Product Manager II",
+        "title": "Product Manager II",
+        "level": "Mid-Level",
+        "department": "Product Management"
+      }
+    },
+    {
+      "id": "role_pm1_001",
+      "type": "role",
+      "properties": {
+        "name": "Product Manager I",
+        "title": "Product Manager I",
+        "level": "Junior",
+        "department": "Product Management"
+      }
+    },
+    {
+      "id": "role_pae001",
+      "type": "role",
+      "properties": {
+        "name": "Product Application Engineer",
+        "title": "Product Application Engineer",
+        "level": "Entry-Level",
+        "department": "Engineering"
+      }
+    },
+    {
+      "id": "role_ra001",
+      "type": "role",
+      "properties": {
+        "name": "Research Assistant",
+        "title": "Research Assistant",
+        "level": "Research",
+        "department": "Research"
+      }
+    },
+    {
+      "id": "education_ms001",
+      "type": "education",
+      "properties": {
+        "name": "Master of Science in Information Management",
+        "degree": "Master of Science",
+        "school": "University of Washington",
+        "gpa": "3.88",
+        "graduation": "Jun 2026",
+        "location": "Seattle, USA"
+      }
+    },
+    {
+      "id": "education_be001",
+      "type": "education",
+      "properties": {
+        "name": "Bachelor of Engineering in Mechanical Engineering",
+        "degree": "Bachelor of Engineering",
+        "school": "BMS College of Engineering",
+        "gpa": "3.98",
+        "graduation": "Aug 2020",
+        "location": "Bangalore, India"
+      }
+    },
+    {
+      "id": "skill_aps001",
+      "type": "skill",
+      "properties": {
+        "name": "Advanced Planning Systems (APS)",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_supply001",
+      "type": "skill",
+      "properties": {
+        "name": "Supply Planning",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_inventory001",
+      "type": "skill",
+      "properties": {
+        "name": "Inventory Optimization",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_sop001",
+      "type": "skill",
+      "properties": {
+        "name": "Sales & Operations Planning (S&OP)",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_capacity001",
+      "type": "skill",
+      "properties": {
+        "name": "Capacity Planning",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_fulfillment001",
+      "type": "skill",
+      "properties": {
+        "name": "Order Fulfillment",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_process001",
+      "type": "skill",
+      "properties": {
+        "name": "Process Design & Configuration",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_network001",
+      "type": "skill",
+      "properties": {
+        "name": "Network Optimization",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_consulting001",
+      "type": "skill",
+      "properties": {
+        "name": "Client-Facing Consulting",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_stakeholder001",
+      "type": "skill",
+      "properties": {
+        "name": "Stakeholder Management",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_erp001",
+      "type": "skill",
+      "properties": {
+        "name": "ERP Integrations",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_validation001",
+      "type": "skill",
+      "properties": {
+        "name": "Data Validation & Quality Frameworks",
+        "category": "Data Engineering",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_cost001",
+      "type": "skill",
+      "properties": {
+        "name": "Cost Modeling",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "technology_sql001",
+      "type": "technology",
+      "properties": {
+        "name": "SQL",
+        "category": "Languages",
+        "isFramework": false,
+        "isLanguage": true
+      }
+    },
+    {
+      "id": "technology_deltalake001",
+      "type": "technology",
+      "properties": {
+        "name": "Delta Lake",
+        "category": "Cloud",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_tableau001",
+      "type": "technology",
+      "properties": {
+        "name": "Tableau",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_powerbi001",
+      "type": "technology",
+      "properties": {
+        "name": "Power BI",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_excel001",
+      "type": "technology",
+      "properties": {
+        "name": "Advanced Excel",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_pandas001",
+      "type": "technology",
+      "properties": {
+        "name": "Pandas",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_etl001",
+      "type": "technology",
+      "properties": {
+        "name": "ETL/ELT Pipelines",
+        "category": "Data Engineering",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_solvers001",
+      "type": "technology",
+      "properties": {
+        "name": "Heuristic Solvers",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_forecasting001",
+      "type": "technology",
+      "properties": {
+        "name": "Statistical Forecasting",
+        "category": "AI/ML",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_bigdata001",
+      "type": "technology",
+      "properties": {
+        "name": "Big Data Systems",
+        "category": "Data Engineering",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_kg001",
+      "type": "technology",
+      "properties": {
+        "name": "Knowledge Graphs",
+        "category": "AI/ML",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "technology_mdm001",
+      "type": "technology",
+      "properties": {
+        "name": "Master Data Management",
+        "category": "Data Engineering",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "project_automation001",
+      "type": "project",
+      "properties": {
+        "name": "AI-driven Process Automation Agents",
+        "description": "Developed AI-driven process automation agents leveraging enterprise knowledge graphs to standardize implementation pipelines, improving adoption and reducing manual effort across global o9 deployments",
+        "impact": "Improved adoption and reduced manual effort across global deployments",
+        "technologies": "Knowledge Graphs, AI, Process Automation",
+        "duration": "Jun 2025 - Present"
+      }
+    },
+    {
+      "id": "project_datalake001",
+      "type": "project",
+      "properties": {
+        "name": "Delta Lake Data Validation and Integration Layer",
+        "description": "Designed a Delta Lake-based data-validation and integration layer that ensured high-quality ERP data flow, improving supply-chain data accuracy, network-wide visibility, and decision-making speed across global operations",
+        "impact": "Improved supply-chain data accuracy, network-wide visibility, and decision-making speed",
+        "technologies": "Delta Lake, ERP Integration, Data Validation",
+        "duration": "Jun 2025 - Present"
+      }
+    },
+    {
+      "id": "project_roadmap001",
+      "type": "project",
+      "properties": {
+        "name": "Supply Chain Strategic Roadmap",
+        "description": "Developed and maintained a strategic supply-chain roadmap for o9's Advanced Planning Product, aligning stakeholder priorities with long-term network-optimization goals and driving planning efficiency across 20+ global implementations",
+        "impact": "Driving planning efficiency across 20+ global implementations",
+        "technologies": "Advanced Planning Systems, Network Optimization",
+        "duration": "May 2023 - Aug 2024"
+      }
+    },
+    {
+      "id": "project_performance001",
+      "type": "project",
+      "properties": {
+        "name": "Supply Planning Performance Benchmarking",
+        "description": "Led end-to-end performance benchmarking and root-cause analysis of supply-planning workflows, achieving a 70% reduction in batch-run time and delivering scalable, cost-efficient solutions that enhanced system stability and reliability",
+        "impact": "70% reduction in batch-run time, enhanced system stability and reliability",
+        "technologies": "Performance Analysis, Supply Planning, Root Cause Analysis",
+        "duration": "May 2023 - Aug 2024"
+      }
+    },
+    {
+      "id": "project_transportation001",
+      "type": "project",
+      "properties": {
+        "name": "Outbound Transportation Routing Improvements",
+        "description": "Partnered with operations and tech to translate insights into outbound transportation routing improvements, balancing trans-cost and speed to customer and formalizing requirements for tool enhancements",
+        "impact": "Balanced transportation cost and delivery speed",
+        "technologies": "Transportation Optimization, Operations Research",
+        "duration": "May 2023 - Aug 2024"
+      }
+    },
+    {
+      "id": "project_health001",
+      "type": "project",
+      "properties": {
+        "name": "Project Health Tracking Product",
+        "description": "Partnered with Engineering, Customer Success, and R&D teams to design and launch a project-health tracking product, increasing early risk detection",
+        "impact": "35% reduction in average issue resolution time, increased early risk detection",
+        "technologies": "Product Development, Real-time Metrics, Health Monitoring",
+        "duration": "May 2022 - Apr 2023"
+      }
+    },
+    {
+      "id": "project_training001",
+      "type": "project",
+      "properties": {
+        "name": "o9 Platform Training Content",
+        "description": "Documented 10+ hours of course content on the o9 platform modeling best practices with 500+ individuals certified, significantly reducing performance issues across product implementation projects",
+        "impact": "500+ individuals certified, reduced performance issues",
+        "technologies": "Training Development, Documentation",
+        "duration": "May 2022 - Apr 2023"
+      }
+    },
+    {
+      "id": "project_dashboard001",
+      "type": "project",
+      "properties": {
+        "name": "Inventory Rebalancing and Disaster Management Dashboards",
+        "description": "Developed and standardized SQL and Tableau-based dashboards for inventory rebalancing and disaster-management planning within the Control Tower product, deployed across 5+ implementations to enhance supply-chain resilience",
+        "impact": "Deployed across 5+ implementations, enhanced supply-chain resilience",
+        "technologies": "SQL, Tableau, Dashboard Development",
+        "duration": "Jun 2021 - Apr 2022"
+      }
+    },
+    {
+      "id": "project_sensor001",
+      "type": "project",
+      "properties": {
+        "name": "Low-Pressure Sensing Device",
+        "description": "Engineered a low-pressure sensing device in collaboration with IISC and ESIC Model Hospital researchers, adept at capturing human respiratory pressure signals while being immune to electromagnetic radiation",
+        "impact": "Medical device for respiratory monitoring immune to electromagnetic interference",
+        "technologies": "Sensor Engineering, Medical Devices",
+        "duration": "Jan 2020 - May 2021"
+      }
+    },
+    {
+      "id": "achievement_batch001",
+      "type": "achievement",
+      "properties": {
+        "name": "70% Reduction in Batch-Run Time",
+        "description": "Led end-to-end performance benchmarking and root-cause analysis of supply-planning workflows",
+        "metric": "70%",
+        "impact": "Scalable, cost-efficient solutions that enhanced system stability and reliability"
+      }
+    },
+    {
+      "id": "achievement_resolution001",
+      "type": "achievement",
+      "properties": {
+        "name": "35% Reduction in Issue Resolution Time",
+        "description": "Enhanced visibility of implementation performance by providing real-time health metrics",
+        "metric": "35%",
+        "impact": "Enabled leadership and customer success teams to resolve issues faster"
+      }
+    },
+    {
+      "id": "achievement_implementations001",
+      "type": "achievement",
+      "properties": {
+        "name": "20+ Global Implementations",
+        "description": "Developed and maintained a strategic supply-chain roadmap for o9's Advanced Planning Product",
+        "metric": "20+",
+        "impact": "Driving planning efficiency across global implementations"
+      }
+    },
+    {
+      "id": "achievement_certified001",
+      "type": "achievement",
+      "properties": {
+        "name": "500+ Individuals Certified",
+        "description": "Documented 10+ hours of course content on the o9 platform modeling best practices",
+        "metric": "500+",
+        "impact": "Significantly reducing performance issues across product implementation projects"
+      }
+    },
+    {
+      "id": "achievement_deployments001",
+      "type": "achievement",
+      "properties": {
+        "name": "5+ Implementations Deployed",
+        "description": "Developed and standardized SQL and Tableau-based dashboards for inventory rebalancing and disaster-management planning",
+        "metric": "5+",
+        "impact": "Enhanced supply-chain resilience across implementations"
+      }
+    },
+    {
+      "id": "achievement_training001",
+      "type": "achievement",
+      "properties": {
+        "name": "10+ Hours of Training Content",
+        "description": "Documented course content on the o9 platform modeling best practices",
+        "metric": "10+",
+        "impact": "500+ individuals certified with reduced performance issues"
+      }
+    },
+    {
+      "id": "achievement_gpa_ms001",
+      "type": "achievement",
+      "properties": {
+        "name": "Master's CGPA 3.88",
+        "description": "Maintained high academic performance in Master of Science in Information Management",
+        "metric": "3.88",
+        "impact": "Academic excellence at University of Washington"
+      }
+    },
+    {
+      "id": "achievement_gpa_be001",
+      "type": "achievement",
+      "properties": {
+        "name": "Bachelor's CGPA 3.98",
+        "description": "Maintained exceptional academic performance in Bachelor of Engineering in Mechanical Engineering",
+        "metric": "3.98",
+        "impact": "Academic excellence at BMS College of Engineering"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "worked_at_001",
+      "source": "person_shreyas001",
+      "target": "company_o9solutions001",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2025-06",
+        "endDate": "Present",
+        "role": "Senior Product Management Intern",
+        "location": "Dallas, USA"
+      }
+    },
+    {
+      "id": "worked_at_002",
+      "source": "person_shreyas001",
+      "target": "company_o9solutions002",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2023-05",
+        "endDate": "2024-08",
+        "role": "Product Manager II",
+        "location": "Bangalore, India"
+      }
+    },
+    {
+      "id": "worked_at_003",
+      "source": "person_shreyas001",
+      "target": "company_o9solutions002",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2022-05",
+        "endDate": "2023-04",
+        "role": "Product Manager I",
+        "location": "Bangalore, India"
+      }
+    },
+    {
+      "id": "worked_at_004",
+      "source": "person_shreyas001",
+      "target": "company_o9solutions002",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2021-06",
+        "endDate": "2022-04",
+        "role": "Product Application Engineer",
+        "location": "Bangalore, India"
+      }
+    },
+    {
+      "id": "worked_at_005",
+      "source": "person_shreyas001",
+      "target": "company_iisc001",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2020-01",
+        "endDate": "2021-05",
+        "role": "Research Assistant",
+        "location": "Bangalore, India"
+      }
+    },
+    {
+      "id": "has_role_001",
+      "source": "person_shreyas001",
+      "target": "role_spm001",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2025-06",
+        "endDate": "Present",
+        "company": "o9 Solutions"
+      }
+    },
+    {
+      "id": "has_role_002",
+      "source": "person_shreyas001",
+      "target": "role_pm2_001",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2023-05",
+        "endDate": "2024-08",
+        "company": "o9 Solutions"
+      }
+    },
+    {
+      "id": "has_role_003",
+      "source": "person_shreyas001",
+      "target": "role_pm1_001",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2022-05",
+        "endDate": "2023-04",
+        "company": "o9 Solutions"
+      }
+    },
+    {
+      "id": "has_role_004",
+      "source": "person_shreyas001",
+      "target": "role_pae001",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2021-06",
+        "endDate": "2022-04",
+        "company": "o9 Solutions"
+      }
+    },
+    {
+      "id": "has_role_005",
+      "source": "person_shreyas001",
+      "target": "role_ra001",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2020-01",
+        "endDate": "2021-05",
+        "company": "Indian Institute of Science"
+      }
+    },
+    {
+      "id": "studied_at_001",
+      "source": "person_shreyas001",
+      "target": "education_ms001",
+      "type": "studied_at",
+      "properties": {
+        "degree": "Master of Science in Information Management",
+        "startDate": "2024-09",
+        "endDate": "2026-06",
+        "gpa": "3.88"
+      }
+    },
+    {
+      "id": "studied_at_002",
+      "source": "person_shreyas001",
+      "target": "education_be001",
+      "type": "studied_at",
+      "properties": {
+        "degree": "Bachelor of Engineering in Mechanical Engineering",
+        "startDate": "2016-08",
+        "endDate": "2020-08",
+        "gpa": "3.98"
+      }
+    },
+    {
+      "id": "has_skill_001",
+      "source": "person_shreyas001",
+      "target": "skill_aps001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 4
+      }
+    },
+    {
+      "id": "has_skill_002",
+      "source": "person_shreyas001",
+      "target": "skill_supply001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 4
+      }
+    },
+    {
+      "id": "has_skill_003",
+      "source": "person_shreyas001",
+      "target": "skill_inventory001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 4
+      }
+    },
+    {
+      "id": "has_skill_004",
+      "source": "person_shreyas001",
+      "target": "skill_sop001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_005",
+      "source": "person_shreyas001",
+      "target": "skill_capacity001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_006",
+      "source": "person_shreyas001",
+      "target": "skill_fulfillment001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_007",
+      "source": "person_shreyas001",
+      "target": "skill_process001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 4
+      }
+    },
+    {
+      "id": "has_skill_008",
+      "source": "person_shreyas001",
+      "target": "skill_network001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_009",
+      "source": "person_shreyas001",
+      "target": "skill_consulting001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_010",
+      "source": "person_shreyas001",
+      "target": "skill_stakeholder001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_011",
+      "source": "person_shreyas001",
+      "target": "skill_erp001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 4
+      }
+    },
+    {
+      "id": "has_skill_012",
+      "source": "person_shreyas001",
+      "target": "skill_validation001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 2
+      }
+    },
+    {
+      "id": "has_skill_013",
+      "source": "person_shreyas001",
+      "target": "skill_cost001",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "uses_technology_001",
+      "source": "person_shreyas001",
+      "target": "technology_sql001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 4
+      }
+    },
+    {
+      "id": "uses_technology_002",
+      "source": "person_shreyas001",
+      "target": "technology_deltalake001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 1
+      }
+    },
+    {
+      "id": "uses_technology_003",
+      "source": "person_shreyas001",
+      "target": "technology_tableau001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 4
+      }
+    },
+    {
+      "id": "uses_technology_004",
+      "source": "person_shreyas001",
+      "target": "technology_powerbi001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "uses_technology_005",
+      "source": "person_shreyas001",
+      "target": "technology_excel001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 5
+      }
+    },
+    {
+      "id": "uses_technology_006",
+      "source": "person_shreyas001",
+      "target": "technology_pandas001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 2
+      }
+    },
+    {
+      "id": "uses_technology_007",
+      "source": "person_shreyas001",
+      "target": "technology_etl001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "uses_technology_008",
+      "source": "person_shreyas001",
+      "target": "technology_solvers001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "uses_technology_009",
+      "source": "person_shreyas001",
+      "target": "technology_forecasting001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "uses_technology_010",
+      "source": "person_shreyas001",
+      "target": "technology_bigdata001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "yearsOfExperience": 2
+      }
+    },
+    {
+      "id": "uses_technology_011",
+      "source": "person_shreyas001",
+      "target": "technology_kg001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 1
+      }
+    },
+    {
+      "id": "uses_technology_012",
+      "source": "person_shreyas001",
+      "target": "technology_mdm001",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "yearsOfExperience": 2
+      }
+    },
+    {
+      "id": "worked_on_project_001",
+      "source": "person_shreyas001",
+      "target": "project_automation001",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Senior Product Management Intern",
+        "startDate": "2025-06",
+        "endDate": "Present"
+      }
+    },
+    {
+      "id": "worked_on_project_002",
+      "source": "person_shreyas001",
+      "target": "project_datalake001",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Senior Product Management Intern",
+        "startDate": "2025-06",
+        "endDate": "Present"
+      }
+    },
+    {
+      "id": "worked_on_project_003",
+      "source": "person_shreyas001",
+      "target": "project_roadmap001",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Product Manager II",
+        "startDate": "2023-05",
+        "endDate": "2024-08"
+      }
+    },
+    {
+      "id": "worked_on_project_004",
+      "source": "person_shreyas001",
+      "target": "project_performance001",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Product Manager II",
+        "startDate": "2023-05",
+        "endDate": "2024-08"
+      }
+    },
+    {
+      "id": "worked_on_project_005",
+      "source": "person_shreyas001",
+      "target": "project_transportation001",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Product Manager II",
+        "startDate": "2023-05",
+        "endDate": "2024-08"
+      }
+    },
+    {
+      "id": "worked_on_project_006",
+      "source": "person_shreyas001",
+      "target": "project_health001",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Product Manager I",
+        "startDate": "2022-05",
+        "endDate": "2023-04"
+      }
+    },
+    {
+      "id": "worked_on_project_007",
+      "source": "person_shreyas001",
+      "target": "project_training001",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Product Manager I",
+        "startDate": "2022-05",
+        "endDate": "2023-04"
+      }
+    },
+    {
+      "id": "worked_on_project_008",
+      "source": "person_shreyas001",
+      "target": "project_dashboard001",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Product Application Engineer",
+        "startDate": "2021-06",
+        "endDate": "2022-04"
+      }
+    },
+    {
+      "id": "worked_on_project_009",
+      "source": "person_shreyas001",
+      "target": "project_sensor001",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Research Assistant",
+        "startDate": "2020-01",
+        "endDate": "2021-05"
+      }
+    },
+    {
+      "id": "achieved_001",
+      "source": "person_shreyas001",
+      "target": "achievement_batch001",
+      "type": "achieved",
+      "properties": {
+        "date": "2023-2024",
+        "context": "Product Manager II at o9 Solutions",
+        "metric": "70% reduction"
+      }
+    },
+    {
+      "id": "achieved_002",
+      "source": "person_shreyas001",
+      "target": "achievement_resolution001",
+      "type": "achieved",
+      "properties": {
+        "date": "2022-2023",
+        "context": "Product Manager I at o9 Solutions",
+        "metric": "35% reduction"
+      }
+    },
+    {
+      "id": "achieved_003",
+      "source": "person_shreyas001",
+      "target": "achievement_implementations001",
+      "type": "achieved",
+      "properties": {
+        "date": "2023-2024",
+        "context": "Product Manager II at o9 Solutions",
+        "metric": "20+ implementations"
+      }
+    },
+    {
+      "id": "achieved_004",
+      "source": "person_shreyas001",
+      "target": "achievement_certified001",
+      "type": "achieved",
+      "properties": {
+        "date": "2022-2023",
+        "context": "Product Manager I at o9 Solutions",
+        "metric": "500+ individuals"
+      }
+    },
+    {
+      "id": "achieved_005",
+      "source": "person_shreyas001",
+      "target": "achievement_deployments001",
+      "type": "achieved",
+      "properties": {
+        "date": "2021-2022",
+        "context": "Product Application Engineer at o9 Solutions",
+        "metric": "5+ deployments"
+      }
+    },
+    {
+      "id": "achieved_006",
+      "source": "person_shreyas001",
+      "target": "achievement_training001",
+      "type": "achieved",
+      "properties": {
+        "date": "2022-2023",
+        "context": "Product Manager I at o9 Solutions",
+        "metric": "10+ hours"
+      }
+    },
+    {
+      "id": "achieved_007",
+      "source": "person_shreyas001",
+      "target": "achievement_gpa_ms001",
+      "type": "achieved",
+      "properties": {
+        "date": "2024-2026",
+        "context": "Master of Science in Information Management at University of Washington",
+        "metric": "3.88 CGPA"
+      }
+    },
+    {
+      "id": "achieved_008",
+      "source": "person_shreyas001",
+      "target": "achievement_gpa_be001",
+      "type": "achieved",
+      "properties": {
+        "date": "2016-2020",
+        "context": "Bachelor of Engineering in Mechanical Engineering at BMS College of Engineering",
+        "metric": "3.98 CGPA"
+      }
+    },
+    {
+      "id": "related_to_001",
+      "source": "project_automation001",
+      "target": "technology_kg001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "uses"
+      }
+    },
+    {
+      "id": "related_to_002",
+      "source": "project_datalake001",
+      "target": "technology_deltalake001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "uses"
+      }
+    },
+    {
+      "id": "related_to_003",
+      "source": "project_roadmap001",
+      "target": "skill_aps001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "requires"
+      }
+    },
+    {
+      "id": "related_to_004",
+      "source": "project_roadmap001",
+      "target": "skill_network001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "requires"
+      }
+    },
+    {
+      "id": "related_to_005",
+      "source": "project_performance001",
+      "target": "skill_supply001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "requires"
+      }
+    },
+    {
+      "id": "related_to_006",
+      "source": "project_transportation001",
+      "target": "skill_network001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "requires"
+      }
+    },
+    {
+      "id": "related_to_007",
+      "source": "project_dashboard001",
+      "target": "technology_sql001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "uses"
+      }
+    },
+    {
+      "id": "related_to_008",
+      "source": "project_dashboard001",
+      "target": "technology_tableau001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "uses"
+      }
+    },
+    {
+      "id": "related_to_009",
+      "source": "project_dashboard001",
+      "target": "skill_inventory001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "requires"
+      }
+    },
+    {
+      "id": "related_to_010",
+      "source": "achievement_batch001",
+      "target": "project_performance001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "result_of"
+      }
+    },
+    {
+      "id": "related_to_011",
+      "source": "achievement_resolution001",
+      "target": "project_health001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "result_of"
+      }
+    },
+    {
+      "id": "related_to_012",
+      "source": "achievement_implementations001",
+      "target": "project_roadmap001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "result_of"
+      }
+    },
+    {
+      "id": "related_to_013",
+      "source": "achievement_certified001",
+      "target": "project_training001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "result_of"
+      }
+    },
+    {
+      "id": "related_to_014",
+      "source": "achievement_deployments001",
+      "target": "project_dashboard001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "result_of"
+      }
+    },
+    {
+      "id": "related_to_015",
+      "source": "achievement_training001",
+      "target": "project_training001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "result_of"
+      }
+    },
+    {
+      "id": "related_to_016",
+      "source": "role_spm001",
+      "target": "company_o9solutions001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "employed_at"
+      }
+    },
+    {
+      "id": "related_to_017",
+      "source": "role_pm2_001",
+      "target": "company_o9solutions002",
+      "type": "related_to",
+      "properties": {
+        "relationship": "employed_at"
+      }
+    },
+    {
+      "id": "related_to_018",
+      "source": "role_pm1_001",
+      "target": "company_o9solutions002",
+      "type": "related_to",
+      "properties": {
+        "relationship": "employed_at"
+      }
+    },
+    {
+      "id": "related_to_019",
+      "source": "role_pae001",
+      "target": "company_o9solutions002",
+      "type": "related_to",
+      "properties": {
+        "relationship": "employed_at"
+      }
+    },
+    {
+      "id": "related_to_020",
+      "source": "role_ra001",
+      "target": "company_iisc001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "employed_at"
+      }
+    },
+    {
+      "id": "related_to_021",
+      "source": "skill_aps001",
+      "target": "technology_solvers001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "uses"
+      }
+    },
+    {
+      "id": "related_to_022",
+      "source": "skill_supply001",
+      "target": "technology_forecasting001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "uses"
+      }
+    },
+    {
+      "id": "related_to_023",
+      "source": "skill_inventory001",
+      "target": "technology_solvers001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "uses"
+      }
+    },
+    {
+      "id": "related_to_024",
+      "source": "skill_validation001",
+      "target": "technology_deltalake001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "uses"
+      }
+    },
+    {
+      "id": "related_to_025",
+      "source": "skill_validation001",
+      "target": "technology_sql001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "uses"
+      }
+    },
+    {
+      "id": "related_to_026",
+      "source": "project_automation001",
+      "target": "company_o9solutions001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "done_at"
+      }
+    },
+    {
+      "id": "related_to_027",
+      "source": "project_datalake001",
+      "target": "company_o9solutions001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "done_at"
+      }
+    },
+    {
+      "id": "related_to_028",
+      "source": "project_roadmap001",
+      "target": "company_o9solutions002",
+      "type": "related_to",
+      "properties": {
+        "relationship": "done_at"
+      }
+    },
+    {
+      "id": "related_to_029",
+      "source": "project_performance001",
+      "target": "company_o9solutions002",
+      "type": "related_to",
+      "properties": {
+        "relationship": "done_at"
+      }
+    },
+    {
+      "id": "related_to_030",
+      "source": "project_transportation001",
+      "target": "company_o9solutions002",
+      "type": "related_to",
+      "properties": {
+        "relationship": "done_at"
+      }
+    },
+    {
+      "id": "related_to_031",
+      "source": "project_health001",
+      "target": "company_o9solutions002",
+      "type": "related_to",
+      "properties": {
+        "relationship": "done_at"
+      }
+    },
+    {
+      "id": "related_to_032",
+      "source": "project_training001",
+      "target": "company_o9solutions002",
+      "type": "related_to",
+      "properties": {
+        "relationship": "done_at"
+      }
+    },
+    {
+      "id": "related_to_033",
+      "source": "project_dashboard001",
+      "target": "company_o9solutions002",
+      "type": "related_to",
+      "properties": {
+        "relationship": "done_at"
+      }
+    },
+    {
+      "id": "related_to_034",
+      "source": "project_sensor001",
+      "target": "company_iisc001",
+      "type": "related_to",
+      "properties": {
+        "relationship": "done_at"
+      }
+    },
+    {
+      "id": "colleague_shreyas_mathew",
+      "source": "person_shreyas001",
+      "target": "person_mathew001",
+      "type": "colleague",
+      "properties": {
+        "relationship": "Team Member",
+        "organization": "University of Washington - iSchool",
+        "note": "Part of the same team"
+      }
+    },
+    {
+      "id": "colleague_shreyas_rahil",
+      "source": "person_shreyas001",
+      "target": "person_rahil_main",
+      "type": "colleague",
+      "properties": {
+        "relationship": "Team Member",
+        "organization": "University of Washington - iSchool",
+        "note": "Part of the same team"
+      }
+    },
+    {
+      "id": "colleague_shreyas_siddarth",
+      "source": "person_shreyas001",
+      "target": "person_sid001",
+      "type": "colleague",
+      "properties": {
+        "relationship": "Team Member",
+        "organization": "University of Washington - iSchool",
+        "note": "Part of the same team"
+      }
+    }
+  ],
+  "keyMetrics": {
+    "totalExperience": 4.5,
+    "companiesWorked": 2,
+    "projectsCompleted": 9,
+    "technologiesUsed": 12,
+    "topAchievement": "70% reduction in batch-run time for supply-planning workflows",
+    "impactMetrics": [
+      "70% reduction in batch-run time",
+      "35% reduction in issue resolution time",
+      "20+ global implementations managed",
+      "500+ individuals certified",
+      "5+ implementations deployed",
+      "10+ hours of training content created",
+      "3.88 Master's CGPA",
+      "3.98 Bachelor's CGPA"
+    ]
+  }
+}

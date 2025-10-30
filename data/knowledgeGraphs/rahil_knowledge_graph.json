@@ -1,0 +1,2523 @@
+{
+  "personName": "Rahil M. Harihar",
+  "extractedDate": "2025-10-29T00:00:00.000Z",
+  "metadata": {
+    "resumeFile": "/Users/rahilharihar/Projects/tbd/Resumes/Rahil.pdf",
+    "nodeCount": 117,
+    "edgeCount": 141
+  },
+  "personalInfo": {
+    "name": "Rahil M. Harihar",
+    "email": "rahil911@uw.edu",
+    "phone": "+1 (206) 245 0653",
+    "location": "Seattle, WA 98105",
+    "linkedin": "https://linkedin.com/in/rahil911"
+  },
+  "summary": "Candidate with 3+ years shipping data-driven products across ERP, SaaS integrations, and AI. Turns messy workflows into simple UX; sets OKRs, runs experiments, and ships.",
+  "nodes": [
+    {
+      "id": "person_rahil_main",
+      "type": "person",
+      "properties": {
+        "name": "Rahil M. Harihar",
+        "title": "Product Lead & Development Consultant",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "education_uw_msim",
+      "type": "education",
+      "properties": {
+        "name": "Master of Science in Information Management",
+        "degree": "Master of Science in Information Management (AI + Product/Project Management Specialization)",
+        "school": "University of Washington",
+        "gpa": "3.9",
+        "graduation": "June 2026",
+        "location": "Seattle, WA, USA"
+      }
+    },
+    {
+      "id": "education_rit_btech",
+      "type": "education",
+      "properties": {
+        "name": "Bachelor of Technology in Computer Science Engineering",
+        "degree": "Bachelor of Technology, Computer Science Engineering",
+        "school": "Ramaiah Institute of Technology",
+        "location": "Bangalore, India"
+      }
+    },
+    {
+      "id": "company_allan_frank_apprenticeship",
+      "type": "company",
+      "properties": {
+        "name": "Allan Frank Apprenticeship",
+        "industry": "Enterprise Software Consulting",
+        "location": "Remote, USA",
+        "size": "Startup"
+      }
+    },
+    {
+      "id": "role_product_lead_research",
+      "type": "role",
+      "properties": {
+        "name": "Product Lead Research",
+        "title": "Product Lead Research",
+        "level": "Lead",
+        "department": "Research & Development"
+      }
+    },
+    {
+      "id": "company_sap_india",
+      "type": "company",
+      "properties": {
+        "name": "SAP India Pvt. Ltd.",
+        "industry": "Enterprise Resource Planning (ERP) Software",
+        "location": "Bangalore, India",
+        "size": "Enterprise"
+      }
+    },
+    {
+      "id": "role_development_consultant",
+      "type": "role",
+      "properties": {
+        "name": "Development Consultant",
+        "title": "Development Consultant",
+        "level": "Consultant",
+        "department": "Development"
+      }
+    },
+    {
+      "id": "role_presales_intern",
+      "type": "role",
+      "properties": {
+        "name": "Pre-Sales Innovation Intern",
+        "title": "Pre-Sales Innovation Intern",
+        "level": "Intern",
+        "department": "Pre-Sales"
+      }
+    },
+    {
+      "id": "company_aamara_technologies",
+      "type": "company",
+      "properties": {
+        "name": "AaMaRa Technologies",
+        "industry": "Technology Services & SaaS",
+        "location": "Bangalore, India",
+        "size": "Startup"
+      }
+    },
+    {
+      "id": "role_founder_ceo",
+      "type": "role",
+      "properties": {
+        "name": "Founder and CEO",
+        "title": "Founder and CEO",
+        "level": "Executive",
+        "department": "Executive Leadership"
+      }
+    },
+    {
+      "id": "skill_product_management",
+      "type": "skill",
+      "properties": {
+        "name": "Product Management",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_go_to_market",
+      "type": "skill",
+      "properties": {
+        "name": "Go-To-Market",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_user_market_research",
+      "type": "skill",
+      "properties": {
+        "name": "User/Market Research",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_product_roadmap",
+      "type": "skill",
+      "properties": {
+        "name": "Product Roadmap",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_prds",
+      "type": "skill",
+      "properties": {
+        "name": "PRDs",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_okrs",
+      "type": "skill",
+      "properties": {
+        "name": "OKRs",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_risk_identification",
+      "type": "skill",
+      "properties": {
+        "name": "Risk Identification",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_agile_scrum",
+      "type": "skill",
+      "properties": {
+        "name": "Agile/Scrum",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "tech_python",
+      "type": "technology",
+      "properties": {
+        "name": "Python",
+        "category": "Languages",
+        "isFramework": false,
+        "isLanguage": true
+      }
+    },
+    {
+      "id": "tech_flask",
+      "type": "technology",
+      "properties": {
+        "name": "Flask",
+        "category": "Frameworks",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_tensorflow",
+      "type": "technology",
+      "properties": {
+        "name": "TensorFlow",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_keras",
+      "type": "technology",
+      "properties": {
+        "name": "Keras",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_sklearn",
+      "type": "technology",
+      "properties": {
+        "name": "Sklearn",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_pytorch",
+      "type": "technology",
+      "properties": {
+        "name": "PyTorch",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_pandas",
+      "type": "technology",
+      "properties": {
+        "name": "Pandas",
+        "category": "Data Engineering",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_nltk",
+      "type": "technology",
+      "properties": {
+        "name": "NLTK",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_c",
+      "type": "technology",
+      "properties": {
+        "name": "C",
+        "category": "Languages",
+        "isFramework": false,
+        "isLanguage": true
+      }
+    },
+    {
+      "id": "tech_java",
+      "type": "technology",
+      "properties": {
+        "name": "Java",
+        "category": "Languages",
+        "isFramework": false,
+        "isLanguage": true
+      }
+    },
+    {
+      "id": "tech_sql",
+      "type": "technology",
+      "properties": {
+        "name": "SQL",
+        "category": "Languages",
+        "isFramework": false,
+        "isLanguage": true
+      }
+    },
+    {
+      "id": "tech_javascript",
+      "type": "technology",
+      "properties": {
+        "name": "JavaScript",
+        "category": "Languages",
+        "isFramework": false,
+        "isLanguage": true
+      }
+    },
+    {
+      "id": "tech_groovy",
+      "type": "technology",
+      "properties": {
+        "name": "Groovy",
+        "category": "Languages",
+        "isFramework": false,
+        "isLanguage": true
+      }
+    },
+    {
+      "id": "tech_mongo",
+      "type": "technology",
+      "properties": {
+        "name": "MongoDB",
+        "category": "Databases",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_react",
+      "type": "technology",
+      "properties": {
+        "name": "React",
+        "category": "Frameworks",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_node",
+      "type": "technology",
+      "properties": {
+        "name": "Node.js",
+        "category": "Frameworks",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_powerbi",
+      "type": "technology",
+      "properties": {
+        "name": "PowerBI",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_langchain",
+      "type": "technology",
+      "properties": {
+        "name": "LangChain",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_crewai",
+      "type": "technology",
+      "properties": {
+        "name": "CrewAI",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_openai_swarm",
+      "type": "technology",
+      "properties": {
+        "name": "OpenAI SWARM (Agents SDK)",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_google_adk",
+      "type": "technology",
+      "properties": {
+        "name": "Google ADK",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_microsoft_autogen",
+      "type": "technology",
+      "properties": {
+        "name": "Microsoft AutoGen",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_phidata",
+      "type": "technology",
+      "properties": {
+        "name": "PhiData",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_mcp",
+      "type": "technology",
+      "properties": {
+        "name": "MCP",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_google_a2a",
+      "type": "technology",
+      "properties": {
+        "name": "Google A2A",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_fastapi",
+      "type": "technology",
+      "properties": {
+        "name": "FastAPI",
+        "category": "Frameworks",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_gpt4",
+      "type": "technology",
+      "properties": {
+        "name": "GPT-4",
+        "category": "AI/ML",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_pydantic",
+      "type": "technology",
+      "properties": {
+        "name": "Pydantic",
+        "category": "Tools",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_sarimax",
+      "type": "technology",
+      "properties": {
+        "name": "SARIMAX",
+        "category": "AI/ML",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_prophet",
+      "type": "technology",
+      "properties": {
+        "name": "Prophet",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_xgboost",
+      "type": "technology",
+      "properties": {
+        "name": "XGBoost",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_lightgbm",
+      "type": "technology",
+      "properties": {
+        "name": "LightGBM",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_isolation_forest",
+      "type": "technology",
+      "properties": {
+        "name": "Isolation Forest",
+        "category": "AI/ML",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_lstm",
+      "type": "technology",
+      "properties": {
+        "name": "LSTM",
+        "category": "AI/ML",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_gcp",
+      "type": "technology",
+      "properties": {
+        "name": "GCP",
+        "category": "Cloud",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_plotly",
+      "type": "technology",
+      "properties": {
+        "name": "Plotly",
+        "category": "Tools",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_d3",
+      "type": "technology",
+      "properties": {
+        "name": "D3",
+        "category": "Tools",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_slack",
+      "type": "technology",
+      "properties": {
+        "name": "Slack",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_teams",
+      "type": "technology",
+      "properties": {
+        "name": "Microsoft Teams",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_elastic",
+      "type": "technology",
+      "properties": {
+        "name": "Elastic",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_faiss",
+      "type": "technology",
+      "properties": {
+        "name": "FAISS",
+        "category": "AI/ML",
+        "isFramework": true,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_jira",
+      "type": "technology",
+      "properties": {
+        "name": "JIRA",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_confluence",
+      "type": "technology",
+      "properties": {
+        "name": "Confluence",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_ms_project",
+      "type": "technology",
+      "properties": {
+        "name": "MS Project",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_sap_cpi",
+      "type": "technology",
+      "properties": {
+        "name": "SAP CPI",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_sap_s4hana",
+      "type": "technology",
+      "properties": {
+        "name": "SAP S/4HANA",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_sap_ecc",
+      "type": "technology",
+      "properties": {
+        "name": "SAP ECC",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_salesforce",
+      "type": "technology",
+      "properties": {
+        "name": "Salesforce",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_successfactors",
+      "type": "technology",
+      "properties": {
+        "name": "SuccessFactors",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_soap",
+      "type": "technology",
+      "properties": {
+        "name": "SOAP",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_odata",
+      "type": "technology",
+      "properties": {
+        "name": "OData",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_idoc",
+      "type": "technology",
+      "properties": {
+        "name": "IDoc",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_sap_cloud_connector",
+      "type": "technology",
+      "properties": {
+        "name": "SAP Cloud Connector",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "tech_figma",
+      "type": "technology",
+      "properties": {
+        "name": "Figma",
+        "category": "Tools",
+        "isFramework": false,
+        "isLanguage": false
+      }
+    },
+    {
+      "id": "certification_ann_nvidia",
+      "type": "certification",
+      "properties": {
+        "name": "Artificial Neural Networks (NVIDIA)",
+        "issuer": "NVIDIA",
+        "year": "2021"
+      }
+    },
+    {
+      "id": "certification_cloud_integration",
+      "type": "certification",
+      "properties": {
+        "name": "Cloud Platform Integration",
+        "issuer": "SAP"
+      }
+    },
+    {
+      "id": "certification_sap_design_thinking",
+      "type": "certification",
+      "properties": {
+        "name": "SAP Design Thinking",
+        "issuer": "SAP"
+      }
+    },
+    {
+      "id": "certification_sap_btp",
+      "type": "certification",
+      "properties": {
+        "name": "SAP BTP",
+        "issuer": "SAP"
+      }
+    },
+    {
+      "id": "project_multi_agent_orchestration",
+      "type": "project",
+      "properties": {
+        "name": "Multi-agent orchestration system",
+        "description": "Prototyped Python/FastAPI with LangChain & CrewAI; central GPT-4-powered reasoning engine drove 5 domain agents (Finance, SCM, HR, CS, Ops) with Pydantic-validated REST/MQ/IDoc ingestion",
+        "impact": "Enabled invisible cross-functional insights",
+        "technologies": "Python, FastAPI, LangChain, CrewAI, GPT-4, Pydantic",
+        "duration": "Sep 2024 - Apr 2025"
+      }
+    },
+    {
+      "id": "project_ml_microservices",
+      "type": "project",
+      "properties": {
+        "name": "Unified data to ML micro-services",
+        "description": "Built real-time ERP/CRM pipelines feeding 100+ GB data (historical snapshot, then 5 GB/day incremental) to containerized SARIMAX/Prophet, XGBoost/LightGBM, Isolation Forest/Autoencoder, and LSTM models",
+        "impact": "Achieved 90% accuracy; cutting cycle time from 48h to minutes with <200ms forecasts",
+        "technologies": "SARIMAX, Prophet, XGBoost, LightGBM, Isolation Forest, LSTM, GCP, JWT, RBAC",
+        "duration": "Sep 2024 - Apr 2025"
+      }
+    },
+    {
+      "id": "project_ux_workflow_automation",
+      "type": "project",
+      "properties": {
+        "name": "UX & workflow automation",
+        "description": "Developed React + Plotly/D3 dashboard with Slack/Teams ChatOps; Elastic + FAISS vector search enabled contextual recall & recommendations",
+        "impact": "Cutting cycle time from 48h to minutes with autonomous task decomposition",
+        "technologies": "React, Plotly, D3, Slack, Teams, Elastic, FAISS",
+        "duration": "Sep 2024 - Apr 2025"
+      }
+    },
+    {
+      "id": "project_hr_resume_screening",
+      "type": "project",
+      "properties": {
+        "name": "HR Resume Screening Software",
+        "description": "Developed Python-based software integrating NLP and machine learning to screen and preliminary rank resumes",
+        "impact": "Enhanced HR efficiency by 30%, generating revenue for SAP via licensing to major clients",
+        "technologies": "Python, NLP, Machine Learning",
+        "duration": "Jan 2022 - Jun 2022"
+      }
+    },
+    {
+      "id": "project_asset_management_saas",
+      "type": "project",
+      "properties": {
+        "name": "Asset Management SaaS for Dubai Islamic Bank",
+        "description": "Built multi-tenant web app with asset registry, lifecycle workflows, approvals, alerts, and admin controls. Implemented RBAC, SSO-ready authentication, audit logs, and encrypted data flows",
+        "impact": "Won competitive RFP beating Zoho",
+        "technologies": "Web Development, RBAC, SSO, Encryption",
+        "duration": "Jan 2019 - Jun 2022"
+      }
+    },
+    {
+      "id": "project_smart_india_hackathon",
+      "type": "project",
+      "properties": {
+        "name": "Agriculturist E-commerce Platform",
+        "description": "Specialized e-commerce website catering specifically to agriculturists, facilitating seamless B2B trade, and eliminating intermediary roles",
+        "impact": "Won Smart India Hackathon 2019 (Software Edition)",
+        "technologies": "Web Development, E-commerce",
+        "duration": "Dec 2019"
+      }
+    },
+    {
+      "id": "achievement_3m_profit",
+      "type": "achievement",
+      "properties": {
+        "name": "Bootstrapped to \u20b93 Million profit",
+        "description": "Generated \u20b93 Million (~$35k) profit over 3 years, self-funded growth at AaMaRa Technologies",
+        "metric": "\u20b93,000,000",
+        "impact": "Financial sustainability and business growth"
+      }
+    },
+    {
+      "id": "achievement_90_accuracy",
+      "type": "achievement",
+      "properties": {
+        "name": "90% ML Model Accuracy",
+        "description": "Achieved 90% accuracy with containerized ML models (SARIMAX, Prophet, XGBoost, LightGBM, LSTM)",
+        "metric": "90%",
+        "impact": "High-accuracy forecasting for enterprise applications"
+      }
+    },
+    {
+      "id": "achievement_48h_to_minutes",
+      "type": "achievement",
+      "properties": {
+        "name": "Cycle Time Reduction",
+        "description": "Cut cycle time from 48 hours to minutes with ML micro-services and workflow automation",
+        "metric": "48h \u2192 minutes",
+        "impact": "Massive operational efficiency improvement"
+      }
+    },
+    {
+      "id": "achievement_200ms_forecasts",
+      "type": "achievement",
+      "properties": {
+        "name": "Sub-200ms Forecast Delivery",
+        "description": "Delivered forecasts in less than 200ms via secure JWT/RBAC APIs",
+        "metric": "<200ms",
+        "impact": "Real-time decision making capability"
+      }
+    },
+    {
+      "id": "achievement_30_hr_efficiency",
+      "type": "achievement",
+      "properties": {
+        "name": "30% HR Efficiency Improvement",
+        "description": "Enhanced HR efficiency by 30% with Python-based resume screening software",
+        "metric": "30%",
+        "impact": "Significant productivity gains in HR operations"
+      }
+    },
+    {
+      "id": "achievement_100_integrations",
+      "type": "achievement",
+      "properties": {
+        "name": "100+ SAP CPI Integrations",
+        "description": "Architected and deployed 100+ complex end-to-end integration scenarios in SAP CPI",
+        "metric": "100+",
+        "impact": "Connected SAP S/4HANA, ECC, and third-party applications"
+      }
+    },
+    {
+      "id": "achievement_30_latency_reduction",
+      "type": "achievement",
+      "properties": {
+        "name": "30% Latency Reduction",
+        "description": "Configured 30+ secure connections cutting latency by 30%",
+        "metric": "30%",
+        "impact": "Improved data visibility for 10,000+ business documents daily"
+      }
+    },
+    {
+      "id": "achievement_18k_donations",
+      "type": "achievement",
+      "properties": {
+        "name": "Raised $18k in Donations",
+        "description": "Secured $10k/month Google Ad Grants and raised $18k donations in 60 days for nonprofit",
+        "metric": "$18,000",
+        "impact": "Significant fundraising success for charitable cause"
+      }
+    },
+    {
+      "id": "achievement_15_fortune500_clients",
+      "type": "achievement",
+      "properties": {
+        "name": "Consulted 15+ Fortune 500 Clients",
+        "description": "Consulted for 15+ Fortune 500 strategic SAP Customers",
+        "metric": "15+",
+        "impact": "High-value enterprise client engagements"
+      }
+    },
+    {
+      "id": "achievement_60k_budget",
+      "type": "achievement",
+      "properties": {
+        "name": "Managed $60,000 Budget",
+        "description": "Managed $60,000 annual budget as Early Talent Ambassador",
+        "metric": "$60,000",
+        "impact": "Financial stewardship for SAP India Network"
+      }
+    },
+    {
+      "id": "achievement_1200_pounds_rice",
+      "type": "achievement",
+      "properties": {
+        "name": "1,200 Pounds Rice Collection",
+        "description": "Collected over 1,200 pounds of rice monthly from 80+ households for tribal hostels",
+        "metric": "1,200 lbs/month",
+        "impact": "Sustained food security for tribal communities over 12+ years"
+      }
+    },
+    {
+      "id": "skill_product_strategy",
+      "type": "skill",
+      "properties": {
+        "name": "Product Strategy",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_usability_testing",
+      "type": "skill",
+      "properties": {
+        "name": "Usability Testing",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_prototyping",
+      "type": "skill",
+      "properties": {
+        "name": "Prototyping",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_design_thinking",
+      "type": "skill",
+      "properties": {
+        "name": "Design Thinking",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_ab_testing",
+      "type": "skill",
+      "properties": {
+        "name": "A/B Testing",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_experiment_design",
+      "type": "skill",
+      "properties": {
+        "name": "Experiment Design",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_data_analysis",
+      "type": "skill",
+      "properties": {
+        "name": "Data Analysis",
+        "category": "Data Engineering",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_funnel_analysis",
+      "type": "skill",
+      "properties": {
+        "name": "Funnel Analysis",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_cohort_analysis",
+      "type": "skill",
+      "properties": {
+        "name": "Cohort Analysis",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_conversion_optimization",
+      "type": "skill",
+      "properties": {
+        "name": "Conversion Optimization",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_retention",
+      "type": "skill",
+      "properties": {
+        "name": "Retention",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_growth",
+      "type": "skill",
+      "properties": {
+        "name": "Growth",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_rice_prioritization",
+      "type": "skill",
+      "properties": {
+        "name": "RICE Prioritization",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_backlog_grooming",
+      "type": "skill",
+      "properties": {
+        "name": "Backlog Grooming",
+        "category": "Product Management",
+        "proficiencyLevel": "Advanced"
+      }
+    },
+    {
+      "id": "skill_cross_functional_leadership",
+      "type": "skill",
+      "properties": {
+        "name": "Cross-Functional Leadership",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_stakeholder_management",
+      "type": "skill",
+      "properties": {
+        "name": "Stakeholder Management",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_api_integrations",
+      "type": "skill",
+      "properties": {
+        "name": "API Integrations",
+        "category": "Web Frameworks",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "skill_kpi_ownership",
+      "type": "skill",
+      "properties": {
+        "name": "KPI Ownership",
+        "category": "Product Management",
+        "proficiencyLevel": "Expert"
+      }
+    },
+    {
+      "id": "role_early_talent_ambassador",
+      "type": "role",
+      "properties": {
+        "name": "Early Talent Ambassador",
+        "title": "Early Talent Ambassador",
+        "level": "Ambassador",
+        "department": "Early Talent Program"
+      }
+    },
+    {
+      "id": "role_handball_captain",
+      "type": "role",
+      "properties": {
+        "name": "Captain, Team India Handball",
+        "title": "Captain",
+        "level": "National Team Captain",
+        "department": "Sports"
+      }
+    },
+    {
+      "id": "role_volunteer_vka",
+      "type": "role",
+      "properties": {
+        "name": "Volunteer",
+        "title": "Volunteer",
+        "level": "Volunteer",
+        "department": "Community Service"
+      }
+    },
+    {
+      "id": "role_google_dsc_core",
+      "type": "role",
+      "properties": {
+        "name": "Core Committee Member",
+        "title": "Core Committee Member",
+        "level": "Leadership",
+        "department": "Student Organization"
+      }
+    },
+    {
+      "id": "company_vanavasi_kalyan_ashram",
+      "type": "company",
+      "properties": {
+        "name": "Vanavasi Kalyan Ashram",
+        "industry": "Non-Profit/NGO",
+        "location": "India",
+        "size": "Non-Profit"
+      }
+    },
+    {
+      "id": "company_google_dsc",
+      "type": "company",
+      "properties": {
+        "name": "Google Developer Student Club",
+        "industry": "Education/Technology",
+        "location": "Bangalore, India",
+        "size": "Student Organization"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "studied_at_uw_001",
+      "source": "person_rahil_main",
+      "target": "education_uw_msim",
+      "type": "studied_at",
+      "properties": {
+        "degree": "Master of Science in Information Management",
+        "startDate": "2024-09",
+        "endDate": "2026-06",
+        "gpa": "3.9"
+      }
+    },
+    {
+      "id": "studied_at_rit_001",
+      "source": "person_rahil_main",
+      "target": "education_rit_btech",
+      "type": "studied_at",
+      "properties": {
+        "degree": "Bachelor of Technology, Computer Science Engineering",
+        "startDate": "2018-08",
+        "endDate": "2022-07"
+      }
+    },
+    {
+      "id": "worked_at_allan_frank_001",
+      "source": "person_rahil_main",
+      "target": "company_allan_frank_apprenticeship",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2024-09",
+        "endDate": "2025-04",
+        "role": "Product Lead Research",
+        "location": "Remote, USA"
+      }
+    },
+    {
+      "id": "has_role_product_lead_001",
+      "source": "person_rahil_main",
+      "target": "role_product_lead_research",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2024-09",
+        "endDate": "2025-04",
+        "company": "Allan Frank Apprenticeship"
+      }
+    },
+    {
+      "id": "worked_at_sap_001",
+      "source": "person_rahil_main",
+      "target": "company_sap_india",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2022-07",
+        "endDate": "2024-08",
+        "role": "Development Consultant",
+        "location": "Bangalore, India"
+      }
+    },
+    {
+      "id": "has_role_dev_consultant_001",
+      "source": "person_rahil_main",
+      "target": "role_development_consultant",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2022-07",
+        "endDate": "2024-08",
+        "company": "SAP India Pvt. Ltd."
+      }
+    },
+    {
+      "id": "worked_at_sap_intern_001",
+      "source": "person_rahil_main",
+      "target": "company_sap_india",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2022-01",
+        "endDate": "2022-06",
+        "role": "Pre-Sales Innovation Intern",
+        "location": "Mumbai, India"
+      }
+    },
+    {
+      "id": "has_role_presales_intern_001",
+      "source": "person_rahil_main",
+      "target": "role_presales_intern",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2022-01",
+        "endDate": "2022-06",
+        "company": "SAP India Pvt. Ltd."
+      }
+    },
+    {
+      "id": "worked_at_aamara_001",
+      "source": "person_rahil_main",
+      "target": "company_aamara_technologies",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2019-01",
+        "endDate": "2022-06",
+        "role": "Founder and CEO",
+        "location": "Bangalore, India"
+      }
+    },
+    {
+      "id": "has_role_founder_ceo_001",
+      "source": "person_rahil_main",
+      "target": "role_founder_ceo",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2019-01",
+        "endDate": "2022-06",
+        "company": "AaMaRa Technologies"
+      }
+    },
+    {
+      "id": "has_skill_pm_001",
+      "source": "person_rahil_main",
+      "target": "skill_product_management",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_gtm_001",
+      "source": "person_rahil_main",
+      "target": "skill_go_to_market",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_research_001",
+      "source": "person_rahil_main",
+      "target": "skill_user_market_research",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_roadmap_001",
+      "source": "person_rahil_main",
+      "target": "skill_product_roadmap",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_prds_001",
+      "source": "person_rahil_main",
+      "target": "skill_prds",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_okrs_001",
+      "source": "person_rahil_main",
+      "target": "skill_okrs",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_risk_001",
+      "source": "person_rahil_main",
+      "target": "skill_risk_identification",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_agile_001",
+      "source": "person_rahil_main",
+      "target": "skill_agile_scrum",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "uses_tech_python_001",
+      "source": "person_rahil_main",
+      "target": "tech_python",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "context": "Primary programming language"
+      }
+    },
+    {
+      "id": "uses_tech_flask_001",
+      "source": "person_rahil_main",
+      "target": "tech_flask",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Web framework"
+      }
+    },
+    {
+      "id": "uses_tech_tensorflow_001",
+      "source": "person_rahil_main",
+      "target": "tech_tensorflow",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "ML/DL framework"
+      }
+    },
+    {
+      "id": "uses_tech_keras_001",
+      "source": "person_rahil_main",
+      "target": "tech_keras",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Deep learning"
+      }
+    },
+    {
+      "id": "uses_tech_sklearn_001",
+      "source": "person_rahil_main",
+      "target": "tech_sklearn",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Machine learning"
+      }
+    },
+    {
+      "id": "uses_tech_pytorch_001",
+      "source": "person_rahil_main",
+      "target": "tech_pytorch",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Deep learning"
+      }
+    },
+    {
+      "id": "uses_tech_pandas_001",
+      "source": "person_rahil_main",
+      "target": "tech_pandas",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "context": "Data manipulation"
+      }
+    },
+    {
+      "id": "uses_tech_nltk_001",
+      "source": "person_rahil_main",
+      "target": "tech_nltk",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "NLP processing"
+      }
+    },
+    {
+      "id": "uses_tech_c_001",
+      "source": "person_rahil_main",
+      "target": "tech_c",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "Systems programming"
+      }
+    },
+    {
+      "id": "uses_tech_java_001",
+      "source": "person_rahil_main",
+      "target": "tech_java",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Backend development"
+      }
+    },
+    {
+      "id": "uses_tech_sql_001",
+      "source": "person_rahil_main",
+      "target": "tech_sql",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "context": "Database queries"
+      }
+    },
+    {
+      "id": "uses_tech_javascript_001",
+      "source": "person_rahil_main",
+      "target": "tech_javascript",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Frontend development"
+      }
+    },
+    {
+      "id": "uses_tech_groovy_001",
+      "source": "person_rahil_main",
+      "target": "tech_groovy",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "Scripting"
+      }
+    },
+    {
+      "id": "uses_tech_mongo_001",
+      "source": "person_rahil_main",
+      "target": "tech_mongo",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "NoSQL database"
+      }
+    },
+    {
+      "id": "uses_tech_react_001",
+      "source": "person_rahil_main",
+      "target": "tech_react",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Frontend framework"
+      }
+    },
+    {
+      "id": "uses_tech_node_001",
+      "source": "person_rahil_main",
+      "target": "tech_node",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Backend runtime"
+      }
+    },
+    {
+      "id": "uses_tech_powerbi_001",
+      "source": "person_rahil_main",
+      "target": "tech_powerbi",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Data visualization"
+      }
+    },
+    {
+      "id": "uses_tech_langchain_001",
+      "source": "person_rahil_main",
+      "target": "tech_langchain",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "context": "Agentic framework"
+      }
+    },
+    {
+      "id": "uses_tech_crewai_001",
+      "source": "person_rahil_main",
+      "target": "tech_crewai",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "context": "Agentic framework"
+      }
+    },
+    {
+      "id": "uses_tech_openai_swarm_001",
+      "source": "person_rahil_main",
+      "target": "tech_openai_swarm",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Agent orchestration"
+      }
+    },
+    {
+      "id": "uses_tech_google_adk_001",
+      "source": "person_rahil_main",
+      "target": "tech_google_adk",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Agent development"
+      }
+    },
+    {
+      "id": "uses_tech_autogen_001",
+      "source": "person_rahil_main",
+      "target": "tech_microsoft_autogen",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Multi-agent systems"
+      }
+    },
+    {
+      "id": "uses_tech_phidata_001",
+      "source": "person_rahil_main",
+      "target": "tech_phidata",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "AI agents"
+      }
+    },
+    {
+      "id": "uses_tech_mcp_001",
+      "source": "person_rahil_main",
+      "target": "tech_mcp",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Model context protocol"
+      }
+    },
+    {
+      "id": "uses_tech_google_a2a_001",
+      "source": "person_rahil_main",
+      "target": "tech_google_a2a",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Agent-to-agent communication"
+      }
+    },
+    {
+      "id": "earned_cert_ann_001",
+      "source": "person_rahil_main",
+      "target": "certification_ann_nvidia",
+      "type": "earned_certification",
+      "properties": {
+        "date": "2021"
+      }
+    },
+    {
+      "id": "earned_cert_cloud_001",
+      "source": "person_rahil_main",
+      "target": "certification_cloud_integration",
+      "type": "earned_certification",
+      "properties": {}
+    },
+    {
+      "id": "earned_cert_design_001",
+      "source": "person_rahil_main",
+      "target": "certification_sap_design_thinking",
+      "type": "earned_certification",
+      "properties": {}
+    },
+    {
+      "id": "earned_cert_btp_001",
+      "source": "person_rahil_main",
+      "target": "certification_sap_btp",
+      "type": "earned_certification",
+      "properties": {}
+    },
+    {
+      "id": "worked_on_project_multi_agent_001",
+      "source": "person_rahil_main",
+      "target": "project_multi_agent_orchestration",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Product Lead",
+        "startDate": "2024-09",
+        "endDate": "2025-04"
+      }
+    },
+    {
+      "id": "worked_on_project_ml_micro_001",
+      "source": "person_rahil_main",
+      "target": "project_ml_microservices",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Product Lead",
+        "startDate": "2024-09",
+        "endDate": "2025-04"
+      }
+    },
+    {
+      "id": "worked_on_project_ux_001",
+      "source": "person_rahil_main",
+      "target": "project_ux_workflow_automation",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Product Lead",
+        "startDate": "2024-09",
+        "endDate": "2025-04"
+      }
+    },
+    {
+      "id": "worked_on_project_hr_001",
+      "source": "person_rahil_main",
+      "target": "project_hr_resume_screening",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Developer & Product Manager",
+        "startDate": "2022-01",
+        "endDate": "2022-06"
+      }
+    },
+    {
+      "id": "worked_on_project_asset_001",
+      "source": "person_rahil_main",
+      "target": "project_asset_management_saas",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Founder & CEO",
+        "startDate": "2019-01",
+        "endDate": "2022-06"
+      }
+    },
+    {
+      "id": "worked_on_project_smart_india_001",
+      "source": "person_rahil_main",
+      "target": "project_smart_india_hackathon",
+      "type": "worked_on_project",
+      "properties": {
+        "role": "Team Lead",
+        "date": "2019-12"
+      }
+    },
+    {
+      "id": "achieved_3m_001",
+      "source": "person_rahil_main",
+      "target": "achievement_3m_profit",
+      "type": "achieved",
+      "properties": {
+        "date": "2019-2022",
+        "context": "AaMaRa Technologies entrepreneurship"
+      }
+    },
+    {
+      "id": "achieved_90_accuracy_001",
+      "source": "person_rahil_main",
+      "target": "achievement_90_accuracy",
+      "type": "achieved",
+      "properties": {
+        "date": "2024-2025",
+        "context": "ML micro-services project"
+      }
+    },
+    {
+      "id": "achieved_cycle_time_001",
+      "source": "person_rahil_main",
+      "target": "achievement_48h_to_minutes",
+      "type": "achieved",
+      "properties": {
+        "date": "2024-2025",
+        "context": "Workflow automation and ML deployment"
+      }
+    },
+    {
+      "id": "achieved_200ms_001",
+      "source": "person_rahil_main",
+      "target": "achievement_200ms_forecasts",
+      "type": "achieved",
+      "properties": {
+        "date": "2024-2025",
+        "context": "API-driven forecast delivery"
+      }
+    },
+    {
+      "id": "achieved_30_hr_001",
+      "source": "person_rahil_main",
+      "target": "achievement_30_hr_efficiency",
+      "type": "achieved",
+      "properties": {
+        "date": "2022",
+        "context": "HR resume screening software"
+      }
+    },
+    {
+      "id": "achieved_100_integrations_001",
+      "source": "person_rahil_main",
+      "target": "achievement_100_integrations",
+      "type": "achieved",
+      "properties": {
+        "date": "2022-2024",
+        "context": "SAP CPI integration work"
+      }
+    },
+    {
+      "id": "achieved_30_latency_001",
+      "source": "person_rahil_main",
+      "target": "achievement_30_latency_reduction",
+      "type": "achieved",
+      "properties": {
+        "date": "2022-2024",
+        "context": "Hybrid landscape deployments"
+      }
+    },
+    {
+      "id": "achieved_18k_donations_001",
+      "source": "person_rahil_main",
+      "target": "achievement_18k_donations",
+      "type": "achieved",
+      "properties": {
+        "date": "2019-2022",
+        "context": "Google Ad Grants for nonprofit"
+      }
+    },
+    {
+      "id": "achieved_15_fortune500_001",
+      "source": "person_rahil_main",
+      "target": "achievement_15_fortune500_clients",
+      "type": "achieved",
+      "properties": {
+        "date": "2022-2024",
+        "context": "SAP consulting engagements"
+      }
+    },
+    {
+      "id": "achieved_60k_budget_001",
+      "source": "person_rahil_main",
+      "target": "achievement_60k_budget",
+      "type": "achieved",
+      "properties": {
+        "date": "2023-2024",
+        "context": "Early Talent Ambassador role"
+      }
+    },
+    {
+      "id": "achieved_1200_rice_001",
+      "source": "person_rahil_main",
+      "target": "achievement_1200_pounds_rice",
+      "type": "achieved",
+      "properties": {
+        "date": "2011-Present",
+        "context": "Vanavasi Kalyan Ashram volunteer work"
+      }
+    },
+    {
+      "id": "uses_tech_fastapi_001",
+      "source": "project_multi_agent_orchestration",
+      "target": "tech_fastapi",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_langchain_002",
+      "source": "project_multi_agent_orchestration",
+      "target": "tech_langchain",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_crewai_002",
+      "source": "project_multi_agent_orchestration",
+      "target": "tech_crewai",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_gpt4_001",
+      "source": "project_multi_agent_orchestration",
+      "target": "tech_gpt4",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_pydantic_001",
+      "source": "project_multi_agent_orchestration",
+      "target": "tech_pydantic",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_sarimax_001",
+      "source": "project_ml_microservices",
+      "target": "tech_sarimax",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_prophet_001",
+      "source": "project_ml_microservices",
+      "target": "tech_prophet",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_xgboost_001",
+      "source": "project_ml_microservices",
+      "target": "tech_xgboost",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_lightgbm_001",
+      "source": "project_ml_microservices",
+      "target": "tech_lightgbm",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_isolation_forest_001",
+      "source": "project_ml_microservices",
+      "target": "tech_isolation_forest",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_lstm_001",
+      "source": "project_ml_microservices",
+      "target": "tech_lstm",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_gcp_001",
+      "source": "project_ml_microservices",
+      "target": "tech_gcp",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_react_002",
+      "source": "project_ux_workflow_automation",
+      "target": "tech_react",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_plotly_001",
+      "source": "project_ux_workflow_automation",
+      "target": "tech_plotly",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_d3_001",
+      "source": "project_ux_workflow_automation",
+      "target": "tech_d3",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_slack_001",
+      "source": "project_ux_workflow_automation",
+      "target": "tech_slack",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_teams_001",
+      "source": "project_ux_workflow_automation",
+      "target": "tech_teams",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_elastic_001",
+      "source": "project_ux_workflow_automation",
+      "target": "tech_elastic",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_faiss_001",
+      "source": "project_ux_workflow_automation",
+      "target": "tech_faiss",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_python_002",
+      "source": "project_hr_resume_screening",
+      "target": "tech_python",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_nltk_002",
+      "source": "project_hr_resume_screening",
+      "target": "tech_nltk",
+      "type": "uses_technology",
+      "properties": {}
+    },
+    {
+      "id": "related_to_sap_001",
+      "source": "role_development_consultant",
+      "target": "company_sap_india",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_sap_002",
+      "source": "role_presales_intern",
+      "target": "company_sap_india",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_aamara_001",
+      "source": "role_founder_ceo",
+      "target": "company_aamara_technologies",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "uses_tech_jira_001",
+      "source": "person_rahil_main",
+      "target": "tech_jira",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Project management"
+      }
+    },
+    {
+      "id": "uses_tech_confluence_001",
+      "source": "person_rahil_main",
+      "target": "tech_confluence",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Documentation"
+      }
+    },
+    {
+      "id": "uses_tech_ms_project_001",
+      "source": "person_rahil_main",
+      "target": "tech_ms_project",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Project scheduling"
+      }
+    },
+    {
+      "id": "uses_tech_sap_cpi_001",
+      "source": "person_rahil_main",
+      "target": "tech_sap_cpi",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "context": "Integration platform"
+      }
+    },
+    {
+      "id": "uses_tech_s4hana_001",
+      "source": "person_rahil_main",
+      "target": "tech_sap_s4hana",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "context": "ERP system"
+      }
+    },
+    {
+      "id": "uses_tech_sap_ecc_001",
+      "source": "person_rahil_main",
+      "target": "tech_sap_ecc",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "context": "Legacy ERP"
+      }
+    },
+    {
+      "id": "uses_tech_salesforce_001",
+      "source": "person_rahil_main",
+      "target": "tech_salesforce",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "CRM integration"
+      }
+    },
+    {
+      "id": "uses_tech_successfactors_001",
+      "source": "person_rahil_main",
+      "target": "tech_successfactors",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "HCM system"
+      }
+    },
+    {
+      "id": "uses_tech_soap_001",
+      "source": "person_rahil_main",
+      "target": "tech_soap",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "Web services"
+      }
+    },
+    {
+      "id": "uses_tech_odata_001",
+      "source": "person_rahil_main",
+      "target": "tech_odata",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "context": "REST protocol"
+      }
+    },
+    {
+      "id": "uses_tech_idoc_001",
+      "source": "person_rahil_main",
+      "target": "tech_idoc",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "context": "SAP data exchange"
+      }
+    },
+    {
+      "id": "uses_tech_cloud_connector_001",
+      "source": "person_rahil_main",
+      "target": "tech_sap_cloud_connector",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "context": "Hybrid connectivity"
+      }
+    },
+    {
+      "id": "uses_tech_figma_001",
+      "source": "person_rahil_main",
+      "target": "tech_figma",
+      "type": "uses_technology",
+      "properties": {
+        "proficiencyLevel": "Intermediate",
+        "context": "Design and prototyping"
+      }
+    },
+    {
+      "id": "has_skill_strategy_001",
+      "source": "person_rahil_main",
+      "target": "skill_product_strategy",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_usability_001",
+      "source": "person_rahil_main",
+      "target": "skill_usability_testing",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_prototyping_001",
+      "source": "person_rahil_main",
+      "target": "skill_prototyping",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_design_thinking_001",
+      "source": "person_rahil_main",
+      "target": "skill_design_thinking",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_ab_testing_001",
+      "source": "person_rahil_main",
+      "target": "skill_ab_testing",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_experiment_001",
+      "source": "person_rahil_main",
+      "target": "skill_experiment_design",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_data_analysis_001",
+      "source": "person_rahil_main",
+      "target": "skill_data_analysis",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_funnel_001",
+      "source": "person_rahil_main",
+      "target": "skill_funnel_analysis",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_cohort_001",
+      "source": "person_rahil_main",
+      "target": "skill_cohort_analysis",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_conversion_001",
+      "source": "person_rahil_main",
+      "target": "skill_conversion_optimization",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_retention_001",
+      "source": "person_rahil_main",
+      "target": "skill_retention",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_growth_001",
+      "source": "person_rahil_main",
+      "target": "skill_growth",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_rice_001",
+      "source": "person_rahil_main",
+      "target": "skill_rice_prioritization",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_backlog_001",
+      "source": "person_rahil_main",
+      "target": "skill_backlog_grooming",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Advanced",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_cross_functional_001",
+      "source": "person_rahil_main",
+      "target": "skill_cross_functional_leadership",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_stakeholder_001",
+      "source": "person_rahil_main",
+      "target": "skill_stakeholder_management",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_api_001",
+      "source": "person_rahil_main",
+      "target": "skill_api_integrations",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_skill_kpi_001",
+      "source": "person_rahil_main",
+      "target": "skill_kpi_ownership",
+      "type": "has_skill",
+      "properties": {
+        "proficiencyLevel": "Expert",
+        "yearsOfExperience": 3
+      }
+    },
+    {
+      "id": "has_role_ambassador_001",
+      "source": "person_rahil_main",
+      "target": "role_early_talent_ambassador",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2023-05",
+        "endDate": "2024-08",
+        "company": "SAP India Pvt. Ltd."
+      }
+    },
+    {
+      "id": "has_role_handball_001",
+      "source": "person_rahil_main",
+      "target": "role_handball_captain",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2012-01",
+        "endDate": "2019-01"
+      }
+    },
+    {
+      "id": "has_role_volunteer_001",
+      "source": "person_rahil_main",
+      "target": "role_volunteer_vka",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2011-01",
+        "ongoing": true
+      }
+    },
+    {
+      "id": "has_role_google_dsc_001",
+      "source": "person_rahil_main",
+      "target": "role_google_dsc_core",
+      "type": "has_role",
+      "properties": {
+        "startDate": "2019-08",
+        "endDate": "2022-07"
+      }
+    },
+    {
+      "id": "worked_at_vka_001",
+      "source": "person_rahil_main",
+      "target": "company_vanavasi_kalyan_ashram",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2011-01",
+        "role": "Volunteer",
+        "location": "India",
+        "ongoing": true
+      }
+    },
+    {
+      "id": "worked_at_google_dsc_001",
+      "source": "person_rahil_main",
+      "target": "company_google_dsc",
+      "type": "worked_at",
+      "properties": {
+        "startDate": "2019-08",
+        "endDate": "2022-07",
+        "role": "Core Committee Member",
+        "location": "Bangalore, India"
+      }
+    },
+    {
+      "id": "related_to_vka_001",
+      "source": "role_volunteer_vka",
+      "target": "company_vanavasi_kalyan_ashram",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_google_dsc_001",
+      "source": "role_google_dsc_core",
+      "target": "company_google_dsc",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_001",
+      "source": "project_multi_agent_orchestration",
+      "target": "company_allan_frank_apprenticeship",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_002",
+      "source": "project_ml_microservices",
+      "target": "company_allan_frank_apprenticeship",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_003",
+      "source": "project_ux_workflow_automation",
+      "target": "company_allan_frank_apprenticeship",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_004",
+      "source": "project_hr_resume_screening",
+      "target": "company_sap_india",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "related_to_project_005",
+      "source": "project_asset_management_saas",
+      "target": "company_aamara_technologies",
+      "type": "related_to",
+      "properties": {}
+    },
+    {
+      "id": "colleague_rahil_mathew",
+      "source": "person_rahil_main",
+      "target": "person_mathew001",
+      "type": "colleague",
+      "properties": {
+        "relationship": "Team Member",
+        "organization": "University of Washington - iSchool",
+        "note": "Part of the same team"
+      }
+    },
+    {
+      "id": "colleague_rahil_shreyas",
+      "source": "person_rahil_main",
+      "target": "person_shreyas001",
+      "type": "colleague",
+      "properties": {
+        "relationship": "Team Member",
+        "organization": "University of Washington - iSchool",
+        "note": "Part of the same team"
+      }
+    },
+    {
+      "id": "colleague_rahil_siddarth",
+      "source": "person_rahil_main",
+      "target": "person_sid001",
+      "type": "colleague",
+      "properties": {
+        "relationship": "Team Member",
+        "organization": "University of Washington - iSchool",
+        "note": "Part of the same team"
+      }
+    },
+    {
+      "id": "shared_technology_rahil_shreyas_sql",
+      "source": "tech_sql",
+      "target": "person_shreyas001",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "shreyas",
+        "skillName": "sql"
+      }
+    },
+    {
+      "id": "shared_technology_rahil_shreyas_pandas",
+      "source": "tech_pandas",
+      "target": "person_shreyas001",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "shreyas",
+        "skillName": "pandas"
+      }
+    },
+    {
+      "id": "shared_technology_rahil_siddarth_pytorch",
+      "source": "tech_pytorch",
+      "target": "person_sid001",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "siddarth",
+        "skillName": "pytorch"
+      }
+    },
+    {
+      "id": "shared_technology_rahil_siddarth_langchain",
+      "source": "tech_langchain",
+      "target": "person_sid001",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "siddarth",
+        "skillName": "langchain"
+      }
+    },
+    {
+      "id": "shared_technology_rahil_siddarth_crewai",
+      "source": "tech_crewai",
+      "target": "person_sid001",
+      "type": "shared_technology",
+      "properties": {
+        "sharedWith": "siddarth",
+        "skillName": "crewai"
+      }
+    },
+    {
+      "id": "shared_skill_rahil_shreyas_stakeholder_manageme",
+      "source": "skill_stakeholder_management",
+      "target": "person_shreyas001",
+      "type": "shared_skill",
+      "properties": {
+        "sharedWith": "shreyas",
+        "skillName": "stakeholder management"
+      }
+    }
+  ],
+  "keyMetrics": {
+    "totalExperience": 3,
+    "companiesWorked": 3,
+    "projectsCompleted": 6,
+    "technologiesUsed": 45,
+    "topAchievement": "Bootstrapped AaMaRa Technologies to \u20b93 Million profit and cut enterprise cycle time from 48h to minutes with AI automation",
+    "impactMetrics": [
+      "\u20b93,000,000 ($35k) profit over 3 years",
+      "90% ML model accuracy",
+      "48h \u2192 minutes cycle time reduction",
+      "<200ms forecast delivery",
+      "30% HR efficiency improvement",
+      "100+ SAP CPI integrations deployed",
+      "30% latency reduction",
+      "$18,000 raised in donations",
+      "15+ Fortune 500 clients consulted",
+      "$60,000 budget managed",
+      "1,200 pounds rice collected monthly",
+      "10,000+ business documents daily",
+      "100+ GB data processed",
+      "5 GB/day incremental data"
+    ]
+  }
+}
