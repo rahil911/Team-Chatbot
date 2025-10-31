@@ -145,7 +145,7 @@ jobs:
           npx vite build
         env:
           # Use HTTPS Cloudflare Tunnel URL
-          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://agency-window-atmospheric-pushing.trycloudflare.com' }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://warren-really-interactive-launched.trycloudflare.com' }}
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
