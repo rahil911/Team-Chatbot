@@ -291,38 +291,96 @@ npm run dev
 
 ### Current Deployment (Azure)
 
-**Frontend**: Deployed to Azure Static Web Apps (HTTPS)
-- URL: https://calm-forest-029210d0f.3.azurestaticapps.net
-- Auto-deploys from `main` branch via GitHub Actions
+**Frontend**: Azure Static Web Apps (HTTPS)
+- 🌐 URL: https://calm-forest-029210d0f.3.azurestaticapps.net
+- ✅ Auto-deploys via GitHub Actions
+- ✅ Free tier with custom domain support
 
-**Backend**: Deployed to Azure Container Instances (HTTP only)
-- URL: http://52.147.223.151:8000
-- Requires HTTPS proxy for production use
+**Backend**: Azure Container Instances (HTTP) + Cloudflare Tunnel (HTTPS)
+- 🔒 HTTPS: https://warren-really-interactive-launched.trycloudflare.com
+- 🔓 HTTP: http://52.147.223.151:8000
+- ⚠️ Cloudflare tunnel runs locally (temporary URL)
 
-### Setting Up HTTPS for Backend
-
-The backend currently runs on HTTP, which causes mixed content issues when the HTTPS frontend tries to connect. To fix this, set up Cloudflare Tunnel for free HTTPS:
-
-**See [CLOUDFLARE_SETUP.md](./CLOUDFLARE_SETUP.md) for detailed instructions.**
-
-Quick steps:
-1. Install cloudflared
-2. Create tunnel: `cloudflared tunnel create kg-backend`
-3. Configure DNS routing
-4. Run tunnel: `cloudflared tunnel run kg-backend`
-5. Update `frontend/.env.production` with HTTPS URL
-6. Redeploy frontend
+**Status**: ✅ Both deployed and working
 
 ### CI/CD Workflows
 
-- `.github/workflows/deploy.yml` - Full stack deployment (backend + frontend)
-- `.github/workflows/deploy-all-azure.yml` - Frontend-only quick deploy
-- `.github/workflows/deploy-frontend.yml` - Legacy frontend deployment
+We use **2 GitHub Actions workflows** for automated deployment:
 
-Commit message triggers:
-- `[backend]` - Deploy backend only
-- `[all]` - Deploy both backend and frontend
-- Changes to `frontend/**` - Auto-deploy frontend
+#### 1. `deploy.yml` - Full Stack Deployment
+**Triggers**:
+- Commit message contains `[backend]` or `[all]`
+- Manual workflow dispatch
+
+**What it does**:
+- ✅ Builds Docker image for AMD64
+- ✅ Pushes to Azure Container Registry
+- ✅ Deploys to Azure Container Instances
+- ✅ Builds and deploys frontend (only if backend succeeds)
+
+**Use case**: Backend code changes
+
+```bash
+git commit -m "[backend] Fix API bug"
+git push origin main
+# ✅ Deploys both backend and frontend
+```
+
+#### 2. `deploy-all-azure.yml` - Quick Frontend Deploy
+**Triggers**:
+- Changes to `frontend/**` files
+- Changes to `.env.production`
+
+**What it does**:
+- ✅ Builds frontend with Vite
+- ✅ Deploys to Azure Static Web Apps
+- ⚡ Fast deployment (~1-2 minutes)
+
+**Use case**: Frontend-only changes
+
+```bash
+git commit -m "Update UI styling"
+git push origin main
+# ✅ Deploys frontend only
+```
+
+### Why Workflows Don't Conflict
+
+- `deploy.yml` frontend job **only runs when backend deploys successfully**
+- `deploy-all-azure.yml` runs **only for frontend changes**
+- No simultaneous deployments to same Static Web App
+- Azure won't cancel deployments anymore ✅
+
+### Setting Up HTTPS for Backend
+
+The backend runs on **HTTP** (Azure Container Instances), causing mixed content issues with the HTTPS frontend. We use **Cloudflare Tunnel** for free HTTPS:
+
+**📖 See [CLOUDFLARE_TUNNEL_STATUS.md](./CLOUDFLARE_TUNNEL_STATUS.md) for current status**
+
+**Quick Setup**:
+```bash
+# Install Cloudflare Tunnel
+brew install cloudflare/cloudflare/cloudflared
+
+# Start tunnel (quick mode - no login required)
+cloudflared tunnel --url http://52.147.223.151:8000
+# ✅ You'll get: https://[random-name].trycloudflare.com
+
+# Update frontend configuration
+# Edit frontend/.env.production with the new HTTPS URL
+
+# Commit and deploy
+git add frontend/.env.production .github/workflows/*.yml server.py
+git commit -m "[all] Update Cloudflare tunnel URL"
+git push origin main
+```
+
+**⚠️ IMPORTANT**: Quick tunnels get **new random URLs on each restart**. For production:
+1. Use named Cloudflare tunnel (requires free account)
+2. Run as background service on your Mac
+3. Deploy tunnel in Azure Container Instance
+
+**See [CLOUDFLARE_SETUP.md](./CLOUDFLARE_SETUP.md) for permanent tunnel setup**
 
 ### Manual Deployment
 

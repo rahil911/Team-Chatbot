@@ -82,6 +82,7 @@ jobs:
             --ports 8000 \
             --cpu 1 \
             --memory 1 \
+            --os-type Linux \
             --environment-variables OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
             --location ${{ env.LOCATION }}
 
@@ -114,11 +115,11 @@ jobs:
         run: az logout
         if: always()
 
-  # Deploy frontend (always runs, uses cached backend URL)
+  # Deploy frontend (only when backend deploys successfully)
   deploy-frontend:
     runs-on: ubuntu-latest
     needs: [deploy-backend]
-    if: always()
+    if: needs.deploy-backend.result == 'success'
 
     steps:
       - name: Checkout code
