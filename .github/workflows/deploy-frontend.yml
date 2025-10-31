@@ -31,15 +31,15 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd kg/frontend
+        cd frontend
         npm ci
 
     - name: Build application
       env:
-        VITE_API_URL: https://kg-backend-app-free.azurewebsites.net
+        VITE_API_URL: http://52.147.223.151:8000
       run: |
-        cd kg/frontend
-        npm run build
+        cd frontend
+        npx vite build
 
     - name: Azure Login
       uses: azure/login@v2
