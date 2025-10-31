@@ -288,7 +288,44 @@ npm run dev
 
 ## Deployment Notes
 
-For production deployment:
+### Current Deployment (Azure)
+
+**Frontend**: Deployed to Azure Static Web Apps (HTTPS)
+- URL: https://calm-forest-029210d0f.3.azurestaticapps.net
+- Auto-deploys from `main` branch via GitHub Actions
+
+**Backend**: Deployed to Azure Container Instances (HTTP only)
+- URL: http://52.147.223.151:8000
+- Requires HTTPS proxy for production use
+
+### Setting Up HTTPS for Backend
+
+The backend currently runs on HTTP, which causes mixed content issues when the HTTPS frontend tries to connect. To fix this, set up Cloudflare Tunnel for free HTTPS:
+
+**See [CLOUDFLARE_SETUP.md](./CLOUDFLARE_SETUP.md) for detailed instructions.**
+
+Quick steps:
+1. Install cloudflared
+2. Create tunnel: `cloudflared tunnel create kg-backend`
+3. Configure DNS routing
+4. Run tunnel: `cloudflared tunnel run kg-backend`
+5. Update `frontend/.env.production` with HTTPS URL
+6. Redeploy frontend
+
+### CI/CD Workflows
+
+- `.github/workflows/deploy.yml` - Full stack deployment (backend + frontend)
+- `.github/workflows/deploy-all-azure.yml` - Frontend-only quick deploy
+- `.github/workflows/deploy-frontend.yml` - Legacy frontend deployment
+
+Commit message triggers:
+- `[backend]` - Deploy backend only
+- `[all]` - Deploy both backend and frontend
+- Changes to `frontend/**` - Auto-deploy frontend
+
+### Manual Deployment
+
+For local production deployment:
 1. Set proper `OPENAI_API_KEY` in `.env`
 2. Configure CORS in `server.py` for your domain
 3. Use `npm run build` for frontend production build

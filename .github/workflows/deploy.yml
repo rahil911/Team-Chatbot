@@ -1,0 +1,174 @@
+name: Deploy to Azure
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AZURE_CONTAINER_REGISTRY: kgchatbotacr
+  BACKEND_IMAGE_NAME: kg-backend
+  CONTAINER_INSTANCE_NAME: kg-backend
+  RESOURCE_GROUP: kg-free-rg
+  LOCATION: eastus
+  NODE_VERSION: '18.x'
+
+jobs:
+  # Deploy backend only if backend files changed or manual trigger
+  deploy-backend:
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.message, '[backend]') ||
+      contains(github.event.head_commit.message, '[all]') ||
+      github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build and push to ACR
+        run: |
+          # Login to ACR
+          az acr login --name ${{ env.AZURE_CONTAINER_REGISTRY }}
+
+          # Build for amd64 architecture (Azure Container Instances requirement)
+          docker build \
+            --platform linux/amd64 \
+            -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }} \
+            -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.BACKEND_IMAGE_NAME }}:latest \
+            -f Dockerfile .
+
+          # Push both tags
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.BACKEND_IMAGE_NAME }}:latest
+
+      - name: Stop existing container (if any)
+        run: |
+          if az container show --name ${{ env.CONTAINER_INSTANCE_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} &> /dev/null; then
+            echo "Deleting existing container..."
+            az container delete \
+              --name ${{ env.CONTAINER_INSTANCE_NAME }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --yes
+
+            # Wait for deletion to complete
+            echo "Waiting for deletion to complete..."
+            sleep 30
+          else
+            echo "No existing container found"
+          fi
+        continue-on-error: true
+
+      - name: Deploy to Azure Container Instances
+        run: |
+          # Get ACR credentials
+          ACR_USERNAME=$(az acr credential show --name ${{ env.AZURE_CONTAINER_REGISTRY }} --query username -o tsv)
+          ACR_PASSWORD=$(az acr credential show --name ${{ env.AZURE_CONTAINER_REGISTRY }} --query "passwords[0].value" -o tsv)
+
+          # Deploy container
+          az container create \
+            --name ${{ env.CONTAINER_INSTANCE_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }} \
+            --registry-login-server ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io \
+            --registry-username $ACR_USERNAME \
+            --registry-password $ACR_PASSWORD \
+            --dns-name-label kg-backend-${{ github.run_number }} \
+            --ports 8000 \
+            --cpu 1 \
+            --memory 1 \
+            --environment-variables OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+            --location ${{ env.LOCATION }}
+
+      - name: Get container IP
+        id: get-ip
+        run: |
+          IP=$(az container show \
+            --name ${{ env.CONTAINER_INSTANCE_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --query ipAddress.ip -o tsv)
+          echo "Backend IP: $IP"
+          echo "backend_ip=$IP" >> $GITHUB_OUTPUT
+          echo "🚀 Backend deployed at http://$IP:8000"
+
+      - name: Verify deployment
+        run: |
+          echo "Waiting for backend to start..."
+          sleep 15
+
+          BACKEND_URL="http://${{ steps.get-ip.outputs.backend_ip }}:8000"
+
+          # Test health endpoint
+          if curl -f "$BACKEND_URL/api/graph" > /dev/null 2>&1; then
+            echo "✅ Backend is healthy!"
+          else
+            echo "⚠️  Backend might not be ready yet. Check logs manually."
+          fi
+
+      - name: Azure Logout
+        run: az logout
+        if: always()
+
+  # Deploy frontend (always runs, uses cached backend URL)
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: [deploy-backend]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build frontend
+        run: |
+          cd frontend
+
+          # Use environment variable from .env.production or fallback
+          # After Cloudflare Tunnel setup, update VITE_API_URL to https://your-domain.com
+          npx vite build
+        env:
+          # This will be overridden by .env.production
+          # After Cloudflare setup, update .env.production to use HTTPS URL
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'http://52.147.223.151:8000' }}
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: 'upload'
+          app_location: '/frontend/dist'
+          skip_app_build: true
+
+      - name: Deployment summary
+        run: |
+          echo "## Deployment Complete 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Frontend" >> $GITHUB_STEP_SUMMARY
+          echo "- URL: https://calm-forest-029210d0f.3.azurestaticapps.net" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Backend" >> $GITHUB_STEP_SUMMARY
+          echo "- Current: HTTP (Azure Container Instances)" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ **Action Required**: Set up Cloudflare Tunnel for HTTPS" >> $GITHUB_STEP_SUMMARY
+          echo "- See: [CLOUDFLARE_SETUP.md](../blob/main/CLOUDFLARE_SETUP.md)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Follow CLOUDFLARE_SETUP.md to configure HTTPS backend" >> $GITHUB_STEP_SUMMARY
+          echo "2. Update .env.production with Cloudflare HTTPS URL" >> $GITHUB_STEP_SUMMARY
+          echo "3. Redeploy frontend with new URL" >> $GITHUB_STEP_SUMMARY

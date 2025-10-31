@@ -1,42 +1,47 @@
-name: Deploy to Azure (Free Tier)
+name: Quick Deploy Frontend Only
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'frontend/**'
+      - '.env.production'
   workflow_dispatch:
 
 env:
   NODE_VERSION: '18.x'
-  PYTHON_VERSION: '3.9'
 
 jobs:
-  deploy:
+  deploy-frontend-fast:
     runs-on: ubuntu-latest
-    name: Deploy Full Stack App
-    
+    name: Quick Frontend Deploy
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        submodules: true
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
 
-    - name: Install frontend dependencies
+    - name: Install dependencies
       run: |
         cd frontend
         npm ci
 
     - name: Build frontend
-      env:
-        VITE_API_URL: http://52.147.223.151:8000
       run: |
         cd frontend
+        # Uses .env.production for API URL configuration
         npx vite build
+      env:
+        # Fallback if .env.production doesn't exist
+        # After Cloudflare setup, this should be HTTPS URL
+        VITE_API_URL: ${{ secrets.VITE_API_URL || 'http://52.147.223.151:8000' }}
 
     - name: Deploy to Azure Static Web Apps
       uses: Azure/static-web-apps-deploy@v1
@@ -46,4 +51,9 @@ jobs:
         action: "upload"
         app_location: "/frontend/dist"
         skip_app_build: true
+
+    - name: Deployment info
+      run: |
+        echo "✅ Frontend deployed to Azure Static Web Apps"
+        echo "📝 Backend: See CLOUDFLARE_SETUP.md for HTTPS configuration"
 

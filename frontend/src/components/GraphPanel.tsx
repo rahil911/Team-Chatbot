@@ -3,6 +3,7 @@ import CytoscapeComponent from 'react-cytoscapejs';
 import type cytoscape from 'cytoscape';
 import type { CytoscapeElement } from '../types';
 import { token } from '../theme';
+import { config } from '../config';
 
 interface GraphPanelProps {
   highlightData: {
@@ -26,7 +27,7 @@ export const GraphPanel = ({ highlightData }: GraphPanelProps) => {
   
   // Load graph data from API
   useEffect(() => {
-    fetch('http://localhost:8000/api/graph')
+    fetch(`${config.apiEndpoint}/graph`)
       .then(res => res.json())
       .then(data => {
         setElements(data.elements);
