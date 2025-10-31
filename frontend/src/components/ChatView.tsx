@@ -11,6 +11,7 @@ import {
   Button,
   ButtonGroup,
   Heading,
+  Badge,
 } from '@chakra-ui/react';
 import { ChatIcon, ArrowUpIcon } from '@chakra-ui/icons';
 import { MessageFormatter } from './MessageFormatter';
