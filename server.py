@@ -32,7 +32,8 @@ app.add_middleware(
         "http://localhost:3001",
         "https://calm-forest-029210d0f.3.azurestaticapps.net",
         "https://kg-frontend-app-free.azurestaticapps.net",
-        "https://*.azurestaticapps.net"  # Allow all Azure Static Web Apps during deployment
+        "https://*.azurestaticapps.net",  # Allow all Azure Static Web Apps during deployment
+        "https://agency-window-atmospheric-pushing.trycloudflare.com"  # Cloudflare Tunnel HTTPS
     ],
     allow_credentials=True,
     allow_methods=["*"],
