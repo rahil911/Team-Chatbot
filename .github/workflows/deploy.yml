@@ -141,12 +141,11 @@ jobs:
           cd frontend
 
           # Use environment variable from .env.production or fallback
-          # After Cloudflare Tunnel setup, update VITE_API_URL to https://your-domain.com
+          # Cloudflare Tunnel provides HTTPS endpoint for backend
           npx vite build
         env:
-          # This will be overridden by .env.production
-          # After Cloudflare setup, update .env.production to use HTTPS URL
-          VITE_API_URL: ${{ secrets.VITE_API_URL || 'http://52.147.223.151:8000' }}
+          # Use HTTPS Cloudflare Tunnel URL
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://agency-window-atmospheric-pushing.trycloudflare.com' }}
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
