@@ -16,7 +16,8 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: kg-backend
   RESOURCE_GROUP: kg-student-20251031184510-rg
-  CONTAINER_INSTANCE: kg-student-backend
+  CONTAINER_APP: kg-student-backend
+  CONTAINER_ENV: kg-student-env
   LOCATION: eastus2
 
 jobs:
@@ -62,58 +63,34 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_STUDENT_CREDENTIALS }}
 
-      - name: Stop existing container (if any)
-        continue-on-error: true
+      - name: Update Container App
         run: |
-          if az container show --name ${{ env.CONTAINER_INSTANCE }} --resource-group ${{ env.RESOURCE_GROUP }} &> /dev/null; then
-            echo "Deleting existing container..."
-            az container delete \
-              --name ${{ env.CONTAINER_INSTANCE }} \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --yes
-
-            # Wait for deletion
-            echo "Waiting for deletion to complete..."
-            sleep 30
-          fi
-
-      - name: Deploy to Azure Container Instance
-        run: |
-          az container create \
-            --name ${{ env.CONTAINER_INSTANCE }} \
+          az containerapp update \
+            --name ${{ env.CONTAINER_APP }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --image ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest \
-            --cpu 1 \
-            --memory 1 \
-            --os-type Linux \
-            --ports 8000 \
-            --dns-name-label kg-student-backend-${{ github.run_number }} \
-            --environment-variables OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
-            --location ${{ env.LOCATION }}
+            --set-env-vars "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
 
-      - name: Get container IP
-        id: get-ip
+      - name: Get Container App URL
+        id: get-url
         run: |
-          # Wait for container to start
-          sleep 15
-
-          IP=$(az container show \
-            --name ${{ env.CONTAINER_INSTANCE }} \
+          FQDN=$(az containerapp show \
+            --name ${{ env.CONTAINER_APP }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --query ipAddress.ip -o tsv)
+            --query properties.configuration.ingress.fqdn -o tsv)
 
-          echo "Backend IP: $IP"
-          echo "backend_ip=$IP" >> $GITHUB_OUTPUT
-          echo "🚀 Backend deployed at http://$IP:8000"
+          echo "Backend FQDN: $FQDN"
+          echo "backend_url=https://$FQDN" >> $GITHUB_OUTPUT
+          echo "🚀 Backend deployed at https://$FQDN"
 
       - name: Verify deployment
         run: |
-          BACKEND_URL="http://${{ steps.get-ip.outputs.backend_ip }}:8000"
+          BACKEND_URL="${{ steps.get-url.outputs.backend_url }}"
 
-          echo "Waiting for backend to start..."
-          sleep 10
+          echo "Waiting for Container App to be ready..."
+          sleep 15
 
-          # Test health endpoint
+          # Test health endpoint with HTTPS
           if curl -sf "$BACKEND_URL/" > /dev/null 2>&1; then
             echo "✅ Backend is healthy!"
             curl -s "$BACKEND_URL/" | jq .
