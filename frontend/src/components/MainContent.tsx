@@ -55,8 +55,6 @@ export const MainContent = ({
 
           <TabPanel p={0} h="full">
             <ChatView
-              mode={mode}
-              onModeChange={onModeChange}
               messages={messages}
               agentMessages={agentMessages}
               activeAgents={activeAgents}
