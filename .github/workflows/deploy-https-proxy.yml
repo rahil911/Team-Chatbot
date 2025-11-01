@@ -1,0 +1,72 @@
+name: Deploy HTTPS Proxy
+
+on:
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: kg-https-proxy
+  RESOURCE_GROUP: kg-student-20251031184510-rg
+  CONTAINER_NAME: kg-https-proxy
+  LOCATION: eastus2
+
+jobs:
+  deploy-proxy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: rahil911
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.nginx
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/rahil911/kg-https-proxy:latest
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_STUDENT_CREDENTIALS }}
+
+      - name: Delete old proxy if exists
+        continue-on-error: true
+        run: |
+          az container delete --name kg-https-proxy --resource-group kg-student-20251031184510-rg --yes
+          sleep 20
+
+      - name: Deploy HTTPS proxy container
+        run: |
+          az container create \
+            --name kg-https-proxy \
+            --resource-group kg-student-20251031184510-rg \
+            --image ghcr.io/rahil911/kg-https-proxy:latest \
+            --cpu 0.5 \
+            --memory 0.5 \
+            --os-type Linux \
+            --ports 80 443 \
+            --dns-name-label kg-student-https \
+            --location eastus2 \
+            --restart-policy Always
+
+      - name: Get proxy URL
+        run: |
+          FQDN=$(az container show --name kg-https-proxy --resource-group kg-student-20251031184510-rg --query "ipAddress.fqdn" -o tsv)
+          echo "HTTPS Proxy deployed at: https://$FQDN"
+
+      - name: Azure Logout
+        run: az logout
+        if: always()
