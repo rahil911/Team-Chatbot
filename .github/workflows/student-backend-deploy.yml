@@ -1,0 +1,128 @@
+name: Student Backend Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.py'
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - 'personas/**'
+      - 'data/**'
+      - '.github/workflows/student-backend-deploy.yml'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: kg-backend
+  RESOURCE_GROUP: kg-student-20251031184510-rg
+  CONTAINER_INSTANCE: kg-student-backend
+  LOCATION: westus2
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_STUDENT_CREDENTIALS }}
+
+      - name: Stop existing container (if any)
+        continue-on-error: true
+        run: |
+          if az container show --name ${{ env.CONTAINER_INSTANCE }} --resource-group ${{ env.RESOURCE_GROUP }} &> /dev/null; then
+            echo "Deleting existing container..."
+            az container delete \
+              --name ${{ env.CONTAINER_INSTANCE }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --yes
+
+            # Wait for deletion
+            echo "Waiting for deletion to complete..."
+            sleep 30
+          fi
+
+      - name: Deploy to Azure Container Instance
+        run: |
+          az container create \
+            --name ${{ env.CONTAINER_INSTANCE }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest \
+            --cpu 1 \
+            --memory 1 \
+            --os-type Linux \
+            --ports 8000 \
+            --dns-name-label kg-student-backend-${{ github.run_number }} \
+            --environment-variables OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+            --location ${{ env.LOCATION }}
+
+      - name: Get container IP
+        id: get-ip
+        run: |
+          # Wait for container to start
+          sleep 15
+
+          IP=$(az container show \
+            --name ${{ env.CONTAINER_INSTANCE }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --query ipAddress.ip -o tsv)
+
+          echo "Backend IP: $IP"
+          echo "backend_ip=$IP" >> $GITHUB_OUTPUT
+          echo "🚀 Backend deployed at http://$IP:8000"
+
+      - name: Verify deployment
+        run: |
+          BACKEND_URL="http://${{ steps.get-ip.outputs.backend_ip }}:8000"
+
+          echo "Waiting for backend to start..."
+          sleep 10
+
+          # Test health endpoint
+          if curl -sf "$BACKEND_URL/" > /dev/null 2>&1; then
+            echo "✅ Backend is healthy!"
+            curl -s "$BACKEND_URL/" | jq .
+          else
+            echo "⚠️  Backend might not be ready yet. Check logs manually."
+          fi
+
+      - name: Azure Logout
+        run: az logout
+        if: always()
