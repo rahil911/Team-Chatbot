@@ -8,11 +8,9 @@ import {
 } from '@chakra-ui/react';
 import { KnowledgeGraphView } from './KnowledgeGraphView';
 import { ChatView } from './ChatView';
-import type { ChatMode, Message, AgentMessage } from '../types';
+import type { Message, AgentMessage } from '../types';
 
 interface MainContentProps {
-  mode: ChatMode;
-  onModeChange: (mode: ChatMode) => void;
   messages: Message[];
   agentMessages: AgentMessage;
   activeAgents: string[];
@@ -24,8 +22,6 @@ interface MainContentProps {
 }
 
 export const MainContent = ({
-  mode,
-  onModeChange,
   messages,
   agentMessages,
   activeAgents,
