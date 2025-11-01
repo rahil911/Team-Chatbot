@@ -17,7 +17,7 @@ env:
   IMAGE_NAME: kg-backend
   RESOURCE_GROUP: kg-student-20251031184510-rg
   CONTAINER_INSTANCE: kg-student-backend
-  LOCATION: westus2
+  LOCATION: eastus2
 
 jobs:
   build-and-deploy:

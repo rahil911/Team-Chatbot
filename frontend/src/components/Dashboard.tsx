@@ -171,8 +171,6 @@ export const Dashboard = () => {
           overflow="hidden"
         >
           <ChatView
-            mode={mode}
-            onModeChange={() => {}}
             messages={messages}
             agentMessages={agentMessages}
             activeAgents={activeAgents}
