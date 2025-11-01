@@ -38,3 +38,12 @@ frontend/.vite/
 # *.mov
 # *.avi
 
+# Azure migration artifacts (temporary)
+.migration-backup/
+.migration-current-pid
+.migration-pid
+MIGRATION_*.md
+azure-functions-proxy/
+migrate-to-new-azure.sh
+migration-log-*.txt
+
