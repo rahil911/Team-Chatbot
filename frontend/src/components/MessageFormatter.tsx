@@ -3,6 +3,7 @@ import remarkGfm from 'remark-gfm';
 
 interface MessageFormatterProps {
   content: string;
+  maxLines?: number;
 }
 
 const AGENT_COLORS: Record<string, string> = {
@@ -114,12 +115,12 @@ export const MessageFormatter = ({ content }: MessageFormatterProps) => {
           ),
           
           // Blockquote
-          blockquote: ({node, ...props}) => (
+          blockquote: ({...props}) => (
             <blockquote className="border-l-4 border-blue-500 pl-3 py-1 my-2 italic text-gray-300" {...props} />
           ),
           
           // Text - with mention highlighting
-          text: ({node, children, ...props}: any) => {
+          text: ({children}: any) => {
             if (typeof children === 'string') {
               return <TextWithMentions>{children}</TextWithMentions>;
             }

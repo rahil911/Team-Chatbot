@@ -8,19 +8,14 @@ import {
   Flex,
   Textarea,
   IconButton,
-  Button,
-  ButtonGroup,
-  Heading,
   Badge,
 } from '@chakra-ui/react';
 import { ChatIcon, ArrowUpIcon } from '@chakra-ui/icons';
 import { MessageFormatter } from './MessageFormatter';
-import type { ChatMode, Message, AgentMessage } from '../types';
+import type { Message, AgentMessage } from '../types';
 import { useState } from 'react';
 
 interface ChatViewProps {
-  mode: ChatMode;
-  onModeChange: (mode: ChatMode) => void;
   messages: Message[];
   agentMessages: AgentMessage;
   activeAgents: string[];
@@ -38,8 +33,6 @@ const AGENTS = {
 } as const;
 
 export const ChatView = ({
-  mode,
-  onModeChange,
   messages,
   isProcessing,
   typingAgent,

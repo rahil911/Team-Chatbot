@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Box, Flex, Text, Stat, StatLabel, StatNumber, HStack, VStack, Badge, Spinner } from '@chakra-ui/react';
+import { Box, Flex, Text, Stat, StatLabel, StatNumber, HStack, Badge, Spinner } from '@chakra-ui/react';
 import CytoscapeComponent from 'react-cytoscapejs';
 import type cytoscape from 'cytoscape';
 import type { CytoscapeElement } from '../types';

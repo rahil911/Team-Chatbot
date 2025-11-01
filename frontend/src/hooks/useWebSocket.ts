@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Message, ChatMode } from '../types';
 import { config } from '../config';
 
-const API_URL = config.apiEndpoint;
 const WS_URL = config.wsUrl;
 
 export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
@@ -18,7 +17,7 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
   // WebSocket connection
   useEffect(() => {
     let ws: WebSocket | null = null;
-    let reconnectTimeout: NodeJS.Timeout | null = null;
+    let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
     
     const connect = () => {
       try {
