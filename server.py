@@ -19,6 +19,9 @@ from graph_highlighter import GraphHighlighter
 from utils import get_openai_api_key
 from openai import OpenAI
 import websockets
+from conversation_manager import get_conversation_manager
+from graph_analytics import GraphAnalytics
+import uuid
 
 # Initialize
 app = FastAPI(title="AI Team Multi-Agent API")
@@ -45,8 +48,16 @@ app.add_middleware(
 kg_loader = get_kg_loader()
 graph_view = GraphView(kg_loader)
 graph_highlighter = GraphHighlighter(kg_loader)
+graph_analytics = GraphAnalytics(kg_loader.merged_graph)
 agent_system = MultiAgentSystem(kg_loader, use_gpt5=False)
 openai_client = OpenAI(api_key=get_openai_api_key())
+conversation_manager = get_conversation_manager()
+
+# Pre-compute analytics
+print("Pre-computing graph analytics...")
+graph_analytics.compute_centrality_metrics()
+graph_analytics.detect_communities()
+print("Graph analytics ready!")
 
 # Active WebSocket connections
 active_connections: List[WebSocket] = []
@@ -101,6 +112,247 @@ async def get_agents():
     return {
         "agents": AGENTS
     }
+
+
+@app.get("/api/graph/analytics")
+async def get_graph_analytics():
+    """Get graph analytics and metrics"""
+    try:
+        centrality = graph_analytics.compute_centrality_metrics()
+        importance = graph_analytics.compute_importance_scores(centrality)
+        clusters = graph_analytics.detect_communities()
+        stats = graph_analytics.get_stats()
+
+        return {
+            "stats": stats,
+            "centrality_computed": True,
+            "num_clusters": len(set(clusters.values())),
+            "top_nodes_by_importance": sorted(
+                importance.items(),
+                key=lambda x: x[1],
+                reverse=True
+            )[:20]
+        }
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.post("/api/graph/filter")
+async def filter_graph(data: dict):
+    """Filter graph by various criteria"""
+    try:
+        # Accept both camelCase (from frontend) and snake_case for compatibility
+        node_types = data.get("nodeTypes") or data.get("node_types", None)
+        agents = data.get("agents", None)
+        min_importance = data.get("minImportance") or data.get("min_importance", 0)
+        clusters = data.get("clusters", None)
+
+        # Normalize inputs to lists for consistent filtering
+        if node_types is not None and not isinstance(node_types, list):
+            node_types = [node_types] if isinstance(node_types, str) else []
+
+        if agents is not None and not isinstance(agents, list):
+            agents = [agents] if isinstance(agents, str) else []
+
+        if clusters is not None and not isinstance(clusters, list):
+            clusters = [clusters] if isinstance(clusters, str) else []
+
+        # Get all nodes
+        all_nodes = set(kg_loader.merged_graph.nodes())
+        filtered_nodes = all_nodes.copy()
+
+        # Filter by node type
+        if node_types is not None and len(node_types) > 0:
+            type_nodes = set()
+            for node in all_nodes:
+                node_data = kg_loader.merged_graph.nodes[node]
+                if node_data.get('type') in node_types:
+                    type_nodes.add(node)
+            filtered_nodes &= type_nodes
+
+        # Filter by agent/person
+        if agents is not None and len(agents) > 0:
+            agent_nodes = set()
+            for node in all_nodes:
+                node_data = kg_loader.merged_graph.nodes[node]
+                if node_data.get('person') in agents:
+                    agent_nodes.add(node)
+            filtered_nodes &= agent_nodes
+
+        # Filter by importance
+        if min_importance > 0:
+            importance_scores = graph_analytics.compute_importance_scores()
+            important_nodes = {
+                node for node, score in importance_scores.items()
+                if score >= min_importance
+            }
+            filtered_nodes &= important_nodes
+
+        # Filter by cluster
+        if clusters is not None and len(clusters) > 0:
+            cluster_map = graph_analytics.detect_communities()
+            cluster_nodes = {
+                node for node, cluster_id in cluster_map.items()
+                if cluster_id in clusters
+            }
+            filtered_nodes &= cluster_nodes
+
+        return {
+            "filtered_nodes": list(filtered_nodes),
+            "count": len(filtered_nodes),
+            "original_count": len(all_nodes)
+        }
+
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.post("/api/graph/search")
+async def search_graph(data: dict):
+    """Search for nodes by name/properties"""
+    try:
+        query = data.get("query", "").lower()
+        max_results = data.get("max_results", 50)
+
+        if not query:
+            return {"results": [], "count": 0}
+
+        results = []
+
+        for node in kg_loader.merged_graph.nodes():
+            node_data = kg_loader.merged_graph.nodes[node]
+            label = node_data.get('label', '').lower()
+            node_type = node_data.get('type', '').lower()
+
+            # Simple fuzzy matching
+            if query in label or query in node_type or query in node.lower():
+                results.append({
+                    "id": node,
+                    "label": node_data.get('label', node),
+                    "type": node_data.get('type'),
+                    "person": node_data.get('person'),
+                    "score": 1.0  # Placeholder for fuzzy match score
+                })
+
+                if len(results) >= max_results:
+                    break
+
+        return {
+            "results": results,
+            "count": len(results),
+            "query": query
+        }
+
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/api/graph/neighborhood/{node_id}")
+async def get_neighborhood(node_id: str, depth: int = 2):
+    """Get N-hop neighborhood of a node"""
+    try:
+        neighborhood = graph_analytics.get_neighborhood(node_id, depth=depth)
+
+        return {
+            "node_id": node_id,
+            "depth": depth,
+            "neighbors": list(neighborhood),
+            "count": len(neighborhood)
+        }
+
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/api/graph/agent/{agent_id}")
+async def get_agent_graph(agent_id: str):
+    """Get graph for a specific agent"""
+    try:
+        nodes = graph_analytics.get_agent_subgraph_nodes(agent_id)
+
+        # Get subgraph elements
+        subgraph_elements = []
+        for node in nodes:
+            node_data = kg_loader.merged_graph.nodes[node]
+            subgraph_elements.append({
+                "data": {
+                    "id": node,
+                    "label": node_data.get('label', node),
+                    "type": node_data.get('type'),
+                    **node_data
+                }
+            })
+
+        # Get edges within this subgraph
+        for u, v in kg_loader.merged_graph.edges():
+            if u in nodes and v in nodes:
+                edge_data = kg_loader.merged_graph.edges[u, v]
+                subgraph_elements.append({
+                    "data": {
+                        "source": u,
+                        "target": v,
+                        "type": edge_data.get('type', 'related'),
+                        **edge_data
+                    }
+                })
+
+        return {
+            "agent_id": agent_id,
+            "nodes": list(nodes),
+            "node_count": len(nodes),
+            "elements": subgraph_elements
+        }
+
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/api/graph/compare/{agent1_id}/{agent2_id}")
+async def compare_agents(agent1_id: str, agent2_id: str):
+    """Compare two agents' graphs"""
+    try:
+        comparison = graph_analytics.compare_agent_graphs(agent1_id, agent2_id)
+
+        return {
+            "agent1_id": agent1_id,
+            "agent2_id": agent2_id,
+            "agent1_node_count": len(comparison['agent1_only']),
+            "agent2_node_count": len(comparison['agent2_only']),
+            "shared_count": len(comparison['shared']),
+            "shared_nodes": list(comparison['shared']),
+            "agent1_nodes": list(comparison['agent1_only']),
+            "agent2_nodes": list(comparison['agent2_only'])
+        }
+
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/api/graph/clusters")
+async def get_clusters():
+    """Get cluster/community assignments"""
+    try:
+        clusters = graph_analytics.detect_communities()
+        metadata_clusters = graph_analytics.get_node_metadata_clustering()
+
+        # Group nodes by cluster
+        cluster_groups = {}
+        for node, cluster_id in clusters.items():
+            if cluster_id not in cluster_groups:
+                cluster_groups[cluster_id] = []
+            cluster_groups[cluster_id].append(node)
+
+        return {
+            "algorithm_clusters": cluster_groups,
+            "num_clusters": len(cluster_groups),
+            "metadata_clusters": {
+                k: {k2: list(v2) for k2, v2 in v.items()}
+                for k, v in metadata_clusters.items()
+            }
+        }
+
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 @app.post("/api/transcribe")
@@ -238,11 +490,19 @@ async def chat_endpoint(data: dict):
 async def websocket_endpoint(websocket: WebSocket):
     """WebSocket for real-time chat with knowledge graph highlighting"""
     await manager.connect(websocket)
-    
+
+    # Create new session for this WebSocket connection
+    session_id = str(uuid.uuid4())
+    session = conversation_manager.create_session(
+        session_id=session_id,
+        metadata={"websocket_id": id(websocket)}
+    )
+
     try:
-        # Send initial data
+        # Send initial data with session ID
         await manager.send_personal({
             "type": "connected",
+            "session_id": session_id,
             "agents": AGENTS,
             "graph_stats": {
                 "nodes": len(kg_loader.node_data),
@@ -284,120 +544,184 @@ async def websocket_endpoint(websocket: WebSocket):
                     # No message received, but connection still alive
                     continue
                 except Exception as e:
-                    break
-                
+                    print(f"❌ ERROR receiving/parsing WebSocket message: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    # Send error to client instead of breaking
+                    try:
+                        await manager.send_personal({
+                            "type": "error",
+                            "message": f"Message processing error: {str(e)}"
+                        }, websocket)
+                    except:
+                        pass
+                    continue  # Don't break - keep processing other messages
+
                 message_type = data.get("type")
-                
+                print(f"📨 Received WebSocket message type: {message_type}")
+
                 if message_type == "chat":
-                    # Handle chat message
-                    user_message = data.get("message", "")
-                    mode = data.get("mode", "group")  # group or orchestrator
-                    
-                    # Send acknowledgment
-                    await manager.send_personal({
-                        "type": "processing",
-                        "message": "Agents are thinking..."
-                    }, websocket)
-                    
-                    # Get responses from agents (sequential like WhatsApp with streaming)
-                    if mode == "group":
-                        response_gen = agent_system.group_chat_mode(user_message, [])
-                        
-                        # Stream responses sequentially with typing indicators
-                        current_agent = None
-                        current_response = ""
-                        current_timestamp = None
-                        
-                        for agent_id, chunk in response_gen:
-                            # New agent starting
-                            if current_agent != agent_id:
-                                # Send previous agent's complete message
-                                if current_agent and current_response:
-                                    entities = graph_highlighter.extract_entities(current_response, current_agent)
-                                    highlight_data = graph_highlighter.get_highlight_data(current_agent, entities)
-                                    
+                    print(f"💬 Processing chat message: {data.get('message', '')[:100]}...")
+                    try:
+                        # Handle chat message
+                        user_message = data.get("message", "")
+                        mode = data.get("mode", "group")  # group or orchestrator
+
+                        # Add user message to session
+                        conversation_manager.add_user_message(session_id, user_message)
+
+                        # Send acknowledgment
+                        await manager.send_personal({
+                            "type": "processing",
+                            "message": "Agents are thinking..."
+                        }, websocket)
+
+                        # Get conversation history
+                        conversation_history = session.get_history(max_messages=20)
+
+                        # Get responses from agents (with dynamic routing and context)
+                        if mode == "group":
+                            response_gen = agent_system.group_chat_mode(
+                                user_message,
+                                conversation_history,
+                                use_dynamic_routing=True  # Enable new LLM routing
+                            )
+
+                            # Stream responses sequentially with typing indicators
+                            current_agent = None
+                            current_response = ""
+                            current_timestamp = None
+
+                            for agent_id, chunk in response_gen:
+                                # Skip invalid agent IDs (like 'system')
+                                if agent_id not in AGENTS:
+                                    print(f"⚠️ Skipping invalid agent_id: {agent_id}")
+                                    continue
+
+                                # New agent starting
+                                if current_agent != agent_id:
+                                    # Send previous agent's complete message
+                                    if current_agent and current_response:
+                                        entities = graph_highlighter.extract_entities(current_response, current_agent)
+                                        highlight_data = graph_highlighter.get_highlight_data(current_agent, entities)
+
+                                        await manager.send_personal({
+                                            "type": "agent_complete",
+                                            "agent_id": current_agent,
+                                            "full_response": current_response,
+                                            "highlights": highlight_data
+                                        }, websocket)
+
+                                    # New agent - show typing indicator
+                                    current_agent = agent_id
+                                    current_response = ""
+                                    current_timestamp = int(time.time() * 1000)
+
                                     await manager.send_personal({
-                                        "type": "agent_complete",
-                                        "agent_id": current_agent,
-                                        "full_response": current_response,
-                                        "highlights": highlight_data
+                                        "type": "agent_typing",
+                                        "agent_id": agent_id,
+                                        "agent_name": AGENTS[agent_id]['name']
                                     }, websocket)
-                                
-                                # New agent - show typing indicator
-                                current_agent = agent_id
-                                current_response = ""
-                                current_timestamp = int(time.time() * 1000)
-                                
+
+                                    # Small delay for typing indicator visibility
+                                    await asyncio.sleep(0.5)
+
+                                    # Signal agent started
+                                    await manager.send_personal({
+                                        "type": "agent_start",
+                                        "agent_id": agent_id,
+                                        "agent_name": AGENTS[agent_id]['name'],
+                                        "timestamp": current_timestamp
+                                    }, websocket)
+
+                                # Stream chunk
+                                if not chunk.startswith('[Error'):
+                                    current_response += chunk
+                                    await manager.send_personal({
+                                        "type": "agent_chunk",
+                                        "agent_id": agent_id,
+                                        "chunk": chunk,
+                                        "timestamp": current_timestamp
+                                    }, websocket)
+
+                            # Send final agent's completion
+                            if current_agent and current_response:
+                                entities = graph_highlighter.extract_entities(current_response, current_agent)
+                                highlight_data = graph_highlighter.get_highlight_data(current_agent, entities)
+
+                                # Add agent response to session
+                                conversation_manager.add_agent_message(
+                                    session_id,
+                                    current_agent,
+                                    AGENTS[current_agent]['name'],
+                                    current_response,
+                                    metadata={"highlights": highlight_data}
+                                )
+
                                 await manager.send_personal({
-                                    "type": "agent_typing",
-                                    "agent_id": agent_id,
-                                    "agent_name": AGENTS[agent_id]['name']
+                                    "type": "agent_complete",
+                                    "agent_id": current_agent,
+                                    "full_response": current_response,
+                                    "highlights": highlight_data
                                 }, websocket)
-                                
-                                # Small delay for typing indicator visibility
-                                await asyncio.sleep(0.5)
-                                
-                                # Signal agent started
-                                await manager.send_personal({
-                                    "type": "agent_start",
-                                    "agent_id": agent_id,
-                                    "agent_name": AGENTS[agent_id]['name'],
-                                    "timestamp": current_timestamp
-                                }, websocket)
-                            
-                            # Stream chunk
-                            if not chunk.startswith('[Error'):
-                                current_response += chunk
-                                await manager.send_personal({
-                                    "type": "agent_chunk",
-                                    "agent_id": agent_id,
-                                    "chunk": chunk,
-                                    "timestamp": current_timestamp
-                                }, websocket)
-                    
-                        # Send final agent's completion
-                        if current_agent and current_response:
-                            entities = graph_highlighter.extract_entities(current_response, current_agent)
-                            highlight_data = graph_highlighter.get_highlight_data(current_agent, entities)
-                            
+
+                            # Signal all complete
                             await manager.send_personal({
-                                "type": "agent_complete",
-                                "agent_id": current_agent,
-                                "full_response": current_response,
-                                "highlights": highlight_data
+                                "type": "all_complete"
                             }, websocket)
-                        
-                        # Signal all complete
+
+                        elif mode == "orchestrator":
+                            responses = agent_system.orchestrator_mode(user_message, conversation_history)
+
+                            for response in responses:
+                                agent_id = response['agent']
+                                agent_response = response['response']
+
+                                # Extract entities and generate highlights
+                                entities = graph_highlighter.extract_entities(agent_response, agent_id)
+                                highlight_data = graph_highlighter.get_highlight_data(agent_id, entities)
+
+                                await manager.send_personal({
+                                    "type": "agent_response",
+                                    "agent_id": agent_id,
+                                    "response": agent_response,
+                                    "highlights": highlight_data  # NEW: AI observability
+                                }, websocket)
+
+                    except Exception as e:
+                        print(f"❌ ERROR processing chat message: {e}")
+                        import traceback
+                        traceback.print_exc()
+                        # Send error to client
+                        await manager.send_personal({
+                            "type": "error",
+                            "message": f"Failed to process message: {str(e)}"
+                        }, websocket)
+                        # Send all_complete to reset frontend state
                         await manager.send_personal({
                             "type": "all_complete"
                         }, websocket)
-                    
-                    elif mode == "orchestrator":
-                        responses = agent_system.orchestrator_mode(user_message, [])
-                        
-                        for response in responses:
-                            agent_id = response['agent']
-                            agent_response = response['response']
-                            
-                            # Extract entities and generate highlights
-                            entities = graph_highlighter.extract_entities(agent_response, agent_id)
-                            highlight_data = graph_highlighter.get_highlight_data(agent_id, entities)
-                            
-                            await manager.send_personal({
-                                "type": "agent_response",
-                                "agent_id": agent_id,
-                                "response": agent_response,
-                                "highlights": highlight_data  # NEW: AI observability
-                            }, websocket)
-                
+
                 elif message_type == "ping":
                     await manager.send_personal({"type": "pong"}, websocket)
+
+                elif message_type == "clear_history":
+                    # Allow clients to clear conversation history
+                    conversation_manager.clear_session_history(session_id)
+                    await manager.send_personal({
+                        "type": "history_cleared",
+                        "session_id": session_id
+                    }, websocket)
         finally:
             keepalive_task.cancel()
-    
+
     except WebSocketDisconnect:
+        # Clean up session on disconnect
+        conversation_manager.delete_session(session_id)
         manager.disconnect(websocket)
     except Exception as e:
+        # Clean up session on error
+        conversation_manager.delete_session(session_id)
         manager.disconnect(websocket)
 
 

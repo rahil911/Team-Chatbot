@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Graph RAG Multi-Agent Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .layer {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .layer:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .layer.frontend { border-color: #4CAF50; }
+        .layer.websocket { border-color: #2196F3; }
+        .layer.backend { border-color: #FF9800; }
+        .layer.graph { border-color: #E91E63; }
+        .layer.agents { border-color: #9C27B0; }
+
+        .layer-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .layer-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        .frontend .layer-icon { background: #4CAF50; }
+        .websocket .layer-icon { background: #2196F3; }
+        .backend .layer-icon { background: #FF9800; }
+        .graph .layer-icon { background: #E91E63; }
+        .agents .layer-icon { background: #9C27B0; }
+
+        .components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .component {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .component:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .component-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .component-desc {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 2em;
+            color: #667eea;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+
+        .agent-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .agent-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 3px solid;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .agent-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .agent-card.rahil { border-color: #7E57C2; }
+        .agent-card.mathew { border-color: #2196F3; }
+        .agent-card.shreyas { border-color: #4CAF50; }
+        .agent-card.siddarth { border-color: #FF9800; }
+
+        .agent-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .agent-role {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .agent-expertise {
+            font-size: 0.8em;
+            color: #888;
+            font-style: italic;
+        }
+
+        .pipeline-flow {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            gap: 20px;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .step-desc {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .tech-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .highlight-demo {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .highlight-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #d84315;
+        }
+
+        .pulsing {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .interactive-note {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .mode-btn:hover, .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .diagram-section {
+            margin: 30px 0;
+        }
+
+        .section-header {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .components {
+                grid-template-columns: 1fr;
+            }
+
+            .agent-cards {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        .routing-demo {
+            background: #e8eaf6;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .routing-path {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .routing-node {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-weight: 600;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .routing-arrow {
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Knowledge Graph RAG Multi-Agent System</h1>
+        <p class="subtitle">Full Pipeline Architecture: Where LLMs Discuss, Agents Collaborate, and Knowledge Graphs Come Alive</p>
+
+        <div class="interactive-note">
+            <strong>💡 Interactive Architecture:</strong> This system features 4 AI agents with distinct personas, knowledge graphs with 1000+ nodes,
+            LLM-based intelligent routing, real-time graph highlighting, and agent-to-agent conversations via @mentions.
+        </div>
+
+        <!-- Mode Selection -->
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="showMode('overview')">📊 Overview</button>
+            <button class="mode-btn" onclick="showMode('pipeline')">🔄 Pipeline Flow</button>
+            <button class="mode-btn" onclick="showMode('agents')">🤖 Agents</button>
+            <button class="mode-btn" onclick="showMode('tech')">⚙️ Tech Stack</button>
+        </div>
+
+        <!-- OVERVIEW MODE -->
+        <div id="overview-mode" class="diagram-section">
+            <div class="section-header">System Architecture Layers</div>
+
+            <div class="architecture">
+                <!-- Layer 1: Frontend -->
+                <div class="layer frontend">
+                    <div class="layer-title">
+                        <div class="layer-icon">🖥️</div>
+                        Layer 1: Frontend (React + TypeScript)
+                    </div>
+                    <div class="components">
+                        <div class="component">
+                            <div class="component-title">Chat Interface</div>
+                            <div class="component-desc">Real-time WebSocket chat with typing indicators, streaming responses, and multi-agent conversation history</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-title">Knowledge Graph Visualization</div>
+                            <div class="component-desc">Interactive Cytoscape.js graph with 1000+ nodes, dynamic filtering, clustering, and real-time highlighting</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-title">Agent View Switch</div>
+                            <div class="component-desc">Switch between agent perspectives, compare graphs, explore neighborhoods, apply advanced filters</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-title">Audio Features</div>
+                            <div class="component-desc">Voice input (Whisper transcription), text-to-speech output (agent-specific voices), realtime audio streaming</div>
+                        </div>
+                    </div>
+                    <div class="tech-stack">
+                        <span class="tech-badge">React</span>
+                        <span class="tech-badge">TypeScript</span>
+                        <span class="tech-badge">Chakra UI</span>
+                        <span class="tech-badge">Cytoscape.js</span>
+                        <span class="tech-badge">WebSocket</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <!-- Layer 2: WebSocket Communication -->
+                <div class="layer websocket">
+                    <div class="layer-title">
+                        <div class="layer-icon">🔌</div>
+                        Layer 2: Real-time Communication (WebSocket)
+                    </div>
+                    <div class="components">
+                        <div class="component">
+                            <div class="component-title">Session Management</div>
+                            <div class="component-desc">UUID-based sessions, conversation history persistence, automatic cleanup of stale sessions (1hr timeout)</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-title">Streaming Pipeline</div>
+                            <div class="component-desc">Agent typing indicators → streaming chunks → entity extraction → graph highlighting → completion events</div>
+                        </div>
+                        <div class="component">
+                            <div class="component-title">Message Types</div>
+                            <div class="component-desc">chat, agent_typing, agent_chunk, agent_complete, highlights, keepalive, transcription, agent_audio</div>
+                        </div>
+                    </div>
+                    <div class="tech-stack">
+                        <span class="tech-badge">FastAPI WebSocket</span>
+                        <span class="tech-badge">asyncio</span>
+                        <span class="tech-badge">Conversation Manager</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <!-- Layer 3: Backend Processing -->
+                <div class="layer backend">
+                    <div class="layer-title">
+                        <div class="layer-icon">⚙️</div>
+                        Layer 3: Backend Processing (Python + FastAPI)
+                    </div>
+                    <div class="components">
+                        <div class="component">
+                            <div class="component-title">Intent Router (LLM-based)</div>
+                            <div class="component-desc">
+                                <strong>🎯 Smart Routing:</strong><br>
+                                • Analyzes user queries with GPT-4o<br>
+                                • Detects @mentions and explicit requests<br>
+                                • Routes to 1-4 relevant agents based on expertise<br>
+                                • Handles greetings (Rahil solo intro) vs team activation
+                            </div>
+                        </div>
+                        <div class="component">
+                            <div class="component-title">Multi-Agent System</div>
+                            <div class="component-desc">
+                                <strong>🤖 3 Modes:</strong><br>
+                                • <strong>Group Chat:</strong> WhatsApp-style sequential with @mentions<br>
+                                • <strong>Orchestrator:</strong> Rahil delegates, others respond<br>
+                                • <strong>Conference:</strong> Voice call mode with Rahil leading
+                            </div>
+                        </div>
+                        <div class="component">
+                            <div class="component-title">Agent-to-Agent Communication</div>
+                            <div class="component-desc">
+                                <strong>💬 Tier 2 Routing:</strong><br>
+                                • MentionParser pre-checks for @mentions<br>
+                                • LLM analyzes agent responses for delegation<br>
+                                • Auto-routes to mentioned agents<br>
+                                • Max 2 rounds to prevent infinite loops
+                            </div>
+                        </div>
+                        <div class="component">
+                            <div class="component-title">Graph Highlighter</div>
+                            <div class="component-desc">Extracts entities from agent responses, matches to KG nodes, generates highlight data for visual feedback</div>
+                        </div>
+                    </div>
+                    <div class="tech-stack">
+                        <span class="tech-badge">FastAPI</span>
+                        <span class="tech-badge">OpenAI GPT-4o</span>
+                        <span class="tech-badge">Pydantic</span>
+                        <span class="tech-badge">Whisper</span>
+                        <span class="tech-badge">TTS</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <!-- Layer 4: Knowledge Graph RAG -->
+                <div class="layer graph">
+                    <div class="layer-title">
+                        <div class="layer-icon">📊</div>
+                        Layer 4: Knowledge Graph RAG Engine
+                    </div>
+                    <div class="components">
+                        <div class="component">
+                            <div class="component-title">Graph Database</div>
+                            <div class="component-desc">
+                                <strong>📈 1000+ Nodes:</strong><br>
+                                • Skills, Technologies, Projects, Achievements, Experiences<br>
+                                • Person-attributed nodes (rahil, mathew, shreyas, siddarth)<br>
+                                • Relationships: uses, requires, implements, achieves, works_on
+                            </div>
+                        </div>
+                        <div class="component">
+                            <div class="component-title">Graph Analytics</div>
+                            <div class="component-desc">
+                                <strong>📊 Advanced Metrics:</strong><br>
+                                • Centrality (degree, betweenness, PageRank, eigenvector)<br>
+                                • Community detection (Louvain algorithm)<br>
+                                • Importance scoring (0-100)<br>
+                                • N-hop neighborhood extraction<br>
+                                • Agent subgraph comparison
+                            </div>
+                        </div>
+                        <div class="component">
+                            <div class="component-title">Context Retrieval</div>
+                            <div class="component-desc">
+                                Per-agent KG context extraction (skills, technologies, projects, achievements) injected into LLM prompts
+                            </div>
+                        </div>
+                        <div class="component">
+                            <div class="component-title">Entity Extraction</div>
+                            <div class="component-desc">Match agent responses to graph entities, generate real-time highlights, enable AI observability</div>
+                        </div>
+                    </div>
+                    <div class="tech-stack">
+                        <span class="tech-badge">NetworkX</span>
+                        <span class="tech-badge">Python-Louvain</span>
+                        <span class="tech-badge">Graph Algorithms</span>
+                        <span class="tech-badge">Cytoscape Format</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <!-- Layer 5: AI Agents -->
+                <div class="layer agents">
+                    <div class="layer-title">
+                        <div class="layer-icon">🤖</div>
+                        Layer 5: AI Agents (GPT-4o with Personas + KG Context)
+                    </div>
+
+                    <div class="agent-cards">
+                        <div class="agent-card rahil">
+                            <div class="agent-name">👨‍💼 Rahil M. Harihar</div>
+                            <div class="agent-role">AI Architect & Orchestrator</div>
+                            <div class="agent-expertise">
+                                AI/ML, Multi-Agent Systems, LLMs, System Design<br>
+                                <strong>Voice:</strong> Alloy (Warm, Leadership)<br>
+                                <strong>Special:</strong> Always speaks first, delegates with @tags
+                            </div>
+                        </div>
+
+                        <div class="agent-card mathew">
+                            <div class="agent-name">👨‍💻 Mathew Jerry Meleth</div>
+                            <div class="agent-role">Data Engineer</div>
+                            <div class="agent-expertise">
+                                AWS/Azure, ETL, Big Data, Cloud Platforms<br>
+                                <strong>Voice:</strong> Echo (Technical, Clear)
+                            </div>
+                        </div>
+
+                        <div class="agent-card shreyas">
+                            <div class="agent-name">👔 Shreyas B Subramanya</div>
+                            <div class="agent-role">Product Manager</div>
+                            <div class="agent-expertise">
+                                Supply Chain, Strategy, Planning, Workflows<br>
+                                <strong>Voice:</strong> Fable (Professional, Steady)
+                            </div>
+                        </div>
+
+                        <div class="agent-card siddarth">
+                            <div class="agent-name">⚙️ Siddarth Bhave</div>
+                            <div class="agent-role">Software Engineer</div>
+                            <div class="agent-expertise">
+                                Distributed Systems, Performance, Scalability<br>
+                                <strong>Voice:</strong> Onyx (Analytical, Direct)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="highlight-demo">
+                        <div class="highlight-title">🎭 Agent Persona System</div>
+                        Each agent has:
+                        <ul style="margin-top: 10px; line-height: 1.8;">
+                            <li><strong>Markdown Persona File:</strong> Detailed personality, communication style, expertise</li>
+                            <li><strong>KG Context Injection:</strong> Top 20 skills, 30 technologies, 10 projects, 10 achievements</li>
+                            <li><strong>Conversation History:</strong> Last 5 messages for context continuity</li>
+                            <li><strong>Mode-Specific Prompts:</strong> Group chat vs Orchestrator vs Conference behaviors</li>
+                            <li><strong>@Mention Awareness:</strong> Detect when tagged, acknowledge teammates, build on ideas</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PIPELINE FLOW MODE -->
+        <div id="pipeline-mode" class="diagram-section" style="display: none;">
+            <div class="section-header">Complete Message Pipeline Flow</div>
+
+            <div class="pipeline-flow">
+                <div class="flow-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">User Sends Message</div>
+                        <div class="step-desc">
+                            User types message in React chat interface → WebSocket connection established with session ID →
+                            Message added to conversation history → "processing" acknowledgment sent
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">Intent Routing (LLM Analysis)</div>
+                        <div class="step-desc">
+                            <strong>IntentRouter analyzes query with GPT-4o:</strong><br>
+                            • Is it a greeting? → Route to Rahil solo<br>
+                            • "Bring in the team"? → Route to all 4 agents<br>
+                            • Technical question? → Analyze expertise, route to 1-4 relevant agents<br>
+                            • Explicit @mention? → Route only to mentioned agents<br>
+                            <strong>Output:</strong> RoutingDecision(agent_ids=['rahil', 'mathew'], reasoning="...", confidence=0.95)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">Agent Response Generation (Sequential)</div>
+                        <div class="step-desc">
+                            For each agent in routing decision:<br>
+                            <strong>A.</strong> Load persona from personas/{agent}.md<br>
+                            <strong>B.</strong> Extract KG context (skills, tech, projects, achievements)<br>
+                            <strong>C.</strong> Build prompt: System (persona + KG + mode rules) + History (last 5) + User query<br>
+                            <strong>D.</strong> Stream GPT-4o response → Send chunks via WebSocket<br>
+                            <strong>E.</strong> Add agent response to local history for next agent
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">Agent-to-Agent Communication (Tier 2 Routing)</div>
+                        <div class="step-desc">
+                            <strong>After each agent responds:</strong><br>
+                            • MentionParser checks for @mentions (regex-based)<br>
+                            • If mentions found → LLM analyzes agent's response<br>
+                            • Extracts mentioned agents: ["siddarth", "mathew"]<br>
+                            • Add to agent queue (if not already responded)<br>
+                            • Max 2 rounds of agent-to-agent to prevent loops
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <div class="step-title">Entity Extraction & Graph Highlighting</div>
+                        <div class="step-desc">
+                            <strong>GraphHighlighter processes each response:</strong><br>
+                            • Extract entities mentioned in response text<br>
+                            • Match entities to KG node IDs (skills, technologies, projects)<br>
+                            • Generate highlight_data: {nodes: [...], edges: [...], metadata: {...}}<br>
+                            • Send highlights via WebSocket → Frontend applies visual emphasis
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <div class="step-title">Real-time Visualization Update</div>
+                        <div class="step-desc">
+                            <strong>Frontend receives highlights:</strong><br>
+                            • Cytoscape graph updates node/edge styles<br>
+                            • Highlighted nodes pulse with agent color<br>
+                            • Edges glow to show relationships<br>
+                            • Agent subgraph filtering, neighborhood focus available<br>
+                            • Stats panel updates (node count, edge count, highlights)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">7</div>
+                    <div class="step-content">
+                        <div class="step-title">Session Persistence & History</div>
+                        <div class="step-desc">
+                            • ConversationManager stores all messages in session<br>
+                            • User message + all agent responses saved with metadata<br>
+                            • Next query includes last 5-20 messages for context<br>
+                            • Session cleanup after 1hr inactivity<br>
+                            • "clear_history" command available
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="routing-demo">
+                <div class="highlight-title">🎯 Example: Intelligent Routing in Action</div>
+
+                <strong>Query 1: "Hi there!"</strong>
+                <div class="routing-path">
+                    <div class="routing-node">User Message</div>
+                    <span class="routing-arrow">→</span>
+                    <div class="routing-node">Intent Router (Greeting detected)</div>
+                    <span class="routing-arrow">→</span>
+                    <div class="routing-node" style="background: #7E57C2; color: white;">Rahil Only</div>
+                </div>
+
+                <strong style="margin-top: 20px; display: block;">Query 2: "Bring in the team!"</strong>
+                <div class="routing-path">
+                    <div class="routing-node">User Message</div>
+                    <span class="routing-arrow">→</span>
+                    <div class="routing-node">Intent Router (Team activation)</div>
+                    <span class="routing-arrow">→</span>
+                    <div class="routing-node" style="background: #7E57C2; color: white;">Rahil</div>
+                    <div class="routing-node" style="background: #2196F3; color: white;">Mathew</div>
+                    <div class="routing-node" style="background: #4CAF50; color: white;">Shreyas</div>
+                    <div class="routing-node" style="background: #FF9800; color: white;">Siddarth</div>
+                </div>
+
+                <strong style="margin-top: 20px; display: block;">Query 3: "How do I build a data pipeline on AWS?"</strong>
+                <div class="routing-path">
+                    <div class="routing-node">User Message</div>
+                    <span class="routing-arrow">→</span>
+                    <div class="routing-node">Intent Router (LLM analysis: AWS + data pipeline)</div>
+                    <span class="routing-arrow">→</span>
+                    <div class="routing-node" style="background: #7E57C2; color: white;">Rahil (Orchestrator)</div>
+                    <div class="routing-node" style="background: #2196F3; color: white;">Mathew (AWS Expert)</div>
+                </div>
+
+                <strong style="margin-top: 20px; display: block;">Query 4: Agent-to-Agent - Rahil: "Hey team, I'll design the architecture. @Mathew - can you handle the ETL pipeline? @Siddarth - optimize performance."</strong>
+                <div class="routing-path">
+                    <div class="routing-node" style="background: #7E57C2; color: white;">Rahil Responds</div>
+                    <span class="routing-arrow">→</span>
+                    <div class="routing-node">MentionParser (@Mathew, @Siddarth detected)</div>
+                    <span class="routing-arrow">→</span>
+                    <div class="routing-node">LLM Routes</div>
+                    <span class="routing-arrow">→</span>
+                    <div class="routing-node" style="background: #2196F3; color: white;">Mathew Responds</div>
+                    <div class="routing-node" style="background: #FF9800; color: white;">Siddarth Responds</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AGENTS MODE -->
+        <div id="agents-mode" class="diagram-section" style="display: none;">
+            <div class="section-header">AI Agents: Personas, Context & Communication</div>
+
+            <div class="layer agents" style="border: none; background: transparent; padding: 0;">
+                <div class="agent-cards" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                    <div class="agent-card rahil" style="border-width: 4px;">
+                        <div class="agent-name" style="font-size: 1.3em;">👨‍💼 Rahil M. Harihar</div>
+                        <div class="agent-role" style="font-size: 1.1em; color: #7E57C2;">AI Architect & Team Orchestrator</div>
+                        <hr style="margin: 15px 0; border: none; border-top: 2px solid #7E57C2;">
+                        <div style="text-align: left; margin-top: 15px;">
+                            <strong>🎯 Primary Role:</strong><br>
+                            • Always speaks first in conversations<br>
+                            • Orchestrates team with @mentions<br>
+                            • Handles greetings and introductions<br>
+                            • Provides high-level architecture guidance<br><br>
+
+                            <strong>🧠 Expertise Domains:</strong><br>
+                            AI/ML, Deep Learning, Multi-Agent Systems, LLMs, GPT, PyTorch, System Architecture, Research, Enterprise Integration<br><br>
+
+                            <strong>🎙️ Voice & Style:</strong><br>
+                            • Voice: Alloy (warm, leadership)<br>
+                            • Style: Concise, strategic, delegation-focused<br>
+                            • Always delegates with @tags<br><br>
+
+                            <strong>📊 KG Context (Sample):</strong><br>
+                            • Skills: Python, PyTorch, TensorFlow, NLP, Computer Vision<br>
+                            • Technologies: GPT-4, BERT, Transformers, RAG, Vector DBs<br>
+                            • Projects: Multi-agent systems, LLM fine-tuning, AI pipelines
+                        </div>
+                    </div>
+
+                    <div class="agent-card mathew" style="border-width: 4px;">
+                        <div class="agent-name" style="font-size: 1.3em;">👨‍💻 Mathew Jerry Meleth</div>
+                        <div class="agent-role" style="font-size: 1.1em; color: #2196F3;">Data Engineer</div>
+                        <hr style="margin: 15px 0; border: none; border-top: 2px solid #2196F3;">
+                        <div style="text-align: left; margin-top: 15px;">
+                            <strong>🎯 Primary Role:</strong><br>
+                            • Cloud infrastructure (AWS/Azure)<br>
+                            • ETL pipeline design & implementation<br>
+                            • Big data processing & optimization<br>
+                            • Data platform architecture<br><br>
+
+                            <strong>🧠 Expertise Domains:</strong><br>
+                            AWS, Azure, Apache Spark, Kafka, Airflow, SQL, NoSQL, Data Lakes, ETL, Real-time Streaming<br><br>
+
+                            <strong>🎙️ Voice & Style:</strong><br>
+                            • Voice: Echo (technical, clear)<br>
+                            • Style: Detail-oriented, practical solutions<br>
+                            • Responds when tagged or data/cloud topics arise<br><br>
+
+                            <strong>📊 KG Context (Sample):</strong><br>
+                            • Skills: Python, SQL, PySpark, Kafka, Airflow<br>
+                            • Technologies: AWS S3, Redshift, EMR, Glue, Lambda<br>
+                            • Projects: Real-time data pipelines, data lake migrations
+                        </div>
+                    </div>
+
+                    <div class="agent-card shreyas" style="border-width: 4px;">
+                        <div class="agent-name" style="font-size: 1.3em;">👔 Shreyas B Subramanya</div>
+                        <div class="agent-role" style="font-size: 1.1em; color: #4CAF50;">Product Manager</div>
+                        <hr style="margin: 15px 0; border: none; border-top: 2px solid #4CAF50;">
+                        <div style="text-align: left; margin-top: 15px;">
+                            <strong>🎯 Primary Role:</strong><br>
+                            • Product strategy & roadmapping<br>
+                            • Supply chain planning expertise<br>
+                            • Workflow optimization<br>
+                            • Stakeholder management<br><br>
+
+                            <strong>🧠 Expertise Domains:</strong><br>
+                            Supply Chain, APS (Advanced Planning Systems), Data Validation, ERP Systems, Product Strategy, Business Process Optimization<br><br>
+
+                            <strong>🎙️ Voice & Style:</strong><br>
+                            • Voice: Fable (professional, steady)<br>
+                            • Style: User-focused, strategic thinking<br>
+                            • Responds to product/planning questions<br><br>
+
+                            <strong>📊 KG Context (Sample):</strong><br>
+                            • Skills: Product Management, Agile, Roadmapping<br>
+                            • Technologies: JIRA, Confluence, APS Tools<br>
+                            • Projects: Supply chain optimization, planning systems
+                        </div>
+                    </div>
+
+                    <div class="agent-card siddarth" style="border-width: 4px;">
+                        <div class="agent-name" style="font-size: 1.3em;">⚙️ Siddarth Bhave</div>
+                        <div class="agent-role" style="font-size: 1.1em; color: #FF9800;">Software Engineer</div>
+                        <hr style="margin: 15px 0; border: none; border-top: 2px solid #FF9800;">
+                        <div style="text-align: left; margin-top: 15px;">
+                            <strong>🎯 Primary Role:</strong><br>
+                            • Distributed systems architecture<br>
+                            • Performance optimization<br>
+                            • Code quality & scalability<br>
+                            • Full-stack development<br><br>
+
+                            <strong>🧠 Expertise Domains:</strong><br>
+                            Java, Distributed Systems, Microservices, Observability, Performance Tuning, System Design, Backend Development<br><br>
+
+                            <strong>🎙️ Voice & Style:</strong><br>
+                            • Voice: Onyx (analytical, direct)<br>
+                            • Style: Technical depth, optimization-focused<br>
+                            • Responds to engineering/performance topics<br><br>
+
+                            <strong>📊 KG Context (Sample):</strong><br>
+                            • Skills: Java, Spring Boot, Kubernetes, Docker<br>
+                            • Technologies: Kafka, Redis, Prometheus, Grafana<br>
+                            • Projects: Microservices migration, performance optimization
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pipeline-flow" style="margin-top: 30px;">
+                <div class="highlight-title" style="font-size: 1.3em; margin-bottom: 20px;">💬 Communication Patterns</div>
+
+                <div class="component" style="margin-bottom: 15px;">
+                    <div class="component-title">1️⃣ Group Chat Mode (WhatsApp-style)</div>
+                    <div class="component-desc">
+                        • Rahil responds first, sets context, delegates with @mentions<br>
+                        • Other agents respond sequentially, building on previous responses<br>
+                        • Must acknowledge previous speakers: "Building on @Rahil's point..."<br>
+                        • FORBIDDEN: Quoting others verbatim, ignoring context<br>
+                        • REQUIRED: @mentions when referencing teammates, first-person responses
+                    </div>
+                </div>
+
+                <div class="component" style="margin-bottom: 15px;">
+                    <div class="component-title">2️⃣ Orchestrator Mode</div>
+                    <div class="component-desc">
+                        • Rahil analyzes query, explicitly tags specific agents<br>
+                        • Tagged agents respond with: "@Rahil - On it! Here's my approach..."<br>
+                        • Focused responses to assigned tasks<br>
+                        • Less conversational, more task-oriented
+                    </div>
+                </div>
+
+                <div class="component" style="margin-bottom: 15px;">
+                    <div class="component-title">3️⃣ Conference Mode (Voice)</div>
+                    <div class="component-desc">
+                        • Rahil leads as always<br>
+                        • Agents acknowledge each other as in voice conference<br>
+                        • Natural flowing conversation<br>
+                        • TTS voices provide distinct audio identities
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">🎭 Persona Injection Process</div>
+                    <div class="component-desc">
+                        <strong>Every agent response includes:</strong><br>
+                        1. <strong>Persona markdown</strong> (loaded from personas/{agent}.md)<br>
+                        2. <strong>KG context</strong>: Top 20 skills, 30 technologies, 10 projects, 10 achievements<br>
+                        3. <strong>Conversation history</strong>: Last 5 messages with speaker names<br>
+                        4. <strong>Mode-specific rules</strong>: Group chat vs Orchestrator formatting<br>
+                        5. <strong>Response format template</strong>: Bold headings, bullet points, @mentions<br>
+                        6. <strong>Style enforcement</strong>: Witty, concise, 2-4 sections max, first-person only
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TECH STACK MODE -->
+        <div id="tech-mode" class="diagram-section" style="display: none;">
+            <div class="section-header">Technology Stack & Infrastructure</div>
+
+            <div class="pipeline-flow">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div class="component">
+                        <div class="component-title" style="color: #4CAF50;">🖥️ Frontend Stack</div>
+                        <div class="component-desc">
+                            <strong>Core:</strong> React 18, TypeScript, Vite<br>
+                            <strong>UI:</strong> Chakra UI, Emotion (CSS-in-JS)<br>
+                            <strong>Graph:</strong> Cytoscape.js, react-cytoscapejs<br>
+                            <strong>Communication:</strong> WebSocket API, native fetch<br>
+                            <strong>State:</strong> React hooks (useState, useEffect, useMemo)<br>
+                            <strong>Build:</strong> Vite, ESBuild, Hot Module Replacement
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <div class="component-title" style="color: #2196F3;">⚙️ Backend Stack</div>
+                        <div class="component-desc">
+                            <strong>Framework:</strong> FastAPI (async Python web framework)<br>
+                            <strong>WebSocket:</strong> FastAPI WebSocket, asyncio<br>
+                            <strong>LLM:</strong> OpenAI GPT-4o (chat completions + streaming)<br>
+                            <strong>Audio:</strong> Whisper (transcription), TTS-1 (speech)<br>
+                            <strong>Graph:</strong> NetworkX (graph algorithms)<br>
+                            <strong>Server:</strong> Uvicorn (ASGI server)
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <div class="component-title" style="color: #E91E63;">📊 Knowledge Graph</div>
+                        <div class="component-desc">
+                            <strong>Database:</strong> NetworkX DiGraph (directed graph)<br>
+                            <strong>Nodes:</strong> 1000+ (Skills, Tech, Projects, Achievements)<br>
+                            <strong>Algorithms:</strong> PageRank, Betweenness, Louvain clustering<br>
+                            <strong>Layouts:</strong> COSE (Compound Spring Embedder)<br>
+                            <strong>Export:</strong> Cytoscape.js JSON format<br>
+                            <strong>Filtering:</strong> Type, Person, Importance, Clusters
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <div class="component-title" style="color: #9C27B0;">🤖 AI/LLM Layer</div>
+                        <div class="component-desc">
+                            <strong>Primary Model:</strong> GPT-4o (gpt-4o)<br>
+                            <strong>Fallback:</strong> GPT-5 support (Responses API)<br>
+                            <strong>Streaming:</strong> Server-sent events via WebSocket<br>
+                            <strong>Context Window:</strong> 128K tokens<br>
+                            <strong>Temperature:</strong> 0.7 (balanced creativity)<br>
+                            <strong>Max Tokens:</strong> 2048 per response
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <div class="component-title" style="color: #FF9800;">🔄 Real-time Communication</div>
+                        <div class="component-desc">
+                            <strong>Protocol:</strong> WebSocket (bidirectional)<br>
+                            <strong>Message Format:</strong> JSON (typed events)<br>
+                            <strong>Events:</strong> chat, agent_typing, agent_chunk, agent_complete, highlights, keepalive<br>
+                            <strong>Sessions:</strong> UUID-based with ConversationManager<br>
+                            <strong>Timeout:</strong> 1hr inactivity → auto-cleanup<br>
+                            <strong>Keepalive:</strong> 30s ping interval
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <div class="component-title" style="color: #607D8B;">☁️ Deployment</div>
+                        <div class="component-desc">
+                            <strong>Platform:</strong> Azure Container Apps<br>
+                            <strong>Frontend:</strong> Azure Static Web Apps<br>
+                            <strong>Backend:</strong> Containerized Python app<br>
+                            <strong>HTTPS:</strong> Cloudflare Tunnel (student deployment)<br>
+                            <strong>CORS:</strong> Multi-origin support (localhost + production)<br>
+                            <strong>Secrets:</strong> Environment variables (OpenAI API key)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pipeline-flow" style="margin-top: 30px;">
+                <div class="highlight-title" style="font-size: 1.3em; margin-bottom: 20px;">📦 Key Python Modules</div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                        <strong>server.py</strong><br>
+                        FastAPI app, WebSocket endpoints, route handlers, session management, CORS configuration
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                        <strong>agents.py</strong><br>
+                        MultiAgentSystem, Agent class, Orchestrator, ConferenceOrchestrator, persona loading
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                        <strong>intent_router.py</strong><br>
+                        IntentRouter, RoutingDecision, MentionParser, LLM-based query analysis
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                        <strong>conversation_manager.py</strong><br>
+                        ConversationSession, ConversationManager, message persistence, cleanup
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                        <strong>graph_analytics.py</strong><br>
+                        GraphAnalytics, centrality metrics, community detection, spatial layouts
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                        <strong>kg_loader.py</strong><br>
+                        Load knowledge graphs, merge person graphs, node/edge management
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                        <strong>graph_highlighter.py</strong><br>
+                        Extract entities from agent responses, match to KG nodes, generate highlights
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                        <strong>graph_view.py</strong><br>
+                        Generate Cytoscape.js elements, format nodes/edges for visualization
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-demo" style="margin-top: 30px;">
+                <div class="highlight-title" style="font-size: 1.2em;">🚀 Performance Optimizations</div>
+                <ul style="margin-top: 10px; line-height: 2;">
+                    <li><strong>Streaming Responses:</strong> Agents stream tokens immediately (no waiting for full response)</li>
+                    <li><strong>Parallel Graph Analytics:</strong> Centrality metrics pre-computed on startup</li>
+                    <li><strong>Session Caching:</strong> Conversation history cached in-memory with cleanup</li>
+                    <li><strong>Graph Layout Caching:</strong> COSE layout computed once, reused for filtering</li>
+                    <li><strong>WebSocket Keepalive:</strong> 30s server-side pings prevent connection drops</li>
+                    <li><strong>Lazy KG Loading:</strong> Agent context loaded on-demand per agent</li>
+                    <li><strong>Regex Pre-check:</strong> MentionParser quick check before LLM routing</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; color: white; text-align: center;">
+            <h2 style="margin-bottom: 15px;">🌟 System Highlights</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div>
+                    <div style="font-size: 2.5em; font-weight: bold;">1000+</div>
+                    <div>Knowledge Graph Nodes</div>
+                </div>
+                <div>
+                    <div style="font-size: 2.5em; font-weight: bold;">4</div>
+                    <div>AI Agents with Unique Personas</div>
+                </div>
+                <div>
+                    <div style="font-size: 2.5em; font-weight: bold;">3</div>
+                    <div>Conversation Modes</div>
+                </div>
+                <div>
+                    <div style="font-size: 2.5em; font-weight: bold;">∞</div>
+                    <div>Real-time Graph Updates</div>
+                </div>
+            </div>
+            <div style="margin-top: 30px; font-size: 0.9em; opacity: 0.9;">
+                <strong>Built with:</strong> React • TypeScript • FastAPI • OpenAI GPT-4o • NetworkX • Cytoscape.js • WebSocket • Azure
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showMode(mode) {
+            // Hide all modes
+            document.getElementById('overview-mode').style.display = 'none';
+            document.getElementById('pipeline-mode').style.display = 'none';
+            document.getElementById('agents-mode').style.display = 'none';
+            document.getElementById('tech-mode').style.display = 'none';
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Show selected mode
+            document.getElementById(mode + '-mode').style.display = 'block';
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Add smooth scroll animation
+        document.querySelectorAll('.component, .agent-card').forEach(el => {
+            el.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.3s ease';
+            });
+        });
+    </script>
+</body>
+</html>

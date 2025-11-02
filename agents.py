@@ -4,9 +4,10 @@ Implements 4 specialized agents + orchestrator for knowledge graph discussions
 """
 import os
 import json
-from typing import Dict, List, Any, Generator, Optional, Tuple
+from typing import Dict, List, Any, Generator, Optional, Tuple, Set
 from openai import OpenAI
 from utils import get_openai_api_key, extract_entities, parse_agent_citations
+from intent_router import IntentRouter, IntentRouterError, MentionParser
 
 
 # Agent metadata
@@ -196,8 +197,8 @@ class Agent:
 # Response Format Requirements (CRITICAL - FOLLOW STRICTLY)
 Structure your response like this:
 
-**[Greeting/Reaction]** - Address teammates by name if building on their points
-- Keep it witty and natural ("Hey team!", "Building on what Rahil said...", "Great point Mathew!")
+**[Greeting/Reaction]** - Address teammates with @ if building on their points
+- Keep it witty and natural ("Hey team!", "Building on @Rahil's idea...", "Great point @Mathew!")
 
 **[Main Heading]**
 - Short punchy sentence
@@ -217,12 +218,34 @@ Structure your response like this:
 - Maximum 2-3 sentences per point
 - Each bullet point: 1 short sentence (5-10 words ideal)
 - Be witty, use casual language
-- Reference teammates by first name when building on their ideas
+- **ALWAYS use @ when mentioning teammates** (e.g., "@Rahil", "@Mathew", "@Shreyas", "@Siddarth")
+- Reference teammates by @ format when building on their ideas (e.g., "Building on @Rahil's point...")
 - Use emojis sparingly for emphasis (1-2 max)
 - Keep total response to 4-6 sections max"""
         
         if mode == "group":
-            system_content += "\n\n**Mode: WhatsApp Group Chat**\n- Read what teammates said above\n- Build on their points or add new perspective\n- Keep it conversational like a real team chat"
+            system_content += """
+
+**Mode: WhatsApp Group Chat**
+- Read what teammates said above
+- Build on their points or add new perspective
+- Keep it conversational like a real team chat
+
+**CRITICAL - MANDATORY ACKNOWLEDGMENT:**
+1. **YOU MUST acknowledge previous responses** - Never ignore what others said
+2. **YOU MUST use @ mentions** - When referring to anyone, use @Name format
+3. **YOU MUST build on previous ideas** - Don't propose from scratch if others already suggested solutions
+4. **YOU MUST reference teammates** - Use phrases like:
+   - "Building on @Mathew's idea about [Azure/Kafka/etc]..."
+   - "I agree with @Rahil's approach, and I'll..."
+   - "Adding to @Siddarth's point..."
+   - "Like @Shreyas mentioned..."
+
+**CRITICAL - DO NOT QUOTE OTHERS:**
+- NEVER repeat what teammates said verbatim
+- NEVER write "Teammate Name: [their message]"
+- DO reference their ideas: "Building on @Rahil's point about..."
+- DO respond naturally as YOURSELF only"""
             
             # Special instructions for Rahil (AI Architect & Orchestrator)
             if self.agent_id == "rahil":
@@ -255,24 +278,96 @@ ALWAYS use @Mathew, @Siddarth, @Shreyas to delegate."""
                 system_content += f"""
 
 **YOUR ROLE ({self.metadata['name'].upper()}):**
-- Check if @{self.metadata['name'].split()[0]} was tagged by Rahil
-- If tagged: Acknowledge the tag and respond to your assignment
-- If not tagged but relevant: Still contribute your expertise
-- Reference what Rahil and others said
+IMPORTANT: You ARE {self.metadata['name']}. Always respond AS yourself in first person.
+- Check if YOU were tagged (look for @{self.metadata['name'].split()[0]} in the conversation)
+- If tagged: Acknowledge being tagged and respond DIRECTLY as yourself
+- If not tagged but relevant: Still contribute your expertise AS yourself
+- Reference what Rahil and others said, but NEVER act like you're relaying to yourself
+- When someone asks about you or tags you, respond as "I" not "{self.metadata['name'].split()[0]} will" or "Let me get {self.metadata['name'].split()[0]}"
+
+**@ MENTION RULES (CRITICAL):**
+- ALWAYS use @ when referring to teammates (e.g., "@Mathew", "@Rahil", "@Shreyas", "@Siddarth")
+- When building on someone's point: "Building on @Rahil's idea..."
+- When asking someone: "Hey @Mathew, can you help with..."
+- When acknowledging: "@Siddarth - great point!"
+- Team members: @Rahil, @Mathew, @Shreyas, @Siddarth
+
+**RESPONSE FORMAT (MANDATORY):**
+
+If you're the 2nd+ agent to respond, you MUST start by acknowledging what others said:
 
 Example when tagged:
 "**@Rahil - Got it!** On the [task] front...
 
-**My Approach:**
-- [Specific point 1]
-- [Specific point 2]
+Building on @Mathew's idea about [specific tech he mentioned], I'll...
 
-Building on what @[Other] mentioned..."
+**My Approach:**
+- [Specific addition to what was already proposed]
+- [New contribution that complements others]
+
+@Siddarth - can you optimize the [specific thing mentioned]?"
 
 Example when not tagged but contributing:
-"**Hey team!** Adding my perspective on [topic]..."
+"**Love the direction here!**
+
+Building on @Rahil's architecture and @Mathew's data pipeline design, I'll add...
+
+**My Contribution:**
+- [Specific addition]
+- [Complementary approach]"
+
+CRITICAL: When someone asks you a question or mentions your work, respond as "I" (first person).
+WRONG: "Shreyas will handle that" or "Let me get Shreyas"
+RIGHT: "I'll handle that" or "Here's my perspective"
 
 ALWAYS acknowledge @mentions directed at you!"""
+
+            # GREETING MODE DETECTION - Special handling for sponsor-friendly intros
+            from intent_router import IntentRouter
+            if IntentRouter.is_greeting(user_query):
+                if self.agent_id == "rahil":
+                    system_content += """
+
+**⚠️ GREETING MODE ACTIVATED - SPONSOR DEMO**
+
+This is a casual greeting. Provide a WARM, CONCISE, ENGAGING introduction (4-5 sentences max).
+
+**Response Structure:**
+1. **Warm greeting** (1 sentence): "Hey there! 👋" or "Welcome!"
+2. **Self + Team intro** (2 sentences): Introduce yourself briefly, then name your team members and their roles
+3. **Platform description** (1 sentence): "Our AI-powered knowledge graph brings our collective expertise to life"
+4. **Interactive invitation** (1 sentence): End with "Ask me anything, or say **'bring in the team'** to dive deeper with specific experts!"
+
+**Example Response:**
+"**Hey there!** 👋 Welcome! I'm Rahil, the AI Architect leading this crew.
+
+I work alongside **Mathew** (Data Engineer), **Shreyas** (Product Manager), and **Siddarth** (Software Engineer). Together, we've built this interactive knowledge graph that showcases our collective expertise and makes our team's capabilities easily explorable.
+
+**Ask me anything about our work**, or say **'bring in the team'** to hear directly from specific experts!"
+
+**CRITICAL RULES:**
+- NO @tagging (this is an intro, not delegation)
+- NO technical deep-dives (save for follow-up questions)
+- NO more than 5 sentences total
+- YES emojis (1-2 for warmth)
+- YES engaging and proactive tone
+- ALWAYS end with the activation trigger invitation"""
+                else:
+                    # Other agents: DO NOT respond to greetings
+                    system_content += f"""
+
+**⚠️ GREETING MODE - DO NOT RESPOND**
+
+The user sent a casual greeting. ONLY Rahil responds to greetings.
+
+**YOU MUST NOT GENERATE ANY RESPONSE.**
+
+Rahil will provide the warm introduction to the team. You will only respond when:
+1. The user says "bring in the team" or similar activation phrase
+2. The user asks a technical question (not a greeting)
+3. Rahil explicitly tags you with @{self.metadata['name'].split()[0]}
+
+For now: Stay silent. Your time to shine will come when explicitly invited."""
         elif mode == "orchestrator":
             if self.agent_id == "rahil":
                 system_content += """
@@ -319,7 +414,15 @@ Example:
         if conversation_history:
             for msg in conversation_history[-5:]:  # Last 5 messages
                 role = "assistant" if msg.get('role') == 'agent' else "user"
-                content = f"{msg.get('agent', 'User')}: {msg['message']}" if msg.get('agent') else msg['message']
+                # Use 'content' key (conversation_manager format) with fallback to 'message' for backwards compatibility
+                msg_content = msg.get('content', msg.get('message', ''))
+                # Include agent first name for context (agents know who said what)
+                # But system prompt explicitly forbids quoting/repeating these messages
+                if msg.get('agent'):
+                    agent_first_name = msg.get('agent', '').split()[0]  # Just first name
+                    content = f"{agent_first_name}: {msg_content}"
+                else:
+                    content = msg_content
                 messages.append({"role": role, "content": content})
         
         # Add user query
@@ -495,7 +598,7 @@ class ConferenceOrchestrator(Orchestrator):
 
 class MultiAgentSystem:
     """Main system coordinating all agents"""
-    
+
     def __init__(self, kg_loader, use_gpt5=False):
         self.kg_loader = kg_loader
         self.openai_client = OpenAIClient(use_gpt5=use_gpt5)
@@ -505,34 +608,53 @@ class MultiAgentSystem:
         }
         self.orchestrator = Orchestrator(self.agents, self.openai_client)
         self.conference_orchestrator = ConferenceOrchestrator(self.agents, self.openai_client)
+        self.intent_router = IntentRouter(self.openai_client)
+        self.max_agent_to_agent_rounds = 2  # Prevent infinite loops
     
     def group_chat_mode(
         self,
         user_query: str,
-        conversation_history: List[Dict[str, str]] = None
+        conversation_history: List[Dict[str, str]] = None,
+        use_dynamic_routing: bool = True
     ) -> Generator[Tuple[str, str], None, None]:
         """
-        Group chat mode: Sequential responses like WhatsApp group chat.
-        Rahil orchestrates the flow, others build on each other.
+        Group chat mode: Sequential responses with smart LLM routing.
+        Supports multi-tier routing: user→agents, agent→agent mentions.
         Yields (agent_id, response_chunk) tuples.
+
+        Args:
+            user_query: The user's message
+            conversation_history: Previous conversation context
+            use_dynamic_routing: Use LLM routing (True) or hardcoded order (False, legacy)
         """
+        if use_dynamic_routing:
+            yield from self._group_chat_dynamic_routing(user_query, conversation_history)
+        else:
+            yield from self._group_chat_legacy_routing(user_query, conversation_history)
+
+    def _group_chat_legacy_routing(
+        self,
+        user_query: str,
+        conversation_history: List[Dict[str, str]] = None
+    ) -> Generator[Tuple[str, str], None, None]:
+        """Legacy hardcoded routing (all 4 agents in fixed order)"""
         # Always start with Rahil as the orchestrator
         agent_order = ['rahil', 'mathew', 'shreyas', 'siddarth']
-        
+
         local_history = conversation_history.copy() if conversation_history else []
-        
+
         for agent_id in agent_order:
             if agent_id not in self.agents:
                 continue
-                
+
             agent = self.agents[agent_id]
-            
+
             # Generate response with context from previous responses
             response_chunks = []
             for chunk in agent.respond(user_query, local_history, mode="group"):
                 response_chunks.append(chunk)
                 yield (agent_id, chunk)
-            
+
             # Add to history for next agent to see
             full_response = "".join(response_chunks)
             local_history.append({
@@ -540,6 +662,133 @@ class MultiAgentSystem:
                 'message': full_response,
                 'role': 'agent'
             })
+
+    def _group_chat_dynamic_routing(
+        self,
+        user_query: str,
+        conversation_history: List[Dict[str, str]] = None
+    ) -> Generator[Tuple[str, str], None, None]:
+        """
+        Dynamic routing with LLM-based intent analysis.
+        Supports multi-tier agent-to-agent communication.
+        """
+        local_history = conversation_history.copy() if conversation_history else []
+
+        try:
+            # Tier 1: Route user query to appropriate agents
+            routing_decision = self.intent_router.route_user_query(user_query, local_history)
+            agent_queue = routing_decision.agent_ids.copy()
+
+            # Track which agents have responded to avoid duplicates
+            responded_agents: Set[str] = set()
+
+            # Track rounds of agent-to-agent communication
+            agent_to_agent_round = 0
+
+            while agent_queue and agent_to_agent_round <= self.max_agent_to_agent_rounds:
+                # Get next agent from queue
+                agent_id = agent_queue.pop(0)
+
+                # Skip if already responded
+                if agent_id in responded_agents:
+                    continue
+
+                # Skip if agent doesn't exist
+                if agent_id not in self.agents:
+                    continue
+
+                agent = self.agents[agent_id]
+                responded_agents.add(agent_id)
+
+                # Debug: Log what history this agent sees
+                print(f"\n📨 [{agent_id}] Starting response generation...", flush=True)
+                print(f"    Agent queue remaining: {agent_queue}", flush=True)
+                print(f"    Conversation history size: {len(local_history)} messages", flush=True)
+                if local_history:
+                    print(f"    Recent history:", flush=True)
+                    for i, msg in enumerate(local_history[-3:]):  # Last 3 messages
+                        role = msg.get('role', 'unknown')
+                        if role == 'agent':
+                            agent_name = msg.get('agent', 'Unknown')
+                            content_preview = msg.get('content', msg.get('message', ''))[:80]
+                            print(f"      [{i}] {agent_name}: {content_preview}...", flush=True)
+                        else:
+                            content_preview = msg.get('content', msg.get('message', ''))[:80]
+                            print(f"      [{i}] User: {content_preview}...", flush=True)
+                else:
+                    print(f"    No conversation history available", flush=True)
+
+                # Generate response with context from previous responses
+                response_chunks = []
+                for chunk in agent.respond(user_query, local_history, mode="group"):
+                    response_chunks.append(chunk)
+                    yield (agent_id, chunk)
+
+                # Build full response
+                full_response = "".join(response_chunks)
+
+                # Add to history for next agent to see
+                local_history.append({
+                    'agent': agent.metadata['name'],
+                    'agent_id': agent_id,
+                    'message': full_response,
+                    'content': full_response,
+                    'role': 'agent'
+                })
+
+                # Tier 2: Check if this agent mentioned other agents
+                try:
+                    # Quick pre-check with MentionParser
+                    print(f"\n🔍 [{agent_id}] Checking for @mentions in response...", flush=True)
+                    print(f"    Response preview: {full_response[:150]}...", flush=True)
+
+                    has_mentions = MentionParser.has_mentions(full_response)
+                    print(f"    MentionParser.has_mentions() = {has_mentions}", flush=True)
+
+                    if has_mentions:
+                        # Extract mentions for debugging
+                        extracted_mentions = MentionParser.extract_mentions(full_response)
+                        print(f"    Extracted mentions: {extracted_mentions}", flush=True)
+
+                        # Use LLM to analyze mentions and route
+                        print(f"    Calling LLM for mention routing analysis...", flush=True)
+                        mention_routing = self.intent_router.route_agent_response(
+                            agent_id,
+                            full_response
+                        )
+
+                        print(f"    LLM routing result: {mention_routing.agent_ids}", flush=True)
+                        print(f"    Reasoning: {mention_routing.reasoning}", flush=True)
+                        print(f"    Responded agents so far: {responded_agents}", flush=True)
+
+                        # Add mentioned agents to queue (if not already responded)
+                        newly_added = []
+                        for mentioned_agent_id in mention_routing.agent_ids:
+                            if mentioned_agent_id not in responded_agents:
+                                agent_queue.append(mentioned_agent_id)
+                                newly_added.append(mentioned_agent_id)
+
+                        if newly_added:
+                            print(f"    ✅ Added {newly_added} to agent queue", flush=True)
+                        else:
+                            print(f"    ⚠️ No new agents added (all already responded)", flush=True)
+
+                        # Increment round counter if we're adding agents via mentions
+                        if mention_routing.agent_ids:
+                            agent_to_agent_round += 1
+                    else:
+                        print(f"    No @mentions detected in response", flush=True)
+
+                except IntentRouterError as e:
+                    # Log error but continue (agent-to-agent routing is optional)
+                    print(f"❌ Warning: Agent-to-agent routing failed for {agent_id}: {e}", flush=True)
+                    pass
+
+        except IntentRouterError as e:
+            # LLM routing failed - raise error (no fallback per user requirement)
+            error_msg = f"[Routing Error: {str(e)}]"
+            yield ("system", error_msg)
+            raise
     
     def orchestrator_mode(
         self,
