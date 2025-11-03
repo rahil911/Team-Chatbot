@@ -6,9 +6,23 @@ import { VoiceInput } from './VoiceInput';
 import { TextInput } from './TextInput';
 import { ModeSelector } from './ModeSelector';
 import { MessageFormatter } from './MessageFormatter';
-import type { ChatMode, Message, AgentMessage } from '../types';
+import { ConsensusMeter } from './ConsensusMeter';
+import { RoundIndicator } from './RoundIndicator';
+import { EvidenceSidebar } from './EvidenceSidebar';
+import { CitationHighlight } from './CitationHighlight';
+import type { ChatMode, Message, AgentMessage, Citation, ConsensusData } from '../types';
 import { token } from '../theme';
 import type { AgentKey } from '../theme';
+
+interface ThinkTankState {
+  citations: Citation[];
+  consensus: ConsensusData | null;
+  currentRound: number;
+  maxRounds: number;
+  roundStatus: 'active' | 'complete' | 'waiting';
+  agentsResponded: number;
+  summary: string;
+}
 
 interface ChatPanelProps {
   mode: ChatMode;
@@ -19,6 +33,7 @@ interface ChatPanelProps {
   isProcessing: boolean;
   onSendMessage: (message: string) => void;
   onSendVoice: (audioBlob: Blob) => void;
+  thinkTank?: ThinkTankState;
 }
 
 const AGENTS = {
@@ -62,18 +77,20 @@ const TABS = [
   }
 ] as const;
 
-export const ChatPanel = ({ 
-  mode, 
-  onModeChange, 
-  messages, 
-  agentMessages, 
+export const ChatPanel = ({
+  mode,
+  onModeChange,
+  messages,
+  agentMessages,
   activeAgents,
   isProcessing,
   onSendMessage,
-  onSendVoice
+  onSendVoice,
+  thinkTank
 }: ChatPanelProps) => {
   const [showVoiceInput, setShowVoiceInput] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isThinkTankMode = mode === 'think_tank';
   
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -125,6 +142,27 @@ export const ChatPanel = ({
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/6 to-transparent" />
         <div className="relative z-10 space-y-4">
         <ModeSelector mode={mode} onChange={onModeChange} />
+
+          {/* Think Tank Mode: Show ConsensusMeter and RoundIndicator */}
+          {isThinkTankMode && thinkTank && thinkTank.currentRound > 0 ? (
+            <div className="grid grid-cols-2 gap-3">
+              <ConsensusMeter
+                consensus={thinkTank.consensus?.score || 0}
+                threshold={0.85}
+                round={thinkTank.currentRound}
+              />
+              <RoundIndicator
+                currentRound={thinkTank.currentRound}
+                maxRounds={thinkTank.maxRounds}
+                agentsResponded={thinkTank.agentsResponded}
+                totalAgents={4}
+                status={thinkTank.roundStatus}
+              />
+            </div>
+          ) : null}
+
+          {/* Standard Mode or Think Tank without active rounds: Show Agent Cards */}
+          {!isThinkTankMode || !thinkTank || thinkTank.currentRound === 0 ? (
           <div className="grid grid-cols-2 gap-3">
             {agentStatus.map(({ agentId, agent }) => {
               const isActive = activeAgents.includes(agentId);
@@ -164,6 +202,7 @@ export const ChatPanel = ({
               );
             })}
           </div>
+          ) : null}
         </div>
       </div>
 
@@ -264,7 +303,11 @@ export const ChatPanel = ({
                                     borderLeftWidth: '3px',
                                   }}
                             >
-                              <MessageFormatter content={msg.content} />
+                              {isThinkTankMode ? (
+                                <CitationHighlight text={msg.content} />
+                              ) : (
+                                <MessageFormatter content={msg.content} />
+                              )}
                             </div>
                               );
                             })()}
@@ -319,9 +362,15 @@ export const ChatPanel = ({
             </div>
             </Tab.Panel>
 
-          {/* Highlights */}
-            <Tab.Panel className="h-full overflow-y-auto" key="highlights">
-            <div className="space-y-3">
+          {/* Highlights or Evidence (Think Tank) */}
+            <Tab.Panel className="h-full overflow-hidden" key="highlights-evidence">
+            {isThinkTankMode && thinkTank ? (
+              <EvidenceSidebar
+                citations={thinkTank.citations}
+                agentMap={AGENTS}
+              />
+            ) : (
+            <div className="h-full overflow-y-auto space-y-3">
               {recentAgentMessages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-white/5 bg-surface-900/40 p-12 text-center text-sm text-text-tertiary">
                   <SparklesIcon className="h-8 w-8 text-accent-purple" />
@@ -364,6 +413,7 @@ export const ChatPanel = ({
                 ))
               )}
             </div>
+            )}
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>

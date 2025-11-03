@@ -52,87 +52,6 @@ class IntentRouter:
         self.openai_client = openai_client
         self._build_agent_expertise_map()
 
-    @staticmethod
-    def is_team_activation(query: str) -> bool:
-        """
-        Detect if query is requesting to bring in the full team
-
-        Returns True for:
-        - "Bring in the team"
-        - "Let's hear from everyone"
-        - "I want to talk to all of you"
-        - "Involve the team"
-
-        Args:
-            query: User message to analyze
-
-        Returns:
-            bool: True if message requests team activation
-        """
-        query_lower = query.lower().strip()
-
-        activation_patterns = [
-            r'bring in (the )?team',
-            r'bring (the )?team in',
-            r'let\'?s hear from (everyone|all|the team)',
-            r'i want to (talk to|hear from|meet) (everyone|all of you|the team)',
-            r'involve (the )?team',
-            r'get (the )?team (in|involved)',
-            r'call in (the )?team',
-            r'loop in (everyone|the team)',
-            r'bring everyone in',
-        ]
-
-        return any(re.search(pattern, query_lower) for pattern in activation_patterns)
-
-    @staticmethod
-    def is_greeting(query: str) -> bool:
-        """
-        Detect if query is a casual greeting or introduction request
-
-        Returns True for:
-        - Simple greetings: "Hi", "Hello", "Hey"
-        - Conversational: "How are you?", "What's up?"
-        - Introduction requests: "Tell me about yourselves"
-        - First-time questions: "Who are you?"
-
-        Args:
-            query: User message to analyze
-
-        Returns:
-            bool: True if message is a greeting/introduction
-        """
-        query_lower = query.lower().strip()
-
-        # Simple greeting patterns
-        greeting_patterns = [
-            r'^(hi|hello|hey|greetings|good morning|good afternoon|good evening)[\s!,]*$',
-            r'^(hi|hello|hey)\s+(there|everyone|team|guys|folks)[\s!,]*$',
-            r'\bhowdy\b',
-        ]
-
-        # Conversational questions
-        conversational_patterns = [
-            r'how are you',
-            r'how\'s it going',
-            r'what\'s up',
-            r'how do you do',
-            r'nice to meet',
-        ]
-
-        # Introduction requests
-        introduction_patterns = [
-            r'tell me about (yourself|yourselves|your team|the team)',
-            r'who are you',
-            r'what do you do',
-            r'introduce (yourself|yourselves)',
-            r'what can you (tell me|help with)',
-        ]
-
-        # Check all patterns
-        all_patterns = greeting_patterns + conversational_patterns + introduction_patterns
-        return any(re.search(pattern, query_lower) for pattern in all_patterns)
-
     def _build_agent_expertise_map(self) -> None:
         """Build a map of agent expertise for routing prompts"""
         AGENTS = _get_agents()
@@ -178,28 +97,7 @@ class IntentRouter:
             IntentRouterError: If LLM routing fails
         """
         try:
-            # GREETING DETECTION - Route to Rahil only for sponsor-friendly intro
-            if self.is_greeting(user_query):
-                return RoutingDecision(
-                    agent_ids=['rahil'],
-                    reasoning="Casual greeting detected - Rahil provides warm, concise introduction",
-                    is_targeted=False,
-                    confidence=1.0,
-                    context="greeting"
-                )
-
-            # TEAM ACTIVATION DETECTION - Route to all agents when explicitly requested
-            if self.is_team_activation(user_query):
-                AGENTS = _get_agents()
-                return RoutingDecision(
-                    agent_ids=['rahil', 'mathew', 'shreyas', 'siddarth'],  # All agents, Rahil first
-                    reasoning="Team activation requested - all agents introduce themselves",
-                    is_targeted=True,
-                    confidence=1.0,
-                    context="team_activation"
-                )
-
-            # Build routing prompt
+            # Build routing prompt (LLM handles ALL intent detection semantically)
             routing_prompt = self._build_user_query_routing_prompt(user_query, conversation_history)
 
             # Call LLM for routing decision
@@ -237,7 +135,8 @@ class IntentRouter:
                 agent_ids=valid_agents,
                 reasoning=routing_data.get('reasoning', 'No reasoning provided (fallback to all agents)') if not routing_data.get('agents') else routing_data.get('reasoning', 'No reasoning provided'),
                 is_targeted=routing_data.get('is_targeted', False),
-                confidence=routing_data.get('confidence', 0.5)  # Lower confidence for fallback
+                confidence=routing_data.get('confidence', 0.5),  # Lower confidence for fallback
+                context=routing_data.get('intent')  # Pass intent from LLM ("greeting", "team_activation", "expertise_match", "explicit_mention")
             )
 
         except Exception as e:
@@ -335,7 +234,7 @@ class IntentRouter:
 
         agents_str = "\n".join(agent_list)
 
-        prompt = f"""Analyze this user message and determine which team members should respond based on their expertise.
+        prompt = f"""You are an expert routing system for a multi-agent team. Analyze the user's message semantically to detect intent and route appropriately.
 
 Team Members:
 {agents_str}
@@ -345,23 +244,66 @@ Recent Conversation Context:
 
 User Message: "{user_query}"
 
-Instructions:
-1. Identify explicit mentions (e.g., "@Mathew", "Mathew, can you...", "Rahil please...")
-2. If explicit mentions found, ONLY route to those agents
-3. If NO explicit mentions, analyze content to match with relevant expertise
-4. Consider conversation context to maintain continuity
-5. Select 1-4 agents (prefer fewer, more focused responses)
-6. Rahil should be included only if: orchestration needed, AI/ML topics, or explicitly mentioned
+# SEMANTIC INTENT DETECTION (Multi-Language Support)
 
-Respond ONLY with valid JSON in this exact format:
+## 1. GREETING DETECTION → Route to: ["rahil"]
+Detect greetings semantically in ANY language:
+
+Examples: "Hi", "Hello", "Hey team", "Hola", "Bonjour", "Namaste", "Konnichiwa", "你好", "Good morning", "What's up?", "How are you?", "Who are you?", "Tell me about yourself"
+
+If greeting detected, respond:
+{{
+    "agents": ["rahil"],
+    "is_targeted": false,
+    "reasoning": "Greeting detected - Rahil provides team introduction",
+    "confidence": 1.0,
+    "intent": "greeting"
+}}
+
+## 2. TEAM ACTIVATION DETECTION → Route to: ["rahil", "mathew", "shreyas", "siddarth"]
+Detect requests to involve the ENTIRE team semantically in ANY language:
+
+Examples: "Bring in the team", "Let's hear from everyone", "I want all of you to respond", "Get everyone's input", "Involve the team", "Assemble the crew", "Traer al equipo", "Amenez l'équipe", "Loop everyone in"
+
+If team activation detected, respond:
+{{
+    "agents": ["rahil", "mathew", "shreyas", "siddarth"],
+    "is_targeted": true,
+    "reasoning": "Team activation requested - all agents respond",
+    "confidence": 1.0,
+    "intent": "team_activation"
+}}
+
+## 3. EXPERTISE-BASED ROUTING (Standard Queries)
+If NOT a greeting or team activation:
+
+1. **Identify explicit mentions:** "@Mathew", "Mathew, can you...", "Rahil please..."
+   - If explicit mentions found, ONLY route to those agents
+   - Set intent: "explicit_mention"
+
+2. **Match query content to agent expertise:**
+   - AI/ML, architecture, orchestration → rahil
+   - Data engineering, cloud, pipelines → mathew
+   - Product management, strategy, workflows → shreyas
+   - Software engineering, performance, systems → siddarth
+
+3. **Select 1-4 agents** (prefer fewer, focused responses)
+4. **Consider conversation context** for continuity
+5. Set intent: "expertise_match"
+
+# OUTPUT FORMAT
+Respond ONLY with valid JSON:
 {{
     "agents": ["agent_id1", "agent_id2"],
     "is_targeted": true/false,
-    "reasoning": "Brief explanation of why these agents were selected",
-    "confidence": 0.95
+    "reasoning": "Brief explanation (1-2 sentences)",
+    "confidence": 0.0-1.0,
+    "intent": "greeting" | "team_activation" | "expertise_match" | "explicit_mention"
 }}
 
-Valid agent IDs: rahil, mathew, shreyas, siddarth"""
+Valid agent IDs: rahil, mathew, shreyas, siddarth
+
+IMPORTANT: Detect intent semantically, not by exact string matching. Support ANY language."""
 
         return prompt
 
@@ -382,7 +324,7 @@ Valid agent IDs: rahil, mathew, shreyas, siddarth"""
 
         other_agents_str = "\n".join(other_agents)
 
-        prompt = f"""Analyze this agent's response for @mentions or requests for other team members to contribute.
+        prompt = f"""Analyze this agent's response ONLY for explicit delegation or requests for other team members to contribute.
 
 Agent: {agent_name} ({agent_id})
 
@@ -392,18 +334,37 @@ Response:
 Other Team Members:
 {other_agents_str}
 
-Instructions:
-1. Look for explicit @mentions (e.g., "@Mathew", "@Siddarth")
-2. Look for implicit requests (e.g., "Mathew, can you...", "Siddarth should...")
-3. Look for delegation patterns (e.g., "Let me hand this to...", "X can elaborate on...")
-4. Extract all mentioned team members
-5. If NO mentions or requests found, return empty agents list
+CRITICAL INSTRUCTIONS:
+
+⚠️ ONLY return agent IDs if there is EXPLICIT DELEGATION or a DIRECT REQUEST for them to respond.
+
+✅ Examples of EXPLICIT delegation/requests (return these agents):
+- "@Mathew, can you help with this?"
+- "Let me hand this over to Siddarth"
+- "Mathew, please explain the data pipeline"
+- "I think Shreyas should weigh in here"
+- "Siddarth, what's your take on this?"
+- "@Rahil can you clarify?"
+
+❌ Examples of PASSIVE mentions (DO NOT return these agents):
+- "I work with Mathew" ❌
+- "Our team includes Mathew, Shreyas, Siddarth" ❌
+- "Mathew handles data engineering" ❌
+- "I'm Rahil, leading this crew. I work alongside Mathew, Shreyas..." ❌
+- "Welcome! Meet our team: Mathew (Data Engineer)..." ❌
+- General introductions or team descriptions ❌
+
+RULES:
+1. If you detect a passive mention (introduction, description, general reference), return EMPTY agents list: []
+2. Only return agent IDs if there is a DIRECT REQUEST or EXPLICIT @mention asking them to respond
+3. Be STRICT - when in doubt, return empty list []
+4. Introductions and team descriptions are NOT delegation
 
 Respond ONLY with valid JSON in this exact format:
 {{
-    "agents": ["agent_id1", "agent_id2"],
-    "is_targeted": true/false,
-    "reasoning": "Brief explanation",
+    "agents": [],  // ONLY include agents if EXPLICIT delegation detected, otherwise MUST be []
+    "is_targeted": false,  // true ONLY if explicit @mentions or direct requests found
+    "reasoning": "Brief explanation of why agents were/weren't added",
     "confidence": 0.95
 }}
 

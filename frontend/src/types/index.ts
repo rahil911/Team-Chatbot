@@ -67,7 +67,31 @@ export interface AgentMessage {
   [agentId: string]: string;
 }
 
-export type ChatMode = 'group' | 'orchestrator';
+export type ChatMode = 'group' | 'orchestrator' | 'think_tank';
+
+export interface Citation {
+  type: string;
+  name: string;
+  original: string;
+  agent_id: string;
+}
+
+export interface ConsensusData {
+  score: number;
+  round: number;
+  timestamp: number;
+}
+
+export interface ThinkTankSystemMessage {
+  type: 'round_start' | 'round_complete' | 'citations' | 'consensus_update' | 'summary_start';
+  round?: number;
+  max_rounds?: number;
+  consensus?: number;
+  citations?: Citation[];
+  agent_id?: string;
+  agents_responded?: number;
+  rounds_completed?: number;
+}
 
 export interface WebSocketMessage {
   type: string;

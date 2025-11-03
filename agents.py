@@ -8,6 +8,7 @@ from typing import Dict, List, Any, Generator, Optional, Tuple, Set
 from openai import OpenAI
 from utils import get_openai_api_key, extract_entities, parse_agent_citations
 from intent_router import IntentRouter, IntentRouterError, MentionParser
+from web_search import get_web_search_tool
 
 
 # Agent metadata
@@ -44,18 +45,25 @@ AGENTS = {
 
 
 class OpenAIClient:
-    """Wrapper for OpenAI API - supports GPT-5 (Responses API) and GPT-4o (Chat Completions)"""
-    
-    def __init__(self, use_gpt5=False):
+    """Wrapper for OpenAI API - supports GPT-5, GPT-4o, and o1 reasoning models"""
+
+    def __init__(self, use_gpt5=False, reasoning_model=None):
         self.client = OpenAI(api_key=get_openai_api_key())
         self.use_gpt5 = use_gpt5
-        
-        if use_gpt5:
+        self.reasoning_model = reasoning_model  # 'o1-preview', 'o1-mini', or None
+
+        if reasoning_model in ['o1-preview', 'o1-mini']:
+            # o1 reasoning models: Chat Completions (no streaming, no system messages)
+            self.model = reasoning_model
+            self.config = {
+                'max_completion_tokens': 4096,  # o1 uses completion_tokens not max_tokens
+            }
+        elif use_gpt5:
             # GPT-5: Responses API
             self.model = 'gpt-5'
             self.config = {
                 'reasoning': {'effort': 'low'},  # minimal, low, medium, high
-                'text': {'verbosity': 'medium'},  # low, medium, high  
+                'text': {'verbosity': 'medium'},  # low, medium, high
                 'max_output_tokens': 2048
             }
         else:
@@ -69,7 +77,39 @@ class OpenAIClient:
     def generate(self, messages: List[Dict[str, str]], stream: bool = True) -> Generator[str, None, None]:
         """Generate response with optional streaming"""
         try:
-            if self.use_gpt5:
+            if self.reasoning_model:
+                # o1 reasoning models: No streaming, convert system messages to user
+                print(f"\n🧠 [REASONING MODEL] Using {self.reasoning_model} for deep analysis...", flush=True)
+
+                # Convert system messages to user messages (o1 doesn't support system role)
+                processed_messages = []
+                for msg in messages:
+                    if msg['role'] == 'system':
+                        processed_messages.append({
+                            'role': 'user',
+                            'content': f"[System Instructions]\n{msg['content']}"
+                        })
+                    else:
+                        processed_messages.append(msg)
+
+                # o1 models don't support streaming
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=processed_messages,
+                    **self.config
+                )
+
+                # Return full response at once
+                content = response.choices[0].message.content
+                yield content
+
+                # Log thinking tokens if available
+                if hasattr(response.usage, 'completion_tokens_details'):
+                    reasoning_tokens = response.usage.completion_tokens_details.get('reasoning_tokens', 0)
+                    if reasoning_tokens > 0:
+                        print(f"    💭 Reasoning tokens used: {reasoning_tokens}", flush=True)
+
+            elif self.use_gpt5:
                 # GPT-5: Responses API
                 input_text = self._messages_to_input(messages)
                 response = self.client.responses.create(
@@ -78,7 +118,7 @@ class OpenAIClient:
                     stream=stream,
                     **self.config
                 )
-                
+
                 if stream:
                     for chunk in response:
                         if hasattr(chunk, 'output_text_delta') and chunk.output_text_delta:
@@ -93,16 +133,16 @@ class OpenAIClient:
                     stream=stream,
                     **self.config
                 )
-                
+
                 if stream:
                     for chunk in response:
                         if chunk.choices[0].delta.content:
                             yield chunk.choices[0].delta.content
                 else:
                     yield response.choices[0].message.content
-                    
+
         except Exception as e:
-            print(f"Error generating response: {e}")
+            print(f"Error generating response: {e}", flush=True)
             yield f"[Error: {str(e)}]"
     
     def _messages_to_input(self, messages: List[Dict[str, str]]) -> str:
@@ -128,6 +168,7 @@ class Agent:
         self.metadata = AGENTS[agent_id]
         self.kg_loader = kg_loader
         self.openai_client = openai_client
+        self.web_search_tool = get_web_search_tool()
         self.persona = self._load_persona()
         self.context = self._load_kg_context()
     
@@ -185,9 +226,14 @@ class Agent:
         self,
         user_query: str,
         conversation_history: List[Dict[str, str]] = None,
-        mode: str = "group"
+        mode: str = "group",
+        routing_context: str = None
     ) -> List[Dict[str, str]]:
-        """Build messages array for OpenAI chat"""
+        """Build messages array for OpenAI chat
+
+        Args:
+            routing_context: Intent context from LLM router ("greeting", "team_activation", "expertise_match", "explicit_mention")
+        """
         system_content = f"""# Your Persona
 {self.persona}
 
@@ -323,8 +369,8 @@ RIGHT: "I'll handle that" or "Here's my perspective"
 ALWAYS acknowledge @mentions directed at you!"""
 
             # GREETING MODE DETECTION - Special handling for sponsor-friendly intros
-            from intent_router import IntentRouter
-            if IntentRouter.is_greeting(user_query):
+            # Uses routing_context from LLM semantic intent detection (supports ANY language)
+            if routing_context == "greeting":
                 if self.agent_id == "rahil":
                     system_content += """
 
@@ -368,6 +414,83 @@ Rahil will provide the warm introduction to the team. You will only respond when
 3. Rahil explicitly tags you with @{self.metadata['name'].split()[0]}
 
 For now: Stay silent. Your time to shine will come when explicitly invited."""
+
+        elif mode == "think_tank":
+            system_content += """
+
+**Mode: Think Tank Session (Multi-Round Discussion)**
+- This is a MULTI-ROUND brainstorming session for complex case studies
+- Discussion continues until team reaches consensus
+- Each agent may respond multiple times across rounds
+- Build on previous rounds, refine ideas, challenge assumptions
+
+**CRITICAL - KNOWLEDGE GRAPH CITATIONS (MANDATORY):**
+1. **EVERY claim must be cited** using format: `[NodeType: NodeName]`
+2. Examples:
+   - "I have expertise in [Skill: Python] from my work on [Project: SAP CPI Integration]"
+   - "At [Company: AaMaRa Technologies], I built [Technology: Multi-tenant SaaS platforms]"
+   - "My education in [Education: MS Information Management] covered [Skill: Product Strategy]"
+3. If you don't have a relevant node, either:
+   - Ask teammates: "@Mathew - do you have experience with X?"
+   - Research it: "Let me research this... [research online]... Based on this, I understand X"
+   - Be honest: "I don't have direct experience with X in my background"
+
+**THINK TANK DISCUSSION RULES:**
+1. **Acknowledge previous rounds** - Reference what was discussed before
+2. **Use @ mentions** - When referring to teammates or their ideas
+3. **Build consensus** - Look for agreement, propose synthesis
+4. **Challenge constructively** - If you disagree, explain why politely
+5. **Cite evidence** - Back every claim with knowledge graph nodes
+6. **Research when needed** - Use web search to fill gaps
+
+**CONSENSUS INDICATORS (Use these phrases):**
+- "I agree with @[Name]'s approach because..."
+- "Building on what @[Name] proposed, I'd add..."
+- "This aligns with @[Name]'s idea about..."
+- "Exactly - and to @[Name]'s point..."
+- "We seem to be converging on [solution]..."
+
+**DISAGREEMENT INDICATORS (Use carefully):**
+- "I see it differently - here's why..."
+- "While I appreciate @[Name]'s approach, I'm concerned about..."
+- "An alternative could be..."
+- "Have we considered [different angle]?"
+
+**RESEARCH FORMAT (When you need information not in your knowledge graph):**
+"Let me research [topic]...
+
+[You research online using available tools]
+
+Based on this research, [what you learned and how it applies].
+
+I'll incorporate this knowledge: [summarize key findings]"
+
+**RESPONSE STRUCTURE FOR THINK TANK:**
+
+**Round 1 (Initial Ideas):**
+- Share your initial expertise
+- Cite your knowledge graph nodes
+- Propose approach
+
+**Round 2+ (Refinement):**
+- Acknowledge previous round discussions
+- Build consensus or offer alternatives
+- Add new insights or research
+- Move toward unified solution
+
+Example Round 2+ response:
+"**Great progress from Round 1!**
+
+Building on @Rahil's architecture and @Mathew's data pipeline design, I see us converging on [solution]. Here's what I'll add:
+
+**My Contribution ([cite your expertise]):**
+- [Specific addition based on [NodeType: NodeName]]
+- [Enhancement to team's proposal]
+
+This aligns with our team's capabilities: [list cited nodes used]"
+
+ALWAYS use citation format: [Type: Name]"""
+
         elif mode == "orchestrator":
             if self.agent_id == "rahil":
                 system_content += """
@@ -434,10 +557,15 @@ Example:
         self,
         user_query: str,
         conversation_history: List[Dict[str, str]] = None,
-        mode: str = "group"
+        mode: str = "group",
+        routing_context: str = None
     ) -> Generator[str, None, None]:
-        """Generate streaming response"""
-        messages = self.build_messages(user_query, conversation_history, mode)
+        """Generate streaming response
+
+        Args:
+            routing_context: Intent context from LLM router ("greeting", "team_activation", "expertise_match", "explicit_mention")
+        """
+        messages = self.build_messages(user_query, conversation_history, mode, routing_context)
         return self.openai_client.generate(messages, stream=True)
     
     def extract_mentioned_nodes(self, response_text: str) -> List[str]:
@@ -679,13 +807,27 @@ class MultiAgentSystem:
             routing_decision = self.intent_router.route_user_query(user_query, local_history)
             agent_queue = routing_decision.agent_ids.copy()
 
+            # DEBUG: Log routing decision
+            print(f"\n🎯 [ROUTING DECISION]", flush=True)
+            print(f"    Query: '{user_query[:100]}'", flush=True)
+            print(f"    Agents: {routing_decision.agent_ids}", flush=True)
+            print(f"    Intent: {routing_decision.context}", flush=True)
+            print(f"    Reasoning: {routing_decision.reasoning}", flush=True)
+
             # Track which agents have responded to avoid duplicates
             responded_agents: Set[str] = set()
 
             # Track rounds of agent-to-agent communication
             agent_to_agent_round = 0
 
-            while agent_queue and agent_to_agent_round <= self.max_agent_to_agent_rounds:
+            # Hard limit on total iterations to prevent infinite loops
+            max_total_iterations = 10
+            iteration_count = 0
+
+            while agent_queue and agent_to_agent_round <= self.max_agent_to_agent_rounds and iteration_count < max_total_iterations:
+                iteration_count += 1
+                print(f"\n🔄 [ROUTING LOOP] Iteration {iteration_count}/{max_total_iterations}", flush=True)
+                print(f"    Queue: {agent_queue}, Responded: {responded_agents}, Round: {agent_to_agent_round}/{self.max_agent_to_agent_rounds}", flush=True)
                 # Get next agent from queue
                 agent_id = agent_queue.pop(0)
 
@@ -720,7 +862,7 @@ class MultiAgentSystem:
 
                 # Generate response with context from previous responses
                 response_chunks = []
-                for chunk in agent.respond(user_query, local_history, mode="group"):
+                for chunk in agent.respond(user_query, local_history, mode="group", routing_context=routing_decision.context):
                     response_chunks.append(chunk)
                     yield (agent_id, chunk)
 
@@ -761,21 +903,19 @@ class MultiAgentSystem:
                         print(f"    Reasoning: {mention_routing.reasoning}", flush=True)
                         print(f"    Responded agents so far: {responded_agents}", flush=True)
 
-                        # Add mentioned agents to queue (if not already responded)
+                        # Add mentioned agents to queue (if not already responded and not already in queue)
                         newly_added = []
                         for mentioned_agent_id in mention_routing.agent_ids:
-                            if mentioned_agent_id not in responded_agents:
+                            if mentioned_agent_id not in responded_agents and mentioned_agent_id not in agent_queue:
                                 agent_queue.append(mentioned_agent_id)
                                 newly_added.append(mentioned_agent_id)
 
                         if newly_added:
                             print(f"    ✅ Added {newly_added} to agent queue", flush=True)
-                        else:
-                            print(f"    ⚠️ No new agents added (all already responded)", flush=True)
-
-                        # Increment round counter if we're adding agents via mentions
-                        if mention_routing.agent_ids:
+                            # Increment round counter only when we actually add new agents
                             agent_to_agent_round += 1
+                        else:
+                            print(f"    ⚠️ No new agents added (all already responded or in queue)", flush=True)
                     else:
                         print(f"    No @mentions detected in response", flush=True)
 
@@ -789,7 +929,484 @@ class MultiAgentSystem:
             error_msg = f"[Routing Error: {str(e)}]"
             yield ("system", error_msg)
             raise
-    
+
+    def think_tank_mode(
+        self,
+        user_query: str,
+        conversation_history: List[Dict[str, str]] = None,
+        max_rounds: int = 5,
+        min_consensus: float = 0.85
+    ) -> Generator[Tuple[str, str], None, None]:
+        """
+        Think Tank Mode: Multi-round brainstorming with consensus-driven conclusion.
+
+        Features:
+        - Multi-round discussions (3-20 rounds adaptive)
+        - Knowledge graph citations mandatory [NodeType: NodeName]
+        - Real-time web research per agent
+        - Consensus detection after each round
+        - Final unified summary when consensus reached
+
+        Args:
+            user_query: User's case study or complex question
+            conversation_history: Previous conversation context
+            max_rounds: Maximum discussion rounds (default 5, can extend to 20)
+            min_consensus: Minimum consensus score to conclude (0.0-1.0, default 0.85)
+
+        Yields:
+            (agent_id, response_chunk) or ("system", metadata_json) tuples
+        """
+        print(f"\n🧠 [THINK TANK MODE] Starting multi-round discussion...", flush=True)
+        print(f"    Max rounds: {max_rounds}, Min consensus: {min_consensus}", flush=True)
+
+        # Analyze query complexity and determine if reasoning model needed
+        reasoning_model = self._analyze_query_complexity(user_query)
+        if reasoning_model:
+            print(f"    🎯 Detected complex query - will use {reasoning_model} for final summary", flush=True)
+        else:
+            print(f"    ✨ Standard complexity - using GPT-4o", flush=True)
+
+        # Initialize discussion state
+        local_history = conversation_history.copy() if conversation_history else []
+        discussion_round = 0
+        consensus_reached = False
+        all_round_responses = []  # Track all responses for consensus detection
+
+        try:
+            # Emit mode metadata to frontend
+            yield ("system", json.dumps({
+                "type": "think_tank_start",
+                "max_rounds": max_rounds,
+                "min_consensus": min_consensus,
+                "reasoning_model": reasoning_model
+            }))
+
+            # FIX: Route agents ONCE before starting rounds (not every round)
+            routing_decision = self.intent_router.route_user_query(user_query, local_history)
+            participating_agents = routing_decision.agent_ids.copy()
+            print(f"\n🎯 [THINK TANK] Participating agents: {participating_agents}", flush=True)
+
+            # FIX: Skip multi-round discussion for greetings - just give a simple response
+            if routing_decision.context == "greeting":
+                print(f"👋 [THINK TANK] Greeting detected - using simple response mode instead of multi-round", flush=True)
+                # Use regular group chat for greetings (single response, no rounds)
+                yield from self.group_chat_mode(user_query, conversation_history, use_dynamic_routing=True)
+                return
+
+            while discussion_round < max_rounds and not consensus_reached:
+                discussion_round += 1
+                print(f"\n🔄 [ROUND {discussion_round}/{max_rounds}] Starting discussion round...", flush=True)
+
+                # Emit round start event
+                yield ("system", json.dumps({
+                    "type": "round_start",
+                    "round": discussion_round,
+                    "total_rounds": max_rounds
+                }))
+
+                # FIX: Use the same participating agents for each round (no re-routing)
+                agent_queue = participating_agents.copy()
+                responded_agents_this_round = set()
+                round_responses = []
+
+                # Hard limit on iterations per round to prevent infinite loops
+                max_iterations_per_round = 10
+                round_iteration_count = 0
+
+                # Process each agent in the queue
+                while agent_queue and round_iteration_count < max_iterations_per_round:
+                    round_iteration_count += 1
+                    print(f"    🔄 Round {discussion_round} iteration {round_iteration_count}/{max_iterations_per_round}", flush=True)
+                    print(f"       Queue: {agent_queue}, Responded: {responded_agents_this_round}", flush=True)
+                    agent_id = agent_queue.pop(0)
+
+                    if agent_id in responded_agents_this_round:
+                        continue
+
+                    if agent_id not in self.agents:
+                        continue
+
+                    agent = self.agents[agent_id]
+                    responded_agents_this_round.add(agent_id)
+
+                    print(f"\n📨 [{agent_id}] Responding in round {discussion_round}...", flush=True)
+
+                    # Generate response with think_tank mode
+                    response_chunks = []
+                    for chunk in agent.respond(user_query, local_history, mode="think_tank"):
+                        response_chunks.append(chunk)
+                        yield (agent_id, chunk)
+
+                    full_response = "".join(response_chunks)
+
+                    # Execute web research if agent requested it
+                    full_response_with_research = self._execute_web_research(agent_id, full_response)
+
+                    # If research was added, stream the research results
+                    if full_response_with_research != full_response:
+                        research_addition = full_response_with_research[len(full_response):]
+                        for char in research_addition:
+                            yield (agent_id, char)
+
+                    full_response = full_response_with_research
+
+                    # Parse citations from response
+                    citations = self._parse_citations(full_response)
+
+                    # Add to history
+                    response_data = {
+                        'agent': agent.metadata['name'],
+                        'agent_id': agent_id,
+                        'message': full_response,
+                        'content': full_response,
+                        'role': 'agent',
+                        'round': discussion_round,
+                        'citations': citations
+                    }
+
+                    local_history.append(response_data)
+                    round_responses.append(response_data)
+
+                    # Emit citation metadata
+                    if citations:
+                        yield ("system", json.dumps({
+                            "type": "citations",
+                            "agent_id": agent_id,
+                            "citations": citations
+                        }))
+
+                    # Check for @mentions to add more agents
+                    if MentionParser.has_mentions(full_response):
+                        try:
+                            mention_routing = self.intent_router.route_agent_response(agent_id, full_response)
+                            for mentioned_agent_id in mention_routing.agent_ids:
+                                if mentioned_agent_id not in responded_agents_this_round and mentioned_agent_id not in agent_queue:
+                                    agent_queue.append(mentioned_agent_id)
+                                    print(f"    ✅ Added {mentioned_agent_id} via @mention", flush=True)
+                        except Exception as e:
+                            print(f"    ⚠️ Mention routing failed: {e}", flush=True)
+
+                # Store round responses for consensus analysis
+                all_round_responses.append({
+                    'round': discussion_round,
+                    'responses': round_responses
+                })
+
+                # Emit round complete
+                yield ("system", json.dumps({
+                    "type": "round_complete",
+                    "round": discussion_round,
+                    "agents_responded": len(responded_agents_this_round)
+                }))
+
+                # Check consensus after round (except first round)
+                if discussion_round > 1:
+                    consensus_score = self._detect_consensus(all_round_responses)
+                    print(f"\n🎯 [CONSENSUS CHECK] Round {discussion_round}: {consensus_score:.0%}", flush=True)
+
+                    # Emit consensus score
+                    yield ("system", json.dumps({
+                        "type": "consensus_update",
+                        "round": discussion_round,
+                        "consensus": consensus_score
+                    }))
+
+                    if consensus_score >= min_consensus:
+                        consensus_reached = True
+                        print(f"    ✅ Consensus reached! ({consensus_score:.0%} >= {min_consensus:.0%})", flush=True)
+                        break
+                    else:
+                        print(f"    ⏳ Continuing discussion ({consensus_score:.0%} < {min_consensus:.0%})", flush=True)
+
+            # Generate final summary (Rahil synthesizes)
+            print(f"\n📝 [FINAL SUMMARY] Rahil generating unified answer...", flush=True)
+
+            yield ("system", json.dumps({
+                "type": "summary_start",
+                "rounds_completed": discussion_round,
+                "consensus_reached": consensus_reached
+            }))
+
+            # Rahil creates final summary (use reasoning model if complex query)
+            rahil = self.agents['rahil']
+
+            # Temporarily swap to reasoning model if needed
+            original_client = rahil.openai_client
+            if reasoning_model:
+                print(f"    🧠 Using {reasoning_model} for deep synthesis...", flush=True)
+                rahil.openai_client = self._create_reasoning_client(reasoning_model)
+
+            summary_prompt = f"""Based on the team discussion, provide a FINAL UNIFIED ANSWER.
+
+Synthesize all perspectives into one coherent solution. Include:
+1. **Final Recommendation** - The agreed-upon approach
+2. **Key Insights** - Important points from the discussion
+3. **Implementation Plan** - Concrete next steps
+4. **Citations** - Reference knowledge graph nodes used
+
+Discussion rounds: {discussion_round}
+Consensus: {'Reached' if consensus_reached else 'Not fully reached, but concluding'}
+"""
+
+            summary_chunks = []
+            for chunk in rahil.respond(summary_prompt, local_history, mode="think_tank"):
+                summary_chunks.append(chunk)
+                yield ("rahil_summary", chunk)
+
+            final_summary = "".join(summary_chunks)
+
+            # Restore original client
+            if reasoning_model:
+                rahil.openai_client = original_client
+
+            # Parse final citations
+            final_citations = self._parse_citations(final_summary)
+
+            # Emit final metadata
+            yield ("system", json.dumps({
+                "type": "think_tank_complete",
+                "rounds_completed": discussion_round,
+                "consensus_reached": consensus_reached,
+                "final_citations": final_citations,
+                "total_agents": len(set(r['agent_id'] for round_data in all_round_responses for r in round_data['responses']))
+            }))
+
+            print(f"\n✅ [THINK TANK COMPLETE] Discussion concluded after {discussion_round} rounds", flush=True)
+
+        except Exception as e:
+            error_msg = f"[Think Tank Error: {str(e)}]"
+            print(f"\n❌ {error_msg}", flush=True)
+            yield ("system", json.dumps({
+                "type": "error",
+                "message": error_msg
+            }))
+            raise
+
+    def _parse_citations(self, text: str) -> List[Dict[str, str]]:
+        """
+        Parse knowledge graph citations from text.
+        Format: [NodeType: NodeName] or [NodeName]
+
+        Returns list of {type, name, original} dicts
+        """
+        import re
+        citations = []
+
+        # Pattern: [Skill: Python] or [Project: SAP CPI] or [Python]
+        patterns = [
+            r'\[([A-Z][a-z]+):\s*([^\]]+)\]',  # [Type: Name]
+            r'\[([A-Z][a-z\s]+)\]'  # [Name]
+        ]
+
+        for pattern in patterns:
+            matches = re.finditer(pattern, text)
+            for match in matches:
+                if len(match.groups()) == 2:
+                    citations.append({
+                        'type': match.group(1),
+                        'name': match.group(2).strip(),
+                        'original': match.group(0)
+                    })
+                else:
+                    citations.append({
+                        'type': 'Unknown',
+                        'name': match.group(1).strip(),
+                        'original': match.group(0)
+                    })
+
+        return citations
+
+    def _detect_consensus(self, all_round_responses: List[Dict]) -> float:
+        """
+        Analyze discussion rounds to detect consensus level.
+
+        Returns consensus score (0.0 to 1.0) based on:
+        - Agreement indicators in responses
+        - Repeated technologies/approaches
+        - Lack of conflicting proposals
+        - References to previous ideas
+
+        Args:
+            all_round_responses: List of round data with responses
+
+        Returns:
+            float: Consensus score 0.0-1.0 (1.0 = full consensus)
+        """
+        if len(all_round_responses) < 2:
+            return 0.0
+
+        # Get last two rounds for comparison
+        prev_round = all_round_responses[-2]['responses']
+        curr_round = all_round_responses[-1]['responses']
+
+        # Simple heuristic: check for agreement keywords
+        agreement_keywords = [
+            'i agree', 'building on', 'like @', 'as @',
+            'mentioned', 'great point', 'exactly', 'precisely',
+            'aligns with', 'supports', 'same approach', 'consistent'
+        ]
+
+        conflict_keywords = [
+            'however', 'but', 'instead', 'different approach',
+            'disagree', 'alternative', 'on the other hand'
+        ]
+
+        agreement_count = 0
+        conflict_count = 0
+
+        for response in curr_round:
+            text_lower = response['content'].lower()
+
+            for keyword in agreement_keywords:
+                if keyword in text_lower:
+                    agreement_count += 1
+
+            for keyword in conflict_keywords:
+                if keyword in text_lower:
+                    conflict_count += 1
+
+        # Calculate consensus score
+        total_indicators = agreement_count + conflict_count
+        if total_indicators == 0:
+            return 0.5  # Neutral if no indicators
+
+        consensus = agreement_count / total_indicators
+
+        # Boost if multiple agents agree (strong signal)
+        if len(curr_round) >= 3 and agreement_count >= 2:
+            consensus = min(1.0, consensus + 0.2)
+
+        return consensus
+
+    def _execute_web_research(self, agent_id: str, response_text: str) -> str:
+        """
+        Detect and execute web research requests in agent responses.
+
+        Looks for patterns like:
+        - "Let me research [topic]..."
+        - "I'll research [topic]..."
+        - "Researching [topic]..."
+
+        Args:
+            agent_id: Agent making the research request
+            response_text: Agent's response text
+
+        Returns:
+            Modified response with research results appended, or original if no research
+        """
+        import re
+
+        # Research trigger patterns
+        research_patterns = [
+            r"[Ll]et me research ([^\n.]+)",
+            r"I'll research ([^\n.]+)",
+            r"[Rr]esearching ([^\n.]+)",
+            r"[Nn]eed to research ([^\n.]+)"
+        ]
+
+        # Check for research requests
+        research_topics = []
+        for pattern in research_patterns:
+            matches = re.finditer(pattern, response_text)
+            for match in matches:
+                topic = match.group(1).strip().rstrip('.,!?')
+                research_topics.append(topic)
+
+        if not research_topics:
+            return response_text
+
+        # Execute web searches
+        agent = self.agents.get(agent_id)
+        if not agent or not hasattr(agent, 'web_search_tool'):
+            return response_text
+
+        research_results = []
+        for topic in research_topics[:2]:  # Limit to 2 searches per response
+            print(f"\n🔍 [{agent_id}] Researching: {topic}", flush=True)
+
+            try:
+                search_result = agent.web_search_tool.search(topic, max_results=2)
+
+                if search_result.get('results'):
+                    # Format research results
+                    formatted = f"\n\n**Research Results: {topic}**\n\n"
+                    formatted += f"{search_result['summary']}\n\n"
+
+                    if search_result.get('sources'):
+                        formatted += "**Sources:**\n"
+                        for i, source in enumerate(search_result['sources'], 1):
+                            formatted += f"{i}. {source}\n"
+
+                    research_results.append(formatted)
+                    print(f"    ✅ Found {len(search_result['results'])} results", flush=True)
+                else:
+                    research_results.append(f"\n\n**Research Note:** Limited information available for '{topic}'.\n")
+                    print(f"    ⚠️ No results found", flush=True)
+
+            except Exception as e:
+                print(f"    ❌ Research failed: {e}", flush=True)
+                research_results.append(f"\n\n**Research Note:** Unable to research '{topic}' at this time.\n")
+
+        # Append research results to response
+        if research_results:
+            response_text += "\n" + "\n".join(research_results)
+
+        return response_text
+
+    def _analyze_query_complexity(self, query: str) -> str:
+        """
+        Analyze query complexity to determine if reasoning model should be used.
+
+        Returns:
+            'o1-mini' for complex queries requiring reasoning
+            'o1-preview' for highly complex queries (multi-step, mathematical, strategic)
+            None for normal queries (use default GPT-4o)
+        """
+        # Complexity indicators
+        high_complexity_keywords = [
+            'analyze', 'evaluate', 'compare', 'tradeoff', 'pros and cons',
+            'strategy', 'architecture', 'design pattern', 'optimize',
+            'calculate', 'mathematical', 'algorithm', 'complexity analysis',
+            'multi-step', 'step-by-step', 'systematic approach'
+        ]
+
+        medium_complexity_keywords = [
+            'explain', 'why', 'how', 'what if', 'scenario',
+            'problem', 'solution', 'approach', 'consider',
+            'think', 'reason', 'justify', 'debate'
+        ]
+
+        query_lower = query.lower()
+
+        # Count complexity indicators
+        high_complexity_count = sum(1 for keyword in high_complexity_keywords if keyword in query_lower)
+        medium_complexity_count = sum(1 for keyword in medium_complexity_keywords if keyword in query_lower)
+
+        # Additional heuristics
+        word_count = len(query.split())
+        has_multiple_questions = query.count('?') > 1
+        has_code_context = any(keyword in query_lower for keyword in ['code', 'implementation', 'function', 'class'])
+
+        # Scoring
+        complexity_score = 0
+        complexity_score += high_complexity_count * 3
+        complexity_score += medium_complexity_count * 1
+        complexity_score += 2 if word_count > 100 else 0
+        complexity_score += 2 if has_multiple_questions else 0
+        complexity_score += 1 if has_code_context else 0
+
+        # Decision thresholds
+        if complexity_score >= 8:
+            return 'o1-preview'  # Highly complex
+        elif complexity_score >= 4:
+            return 'o1-mini'  # Moderately complex
+        else:
+            return None  # Normal complexity, use GPT-4o
+
+    def _create_reasoning_client(self, reasoning_model: str) -> OpenAIClient:
+        """Create a new OpenAI client with reasoning model support"""
+        return OpenAIClient(reasoning_model=reasoning_model)
+
     def orchestrator_mode(
         self,
         user_query: str,
