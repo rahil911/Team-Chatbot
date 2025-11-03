@@ -131,22 +131,7 @@ export const Dashboard = () => {
             >
               Group Chat
             </Button>
-            <Button
-              onClick={() => setMode('orchestrator')}
-              colorScheme={mode === 'orchestrator' ? 'purple' : 'gray'}
-              bg={mode === 'orchestrator' ? 'purple.600' : 'whiteAlpha.100'}
-              _hover={{ bg: mode === 'orchestrator' ? 'purple.500' : 'whiteAlpha.200' }}
-            >
-              Orchestrator
-            </Button>
-            <Button
-              onClick={() => setMode('think_tank')}
-              colorScheme={mode === 'think_tank' ? 'orange' : 'gray'}
-              bg={mode === 'think_tank' ? 'orange.600' : 'whiteAlpha.100'}
-              _hover={{ bg: mode === 'think_tank' ? 'orange.500' : 'whiteAlpha.200' }}
-            >
-              💡 Think Tank
-            </Button>
+            {/* Orchestrator and Think Tank modes hidden (backend still functional) */}
           </ButtonGroup>
 
           {/* Agent Cards */}
