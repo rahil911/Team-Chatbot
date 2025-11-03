@@ -10,10 +10,6 @@ import {
   Button,
   ButtonGroup,
   Progress,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
 } from '@chakra-ui/react';
 import { ChatView } from './ChatView';
 import { KnowledgeGraphView } from './KnowledgeGraphView';

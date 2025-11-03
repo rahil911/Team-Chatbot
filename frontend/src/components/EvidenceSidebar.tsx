@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { BookmarkIcon, FunnelIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { BookmarkIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid';
 import type { Citation } from '../types';
 

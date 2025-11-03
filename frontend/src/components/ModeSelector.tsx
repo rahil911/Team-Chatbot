@@ -1,5 +1,5 @@
 import { RadioGroup } from '@headlessui/react';
-import { UsersIcon, ClipboardDocumentListIcon, LightBulbIcon } from '@heroicons/react/24/outline';
+import { UsersIcon } from '@heroicons/react/24/outline';
 import type { ChatMode } from '../types';
 
 interface ModeSelectorProps {

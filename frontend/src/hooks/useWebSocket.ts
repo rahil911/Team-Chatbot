@@ -283,38 +283,6 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
         break;
     }
   }, [thinkTankCurrentRound]);
-
-  const handleThinkTankAgentChunk = useCallback((data: any) => {
-    const agentId = data.agent_id;
-    const chunk = data.chunk;
-
-    // Add agent to active list
-    setActiveAgents(prev => [...new Set([...prev, agentId])]);
-
-    // Update streaming message
-    streamingMessagesRef.current[agentId] = (streamingMessagesRef.current[agentId] || '') + chunk;
-
-    // Update messages
-    setMessages(prev => {
-      const existing = prev.findIndex(m => m.agent_id === agentId && m.streaming);
-      const newMsg: Message = {
-        type: 'agent',
-        content: streamingMessagesRef.current[agentId],
-        timestamp: Date.now(),
-        agent_id: agentId,
-        streaming: true
-      };
-
-      if (existing >= 0) {
-        const updated = [...prev];
-        updated[existing] = newMsg;
-        return updated;
-      } else {
-        return [...prev, newMsg];
-      }
-    });
-  }, []);
-
   const handleThinkTankSummary = useCallback((data: any) => {
     const chunk = data.chunk || '';
     thinkTankSummaryRef.current += chunk;

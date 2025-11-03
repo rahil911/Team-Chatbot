@@ -11,12 +11,10 @@ export const ModernDashboard = () => {
   const { addHighlight, highlights } = useGraphHighlight();
 
   const {
-    connected,
     messages,
     agentMessages,
     activeAgents,
     isProcessing,
-    typingAgent,
     sendMessage,
     thinkTank
   } = useWebSocket((highlightData: any) => {
