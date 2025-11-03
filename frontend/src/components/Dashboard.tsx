@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Box,
   Flex,
@@ -6,6 +7,13 @@ import {
   Badge,
   Avatar,
   VStack,
+  Button,
+  ButtonGroup,
+  Progress,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
 } from '@chakra-ui/react';
 import { ChatView } from './ChatView';
 import { KnowledgeGraphView } from './KnowledgeGraphView';
@@ -45,29 +53,33 @@ const AGENTS = {
 } as const;
 
 export const Dashboard = () => {
-  const mode: ChatMode = 'group'; // Fixed to group mode only
-  
+  const [mode, setMode] = useState<ChatMode>('group');
+
   const { addHighlight, highlights } = useGraphHighlight();
-  
-  const { 
-    connected, 
-    messages, 
-    agentMessages, 
-    activeAgents, 
+
+  const {
+    connected,
+    messages,
+    agentMessages,
+    activeAgents,
     isProcessing,
     typingAgent,
-    sendMessage 
+    sendMessage,
+    thinkTank,
   } = useWebSocket((highlightData: any) => {
     addHighlight(highlightData);
   });
-  
+
   const handleSendMessage = (message: string) => {
     sendMessage(message, mode);
   };
-  
+
   const handleSendVoice = (_audioBlob: Blob) => {
     alert('Voice input feature coming soon!');
   };
+
+  const isThinkTankMode = mode === 'think_tank';
+  const consensusPercent = thinkTank?.consensus ? Math.round(thinkTank.consensus.score * 100) : 0;
 
   return (
     <Flex direction="column" h="100vh" bg="gray.950">
@@ -80,7 +92,7 @@ export const Dashboard = () => {
         px={6}
         py={4}
       >
-        <Flex justify="space-between" align="center">
+        <Flex justify="space-between" align="center" mb={3}>
           {/* Logo */}
           <HStack spacing={3}>
             <Box
@@ -112,6 +124,34 @@ export const Dashboard = () => {
               </HStack>
             </VStack>
           </HStack>
+
+          {/* Mode Selector */}
+          <ButtonGroup size="sm" isAttached variant="outline">
+            <Button
+              onClick={() => setMode('group')}
+              colorScheme={mode === 'group' ? 'blue' : 'gray'}
+              bg={mode === 'group' ? 'blue.600' : 'whiteAlpha.100'}
+              _hover={{ bg: mode === 'group' ? 'blue.500' : 'whiteAlpha.200' }}
+            >
+              Group Chat
+            </Button>
+            <Button
+              onClick={() => setMode('orchestrator')}
+              colorScheme={mode === 'orchestrator' ? 'purple' : 'gray'}
+              bg={mode === 'orchestrator' ? 'purple.600' : 'whiteAlpha.100'}
+              _hover={{ bg: mode === 'orchestrator' ? 'purple.500' : 'whiteAlpha.200' }}
+            >
+              Orchestrator
+            </Button>
+            <Button
+              onClick={() => setMode('think_tank')}
+              colorScheme={mode === 'think_tank' ? 'orange' : 'gray'}
+              bg={mode === 'think_tank' ? 'orange.600' : 'whiteAlpha.100'}
+              _hover={{ bg: mode === 'think_tank' ? 'orange.500' : 'whiteAlpha.200' }}
+            >
+              💡 Think Tank
+            </Button>
+          </ButtonGroup>
 
           {/* Agent Cards */}
           <HStack spacing={3}>
@@ -158,6 +198,67 @@ export const Dashboard = () => {
             })}
           </HStack>
         </Flex>
+
+        {/* Think Tank Mode Stats */}
+        {isThinkTankMode && thinkTank && thinkTank.currentRound > 0 && (
+          <Flex gap={4} mt={3}>
+            <Box flex={1} bg="whiteAlpha.50" rounded="md" p={3} borderWidth="1px" borderColor="whiteAlpha.200">
+              <HStack justify="space-between" mb={2}>
+                <Text fontSize="xs" fontWeight="semibold" color="gray.400">
+                  CONSENSUS
+                </Text>
+                <Text fontSize="2xl" fontWeight="bold" color={consensusPercent >= 85 ? 'green.400' : 'orange.400'}>
+                  {consensusPercent}%
+                </Text>
+              </HStack>
+              <Progress
+                value={consensusPercent}
+                size="sm"
+                colorScheme={consensusPercent >= 85 ? 'green' : 'orange'}
+                rounded="full"
+                hasStripe
+                isAnimated={consensusPercent < 85}
+              />
+              <Text fontSize="xs" color="gray.500" mt={1}>
+                {consensusPercent >= 85 ? '✓ Consensus reached' : `Need ${85 - consensusPercent}% more`}
+              </Text>
+            </Box>
+
+            <Box flex={1} bg="whiteAlpha.50" rounded="md" p={3} borderWidth="1px" borderColor="whiteAlpha.200">
+              <HStack justify="space-between" mb={2}>
+                <Text fontSize="xs" fontWeight="semibold" color="gray.400">
+                  DISCUSSION ROUND
+                </Text>
+                <Text fontSize="2xl" fontWeight="bold" color="blue.400">
+                  {thinkTank.currentRound}/{thinkTank.maxRounds}
+                </Text>
+              </HStack>
+              <Progress
+                value={(thinkTank.currentRound / thinkTank.maxRounds) * 100}
+                size="sm"
+                colorScheme="blue"
+                rounded="full"
+              />
+              <Text fontSize="xs" color="gray.500" mt={1}>
+                {thinkTank.agentsResponded} of 4 agents responded
+              </Text>
+            </Box>
+
+            {thinkTank.citations.length > 0 && (
+              <Box flex={1} bg="whiteAlpha.50" rounded="md" p={3} borderWidth="1px" borderColor="whiteAlpha.200">
+                <Text fontSize="xs" fontWeight="semibold" color="gray.400" mb={1}>
+                  EVIDENCE
+                </Text>
+                <Text fontSize="2xl" fontWeight="bold" color="purple.400">
+                  {thinkTank.citations.length}
+                </Text>
+                <Text fontSize="xs" color="gray.500" mt={1}>
+                  Knowledge graph citations
+                </Text>
+              </Box>
+            )}
+          </Flex>
+        )}
       </Box>
 
       {/* Split View: Chat | Knowledge Graph */}

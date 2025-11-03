@@ -1,5 +1,5 @@
 import { RadioGroup } from '@headlessui/react';
-import { UsersIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
+import { UsersIcon, ClipboardDocumentListIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 import type { ChatMode } from '../types';
 
 interface ModeSelectorProps {
@@ -28,13 +28,20 @@ const MODES: Array<{
     accent: 'from-accent-purple/90 via-accent-purple/70 to-accent-orange/45',
     Icon: ClipboardDocumentListIcon,
   },
+  {
+    id: 'think_tank',
+    title: 'Think Tank',
+    description: 'Multi-round consensus building',
+    accent: 'from-accent-orange/90 via-accent-orange/70 to-yellow-400/45',
+    Icon: LightBulbIcon,
+  },
 ];
 
 export const ModeSelector = ({ mode, onChange }: ModeSelectorProps) => {
   return (
     <div className="space-y-2">
       <span className="text-xs font-semibold uppercase tracking-[0.18em] text-text-tertiary">Chat mode</span>
-      <RadioGroup value={mode} onChange={onChange} className="grid grid-cols-2 gap-3">
+      <RadioGroup value={mode} onChange={onChange} className="grid grid-cols-3 gap-3">
         {MODES.map(({ id, title, description, accent, Icon }) => (
           <RadioGroup.Option key={id} value={id} className="focus:outline-none">
             {({ checked }) => (

@@ -66,17 +66,60 @@ active_connections: List[WebSocket] = []
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
-    
+        self.browser_sessions: Dict[str, WebSocket] = {}  # browser_session_id -> websocket
+        self.websocket_to_session: Dict[WebSocket, str] = {}  # websocket -> browser_session_id
+
     async def connect(self, websocket: WebSocket):
+        """
+        Connect a WebSocket (session registration happens later)
+        """
         await websocket.accept()
         self.active_connections.append(websocket)
-    
+        print(f"✅ [WS-ACCEPT] WebSocket accepted (Total: {len(self.active_connections)} connections)")
+
+    async def register_session(self, websocket: WebSocket, browser_session_id: str):
+        """
+        Register a browser session ID for this WebSocket
+        PRODUCTION-READY: Handles multiple users + multiple tabs per user
+        """
+        # CONNECTION DEDUPLICATION: Close existing connection from same browser session
+        if browser_session_id in self.browser_sessions:
+            old_websocket = self.browser_sessions[browser_session_id]
+            if old_websocket != websocket and old_websocket in self.active_connections:
+                print(f"⚠️ [DEDUP] Closing existing connection from browser session: {browser_session_id}")
+                try:
+                    await old_websocket.close(code=1000, reason="New connection from same browser session")
+                    self.active_connections.remove(old_websocket)
+                    # Clean up old mapping
+                    if old_websocket in self.websocket_to_session:
+                        del self.websocket_to_session[old_websocket]
+                except Exception as e:
+                    print(f"⚠️ [DEDUP] Error closing old connection: {e}")
+
+        # Register new session
+        self.browser_sessions[browser_session_id] = websocket
+        self.websocket_to_session[websocket] = browser_session_id
+        print(f"✅ [SESSION-REG] Browser session {browser_session_id} registered (Total: {len(self.browser_sessions)} unique browsers)")
+
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-    
+        """Disconnect a WebSocket and clean up tracking"""
+        # Remove from active connections
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+
+        # Clean up session tracking
+        if websocket in self.websocket_to_session:
+            browser_session_id = self.websocket_to_session[websocket]
+            if browser_session_id in self.browser_sessions and self.browser_sessions[browser_session_id] == websocket:
+                del self.browser_sessions[browser_session_id]
+            del self.websocket_to_session[websocket]
+            print(f"❌ [DISCONNECT] Browser session {browser_session_id} disconnected (Total: {len(self.browser_sessions)} unique browsers)")
+        else:
+            print(f"❌ [DISCONNECT] WebSocket disconnected (no session registered)")
+
     async def send_personal(self, message: dict, websocket: WebSocket):
         await websocket.send_json(message)
-    
+
     async def broadcast(self, message: dict):
         for connection in self.active_connections:
             await connection.send_json(message)
@@ -560,12 +603,20 @@ async def websocket_endpoint(websocket: WebSocket):
                 message_type = data.get("type")
                 print(f"📨 Received WebSocket message type: {message_type}")
 
+                if message_type == "register_session":
+                    # PRODUCTION-READY: Register browser session ID for connection deduplication
+                    browser_session_id = data.get("browser_session_id")
+                    if browser_session_id:
+                        await manager.register_session(websocket, browser_session_id)
+                    continue
+
                 if message_type == "chat":
-                    print(f"💬 Processing chat message: {data.get('message', '')[:100]}...")
+                    user_message = data.get("message", "")
+                    mode = data.get("mode", "group")  # group or orchestrator
+                    print(f"💬 Processing chat message: {user_message[:100]}...")
+                    print(f"📍 MODE RECEIVED: {mode}")
                     try:
                         # Handle chat message
-                        user_message = data.get("message", "")
-                        mode = data.get("mode", "group")  # group or orchestrator
 
                         # Add user message to session
                         conversation_manager.add_user_message(session_id, user_message)
@@ -687,6 +738,117 @@ async def websocket_endpoint(websocket: WebSocket):
                                     "response": agent_response,
                                     "highlights": highlight_data  # NEW: AI observability
                                 }, websocket)
+
+                        elif mode == "think_tank":
+                            # Think Tank mode - multi-round discussion with citations
+                            response_gen = agent_system.think_tank_mode(
+                                user_message,
+                                conversation_history,
+                                max_rounds=5,  # Default, can be made configurable
+                                min_consensus=0.85
+                            )
+
+                            # Track current agent and response
+                            current_agent = None
+                            current_response = ""
+                            current_timestamp = None
+
+                            for item in response_gen:
+                                agent_id, chunk = item
+
+                                # Handle system messages (JSON metadata)
+                                if agent_id == "system":
+                                    try:
+                                        system_data = json.loads(chunk)
+                                        await manager.send_personal({
+                                            "type": "think_tank_system",
+                                            **system_data
+                                        }, websocket)
+                                    except json.JSONDecodeError:
+                                        print(f"⚠️ Invalid system JSON: {chunk}")
+                                    continue
+
+                                # Handle Rahil's final summary
+                                if agent_id == "rahil_summary":
+                                    await manager.send_personal({
+                                        "type": "think_tank_summary",
+                                        "chunk": chunk
+                                    }, websocket)
+                                    continue
+
+                                # Handle regular agent responses
+                                if agent_id not in AGENTS:
+                                    print(f"⚠️ Skipping invalid agent_id: {agent_id}")
+                                    continue
+
+                                # New agent starting
+                                if current_agent != agent_id:
+                                    # Send previous agent's complete message
+                                    if current_agent and current_response:
+                                        entities = graph_highlighter.extract_entities(current_response, current_agent)
+                                        highlight_data = graph_highlighter.get_highlight_data(current_agent, entities)
+
+                                        await manager.send_personal({
+                                            "type": "agent_complete",
+                                            "agent_id": current_agent,
+                                            "full_response": current_response,
+                                            "highlights": highlight_data
+                                        }, websocket)
+
+                                    # New agent - show typing indicator
+                                    current_agent = agent_id
+                                    current_response = ""
+                                    current_timestamp = int(time.time() * 1000)
+
+                                    await manager.send_personal({
+                                        "type": "agent_typing",
+                                        "agent_id": agent_id,
+                                        "agent_name": AGENTS[agent_id]['name']
+                                    }, websocket)
+
+                                    await asyncio.sleep(0.5)
+
+                                    await manager.send_personal({
+                                        "type": "agent_start",
+                                        "agent_id": agent_id,
+                                        "agent_name": AGENTS[agent_id]['name'],
+                                        "timestamp": current_timestamp
+                                    }, websocket)
+
+                                # Stream chunk
+                                if not chunk.startswith('[Error'):
+                                    current_response += chunk
+                                    await manager.send_personal({
+                                        "type": "agent_chunk",
+                                        "agent_id": agent_id,
+                                        "chunk": chunk,
+                                        "timestamp": current_timestamp
+                                    }, websocket)
+
+                            # Send final agent's completion
+                            if current_agent and current_response:
+                                entities = graph_highlighter.extract_entities(current_response, current_agent)
+                                highlight_data = graph_highlighter.get_highlight_data(current_agent, entities)
+
+                                conversation_manager.add_agent_message(
+                                    session_id,
+                                    current_agent,
+                                    AGENTS[current_agent]['name'],
+                                    current_response,
+                                    metadata={"highlights": highlight_data}
+                                )
+
+                                await manager.send_personal({
+                                    "type": "agent_complete",
+                                    "agent_id": current_agent,
+                                    "full_response": current_response,
+                                    "highlights": highlight_data
+                                }, websocket)
+
+                            # Signal all complete
+                            await manager.send_personal({
+                                "type": "all_complete"
+                            }, websocket)
 
                     except Exception as e:
                         print(f"❌ ERROR processing chat message: {e}")
