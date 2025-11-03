@@ -49,7 +49,7 @@ kg_loader = get_kg_loader()
 graph_view = GraphView(kg_loader)
 graph_highlighter = GraphHighlighter(kg_loader)
 graph_analytics = GraphAnalytics(kg_loader.merged_graph)
-agent_system = MultiAgentSystem(kg_loader, use_gpt5=False)
+agent_system = MultiAgentSystem(kg_loader, use_gpt5=True)
 openai_client = OpenAI(api_key=get_openai_api_key())
 conversation_manager = get_conversation_manager()
 
