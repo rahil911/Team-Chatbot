@@ -15,31 +15,77 @@ jobs:
 
     steps:
       - name: Ping Student Backend
+        id: ping
         run: |
           echo "🏓 Pinging backend to keep it warm..."
 
-          # Ping the API endpoint
-          RESPONSE=$(curl -s -w "\n%{http_code}" https://kg-student-backend.ambitiouswave-220155c4.eastus2.azurecontainerapps.io/api/graph --max-time 30)
+          # Ping the API endpoint with timeout
+          RESPONSE=$(curl -s -w "\n%{http_code}" https://kg-student-backend.ambitiouswave-220155c4.eastus2.azurecontainerapps.io/api/graph --max-time 30 || echo -e "\ntimeout")
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
 
-          if [ "$HTTP_CODE" -eq 200 ]; then
+          if [ "$HTTP_CODE" = "200" ]; then
             echo "✅ Backend is alive! (HTTP $HTTP_CODE)"
             # Extract node/edge count from response
             NODES=$(echo "$RESPONSE" | jq -r '.nodes' 2>/dev/null || echo "N/A")
             EDGES=$(echo "$RESPONSE" | jq -r '.edges' 2>/dev/null || echo "N/A")
             echo "📊 Graph Status: $NODES nodes, $EDGES edges"
+            echo "backend_status=healthy" >> $GITHUB_OUTPUT
           else
-            echo "⚠️ Backend returned HTTP $HTTP_CODE (might be warming up)"
+            echo "❌ Backend is DOWN! (HTTP code: $HTTP_CODE)"
+            echo "backend_status=down" >> $GITHUB_OUTPUT
+            exit 1  # Mark step as failed
           fi
 
           echo "⏰ Next ping in 15 minutes"
 
+      - name: Azure Login
+        if: failure() && steps.ping.outputs.backend_status == 'down'
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_STUDENT_CREDENTIALS }}
+
+      - name: Auto-Restart Backend (if down)
+        if: failure() && steps.ping.outputs.backend_status == 'down'
+        run: |
+          echo "🔄 Backend is down - attempting automatic restart..."
+
+          # Restart the container
+          echo "🔄 Restarting container revision..."
+          az containerapp revision restart \
+            --revision kg-student-backend--0000002 \
+            --resource-group kg-student-20251031184510-rg
+
+          echo "✅ Container restart initiated!"
+          echo "⏳ Waiting 45 seconds for startup..."
+          sleep 45
+
+          # Verify it's back up
+          if curl -sf https://kg-student-backend.ambitiouswave-220155c4.eastus2.azurecontainerapps.io/api/graph --max-time 30 > /dev/null; then
+            echo "✅ Backend is back online!"
+          else
+            echo "⚠️ Backend still not responding - may need manual intervention"
+            exit 1
+          fi
+
+      - name: Azure Logout
+        if: always() && steps.ping.outputs.backend_status == 'down'
+        run: az logout
+
       - name: Health Check Summary
+        if: always()
         run: |
           echo "### Backend Keep-Alive Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Endpoint**: https://kg-student-backend.ambitiouswave-220155c4.eastus2.azurecontainerapps.io" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: Pinged successfully ✅" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.ping.outputs.backend_status }}" = "healthy" ]; then
+            echo "- **Status**: ✅ Healthy" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.ping.outputs.backend_status }}" = "down" ]; then
+            echo "- **Status**: 🔄 Was down - auto-restarted" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Status**: ⚠️ Unknown" >> $GITHUB_STEP_SUMMARY
+          fi
+
           echo "- **Frequency**: Every 15 minutes (6am ET - 10pm PT)" >> $GITHUB_STEP_SUMMARY
           echo "- **Off Hours**: 10pm PT - 6am ET (hibernates to save costs)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Purpose**: Prevent Azure Container Apps hibernation during active hours" >> $GITHUB_STEP_SUMMARY
+          echo "- **Auto-Restart**: Enabled (restarts if ping fails)" >> $GITHUB_STEP_SUMMARY
