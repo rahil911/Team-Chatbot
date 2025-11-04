@@ -65,10 +65,13 @@ jobs:
 
       - name: Update Container App
         run: |
+          IMAGE_TAG="main-${{ github.sha }}"
+          echo "🚀 Deploying image with tag: ${IMAGE_TAG}"
+
           az containerapp update \
             --name ${{ env.CONTAINER_APP }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --image ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest \
+            --image ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG} \
             --set-env-vars "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
 
       - name: Get Container App URL
