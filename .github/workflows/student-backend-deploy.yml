@@ -65,7 +65,10 @@ jobs:
 
       - name: Update Container App
         run: |
-          IMAGE_TAG="main-${{ github.sha }}"
+          # Use short SHA (first 7 chars) to match Docker tag format
+          SHORT_SHA="${{ github.sha }}"
+          SHORT_SHA="${SHORT_SHA:0:7}"
+          IMAGE_TAG="main-${SHORT_SHA}"
           echo "🚀 Deploying image with tag: ${IMAGE_TAG}"
 
           az containerapp update \
