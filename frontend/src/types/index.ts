@@ -56,7 +56,7 @@ export interface HighlightData {
 }
 
 export interface Message {
-  type: 'user' | 'agent';
+  type: 'user' | 'agent' | 'system';
   agent_id?: string;
   content: string;
   timestamp: number;

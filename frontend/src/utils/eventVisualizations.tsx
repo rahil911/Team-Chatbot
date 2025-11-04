@@ -14,13 +14,7 @@ import {
   Tag,
   Progress,
   Badge,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
-  Image,
 } from '@chakra-ui/react';
-import type { BackendLog } from '../hooks/useWebSocket';
 
 export interface EventVisualization {
   icon?: string; // emoji fallback
@@ -71,7 +65,7 @@ export const EVENT_VISUALIZATIONS: Record<string, EventVisualization> = {
     icon: '🤖',
     color: 'purple.400',
     bgGradient: 'linear(to-r, purple.900, purple.800)',
-    getIcon: (metadata) => (
+    getIcon: (_metadata) => (
       <Avatar
         size="full"
         name="AI Router"
@@ -255,7 +249,7 @@ export const EVENT_VISUALIZATIONS: Record<string, EventVisualization> = {
     icon: '⚙️',
     color: 'gray.400',
     bgGradient: 'linear(to-r, gray.800, gray.700)',
-    getIcon: (metadata) => (
+    getIcon: (_metadata) => (
       <Avatar
         size="full"
         name="System"
@@ -300,7 +294,7 @@ export const EVENT_VISUALIZATIONS: Record<string, EventVisualization> = {
     icon: '❌',
     color: 'red.400',
     bgGradient: 'linear(to-r, red.900, red.800)',
-    getIcon: (metadata) => (
+    getIcon: (_metadata) => (
       <Avatar
         size="full"
         name="Error"

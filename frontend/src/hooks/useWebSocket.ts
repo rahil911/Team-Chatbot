@@ -7,7 +7,7 @@ const WS_URL = config.wsUrl;
 // Backend log types
 export interface BackendLog {
   level: 'info' | 'warning' | 'error' | 'debug' | 'success';
-  category: 'connection' | 'routing' | 'agent' | 'model' | 'think_tank' | 'mention' | 'research' | 'knowledge_graph' | 'processing' | 'error';
+  category: 'connection' | 'routing' | 'agent' | 'model' | 'think_tank' | 'mention' | 'research' | 'knowledge_graph' | 'processing' | 'error' | 'ai_model';
   message: string;
   timestamp: number;
   metadata?: any;
