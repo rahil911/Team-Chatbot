@@ -21,6 +21,7 @@ from openai import OpenAI
 import websockets
 from conversation_manager import get_conversation_manager
 from graph_analytics import GraphAnalytics
+from log_streamer import LogStreamer
 import uuid
 
 # Initialize
@@ -73,6 +74,8 @@ class ConnectionManager:
         self.active_connections: List[WebSocket] = []
         self.browser_sessions: Dict[str, WebSocket] = {}  # browser_session_id -> websocket
         self.websocket_to_session: Dict[WebSocket, str] = {}  # websocket -> browser_session_id
+        self.processing_websockets: set = set()  # Track WebSockets currently processing requests
+        self.pending_replacements: Dict[WebSocket, WebSocket] = {}  # old_ws -> new_ws (queue for post-processing swap)
 
     async def connect(self, websocket: WebSocket):
         """
@@ -86,20 +89,30 @@ class ConnectionManager:
         """
         Register a browser session ID for this WebSocket
         PRODUCTION-READY: Handles multiple users + multiple tabs per user
+        RACE-CONDITION SAFE: Won't close connections that are actively processing
         """
         # CONNECTION DEDUPLICATION: Close existing connection from same browser session
         if browser_session_id in self.browser_sessions:
             old_websocket = self.browser_sessions[browser_session_id]
             if old_websocket != websocket and old_websocket in self.active_connections:
-                print(f"⚠️ [DEDUP] Closing existing connection from browser session: {browser_session_id}")
-                try:
-                    await old_websocket.close(code=1000, reason="New connection from same browser session")
-                    self.active_connections.remove(old_websocket)
-                    # Clean up old mapping
-                    if old_websocket in self.websocket_to_session:
-                        del self.websocket_to_session[old_websocket]
-                except Exception as e:
-                    print(f"⚠️ [DEDUP] Error closing old connection: {e}")
+                # CHECK IF OLD CONNECTION IS PROCESSING
+                if old_websocket in self.processing_websockets:
+                    print(f"⚠️ [DEDUP] Old connection is PROCESSING - queuing replacement after completion")
+                    print(f"    Browser session: {browser_session_id}")
+                    # Queue the new websocket to replace the old one after processing completes
+                    self.pending_replacements[old_websocket] = websocket
+                    # Don't register the new session yet - let it happen after processing
+                    return
+                else:
+                    print(f"⚠️ [DEDUP] Closing idle connection from browser session: {browser_session_id}")
+                    try:
+                        await old_websocket.close(code=1000, reason="New connection from same browser session")
+                        self.active_connections.remove(old_websocket)
+                        # Clean up old mapping
+                        if old_websocket in self.websocket_to_session:
+                            del self.websocket_to_session[old_websocket]
+                    except Exception as e:
+                        print(f"⚠️ [DEDUP] Error closing old connection: {e}")
 
         # Register new session
         self.browser_sessions[browser_session_id] = websocket
@@ -123,14 +136,71 @@ class ConnectionManager:
             print(f"❌ [DISCONNECT] WebSocket disconnected (no session registered)")
 
     async def send_personal(self, message: dict, websocket: WebSocket):
-        await websocket.send_json(message)
+        """
+        Send message to a specific WebSocket with error handling for closed connections
+        """
+        try:
+            await websocket.send_json(message)
+        except Exception as e:
+            # Connection closed or in invalid state - log but don't crash
+            print(f"⚠️ [SEND-ERROR] Failed to send message to websocket: {e}")
+            # If there's a pending replacement, try sending there instead
+            if websocket in self.pending_replacements:
+                new_websocket = self.pending_replacements[websocket]
+                try:
+                    await new_websocket.send_json(message)
+                    print(f"✅ [SEND-RECOVERED] Message sent to replacement websocket")
+                except Exception as e2:
+                    print(f"❌ [SEND-FAILED] Replacement websocket also failed: {e2}")
 
     async def broadcast(self, message: dict):
         for connection in self.active_connections:
             await connection.send_json(message)
 
+    def mark_processing(self, websocket: WebSocket):
+        """Mark a WebSocket as currently processing a request"""
+        self.processing_websockets.add(websocket)
+        print(f"🔒 [PROCESSING] WebSocket marked as processing (total: {len(self.processing_websockets)})")
+
+    async def unmark_processing(self, websocket: WebSocket):
+        """
+        Unmark a WebSocket as processing and handle any pending replacement
+        """
+        if websocket in self.processing_websockets:
+            self.processing_websockets.remove(websocket)
+            print(f"🔓 [PROCESSING-DONE] WebSocket unmarked (total: {len(self.processing_websockets)})")
+
+        # Check if there's a pending replacement
+        if websocket in self.pending_replacements:
+            new_websocket = self.pending_replacements[websocket]
+            print(f"🔄 [SWAP] Completing deferred connection swap")
+
+            # Get browser session ID
+            if websocket in self.websocket_to_session:
+                browser_session_id = self.websocket_to_session[websocket]
+
+                # Close old websocket
+                try:
+                    await websocket.close(code=1000, reason="Processing complete - swapping to new connection")
+                    if websocket in self.active_connections:
+                        self.active_connections.remove(websocket)
+                except Exception as e:
+                    print(f"⚠️ [SWAP] Error closing old websocket: {e}")
+
+                # Register new websocket
+                self.browser_sessions[browser_session_id] = new_websocket
+                self.websocket_to_session[new_websocket] = browser_session_id
+                if websocket in self.websocket_to_session:
+                    del self.websocket_to_session[websocket]
+
+                print(f"✅ [SWAP] Connection swap completed for session: {browser_session_id}")
+
+            # Clean up replacement queue
+            del self.pending_replacements[websocket]
+
 
 manager = ConnectionManager()
+log_streamer = LogStreamer(manager)
 
 
 @app.get("/")
@@ -538,6 +608,15 @@ async def websocket_endpoint(websocket: WebSocket):
     """WebSocket for real-time chat with knowledge graph highlighting"""
     await manager.connect(websocket)
 
+    # Stream connection log to frontend
+    await log_streamer.emit(
+        websocket,
+        level="success",
+        category="connection",
+        message=f"✅ Connected to backend ({len(manager.active_connections)} active connections)",
+        metadata={"total_connections": len(manager.active_connections)}
+    )
+
     # Create new session for this WebSocket connection
     session_id = str(uuid.uuid4())
     session = conversation_manager.create_session(
@@ -594,6 +673,19 @@ async def websocket_endpoint(websocket: WebSocket):
                     print(f"❌ ERROR receiving/parsing WebSocket message: {e}")
                     import traceback
                     traceback.print_exc()
+
+                    # Stream error log
+                    try:
+                        await log_streamer.emit(
+                            websocket,
+                            level="error",
+                            category="error",
+                            message=f"❌ Message parsing error: {str(e)[:100]}",
+                            metadata={"error": str(e), "context": "websocket_receive"}
+                        )
+                    except:
+                        pass
+
                     # Send error to client instead of breaking
                     try:
                         await manager.send_personal({
@@ -607,11 +699,31 @@ async def websocket_endpoint(websocket: WebSocket):
                 message_type = data.get("type")
                 print(f"📨 Received WebSocket message type: {message_type}")
 
+                # Stream message received log
+                await log_streamer.emit(
+                    websocket,
+                    level="info",
+                    category="processing",
+                    message=f"📨 Received message: {message_type}",
+                    metadata={"message_type": message_type}
+                )
+
                 if message_type == "register_session":
                     # PRODUCTION-READY: Register browser session ID for connection deduplication
                     browser_session_id = data.get("browser_session_id")
                     if browser_session_id:
                         await manager.register_session(websocket, browser_session_id)
+                        # Stream session registration log
+                        await log_streamer.emit(
+                            websocket,
+                            level="success",
+                            category="connection",
+                            message=f"✅ Session registered ({len(manager.browser_sessions)} unique browsers)",
+                            metadata={
+                                "browser_session_id": browser_session_id[:8] + "...",  # Truncate for privacy
+                                "unique_browsers": len(manager.browser_sessions)
+                            }
+                        )
                     continue
 
                 if message_type == "chat":
@@ -619,6 +731,18 @@ async def websocket_endpoint(websocket: WebSocket):
                     mode = data.get("mode", "group")  # group or orchestrator
                     print(f"💬 Processing chat message: {user_message[:100]}...")
                     print(f"📍 MODE RECEIVED: {mode}")
+
+                    # Stream chat processing start log
+                    await log_streamer.emit(
+                        websocket,
+                        level="info",
+                        category="processing",
+                        message=f"💬 Processing query in {mode} mode",
+                        metadata={
+                            "mode": mode,
+                            "query_preview": user_message[:100]
+                        }
+                    )
                     try:
                         # Handle chat message
 
@@ -636,88 +760,106 @@ async def websocket_endpoint(websocket: WebSocket):
 
                         # Get responses from agents (with dynamic routing and context)
                         if mode == "group":
-                            response_gen = agent_system.group_chat_mode(
-                                user_message,
-                                conversation_history,
-                                use_dynamic_routing=True  # Enable new LLM routing
-                            )
+                            # Clear log buffer before processing
+                            agent_system.clear_log_buffer()
 
-                            # Stream responses sequentially with typing indicators
-                            current_agent = None
-                            current_response = ""
-                            current_timestamp = None
+                            # MARK AS PROCESSING to prevent connection closure mid-request
+                            manager.mark_processing(websocket)
 
-                            for agent_id, chunk in response_gen:
-                                # Skip invalid agent IDs (like 'system')
+                            try:
+                                # Use async method for non-blocking GPT-5 calls
+                                responses = await agent_system.group_chat_mode_async(
+                                    user_message,
+                                    conversation_history,
+                                    websocket=websocket,
+                                    log_streamer=log_streamer
+                                )
+                            finally:
+                                # UNMARK PROCESSING and handle any pending replacements
+                                await manager.unmark_processing(websocket)
+
+                            # Process each agent's full response
+                            for agent_id, full_response in responses:
+                                # Skip invalid agent IDs
                                 if agent_id not in AGENTS:
                                     print(f"⚠️ Skipping invalid agent_id: {agent_id}")
                                     continue
 
-                                # New agent starting
-                                if current_agent != agent_id:
-                                    # Send previous agent's complete message
-                                    if current_agent and current_response:
-                                        entities = graph_highlighter.extract_entities(current_response, current_agent)
-                                        highlight_data = graph_highlighter.get_highlight_data(current_agent, entities)
+                                current_timestamp = int(time.time() * 1000)
 
-                                        await manager.send_personal({
-                                            "type": "agent_complete",
-                                            "agent_id": current_agent,
-                                            "full_response": current_response,
-                                            "highlights": highlight_data
-                                        }, websocket)
+                                # Send typing indicator
+                                await manager.send_personal({
+                                    "type": "agent_typing",
+                                    "agent_id": agent_id,
+                                    "agent_name": AGENTS[agent_id]['name']
+                                }, websocket)
 
-                                    # New agent - show typing indicator
-                                    current_agent = agent_id
-                                    current_response = ""
-                                    current_timestamp = int(time.time() * 1000)
+                                # Small delay for typing indicator visibility
+                                await asyncio.sleep(0.5)
 
-                                    await manager.send_personal({
-                                        "type": "agent_typing",
-                                        "agent_id": agent_id,
-                                        "agent_name": AGENTS[agent_id]['name']
-                                    }, websocket)
+                                # Signal agent started
+                                await manager.send_personal({
+                                    "type": "agent_start",
+                                    "agent_id": agent_id,
+                                    "agent_name": AGENTS[agent_id]['name'],
+                                    "timestamp": current_timestamp
+                                }, websocket)
 
-                                    # Small delay for typing indicator visibility
-                                    await asyncio.sleep(0.5)
-
-                                    # Signal agent started
-                                    await manager.send_personal({
-                                        "type": "agent_start",
-                                        "agent_id": agent_id,
-                                        "agent_name": AGENTS[agent_id]['name'],
-                                        "timestamp": current_timestamp
-                                    }, websocket)
-
-                                # Stream chunk
-                                if not chunk.startswith('[Error'):
-                                    current_response += chunk
+                                # Stream response in chunks for animation
+                                words = full_response.split()
+                                chunk_size = 3  # Words per chunk
+                                for i in range(0, len(words), chunk_size):
+                                    chunk = " ".join(words[i:i+chunk_size]) + " "
                                     await manager.send_personal({
                                         "type": "agent_chunk",
                                         "agent_id": agent_id,
                                         "chunk": chunk,
                                         "timestamp": current_timestamp
                                     }, websocket)
+                                    await asyncio.sleep(0.05)  # Typing animation delay
 
-                            # Send final agent's completion
-                            if current_agent and current_response:
-                                entities = graph_highlighter.extract_entities(current_response, current_agent)
-                                highlight_data = graph_highlighter.get_highlight_data(current_agent, entities)
+                                # Extract graph highlights
+                                entities = graph_highlighter.extract_entities(full_response, agent_id)
+                                highlight_data = graph_highlighter.get_highlight_data(agent_id, entities)
 
                                 # Add agent response to session
                                 conversation_manager.add_agent_message(
                                     session_id,
-                                    current_agent,
-                                    AGENTS[current_agent]['name'],
-                                    current_response,
+                                    agent_id,
+                                    AGENTS[agent_id]['name'],
+                                    full_response,
                                     metadata={"highlights": highlight_data}
                                 )
 
+                                # Send completion
                                 await manager.send_personal({
                                     "type": "agent_complete",
-                                    "agent_id": current_agent,
-                                    "full_response": current_response,
+                                    "agent_id": agent_id,
+                                    "full_response": full_response,
                                     "highlights": highlight_data
+                                }, websocket)
+
+                            # Emit final completion log
+                            await log_streamer.emit(
+                                websocket,
+                                level="success",
+                                category="processing",
+                                message=f"✅ Request processing complete",
+                                metadata={
+                                    "total_responses": len(responses),
+                                    "mode": mode
+                                }
+                            )
+
+                            # Add Think Tank suggestion if complex discussion (multiple agents responded)
+                            if len(responses) >= 2:
+                                think_tank_suggestion = "\n\n💡 **Want to deep-dive?** This seems like a complex topic. Say **'Start think tank session'** and we'll brainstorm with multi-round discussion and consensus-building."
+
+                                # Send as system message to chat
+                                await manager.send_personal({
+                                    "type": "system_message",
+                                    "message": think_tank_suggestion,
+                                    "category": "suggestion"
                                 }, websocket)
 
                             # Signal all complete
@@ -883,12 +1025,25 @@ async def websocket_endpoint(websocket: WebSocket):
 
     except WebSocketDisconnect:
         # Clean up session on disconnect
+        print(f"📴 [WS-DISCONNECT] Client disconnected normally (session: {session_id})")
         conversation_manager.delete_session(session_id)
         manager.disconnect(websocket)
     except Exception as e:
         # Clean up session on error
-        conversation_manager.delete_session(session_id)
-        manager.disconnect(websocket)
+        print(f"❌ CRITICAL WebSocket error (session: {session_id}): {e}")
+        import traceback
+        print("=" * 80)
+        print("FULL STACK TRACE:")
+        traceback.print_exc()
+        print("=" * 80)
+        try:
+            conversation_manager.delete_session(session_id)
+        except:
+            pass
+        try:
+            manager.disconnect(websocket)
+        except:
+            pass
 
 
 @app.websocket("/ws/realtime")
