@@ -2,9 +2,11 @@ name: Keep Backend Alive
 
 on:
   schedule:
-    # Ping every 15 minutes to prevent Azure hibernation
-    # Stays within GitHub free tier: 2,880 runs/month (96% of 3,000 free minutes)
-    - cron: '*/15 * * * *'
+    # Ping every 15 minutes from 6am ET to 10pm PT (10am-6am UTC)
+    # Active hours: East Coast morning → West Coast night (~20 hours/day)
+    # Hibernates: 6am-10am UTC (~4 hours/night) - accepts morning cold start
+    # Usage: ~2,400 runs/month (80% of free tier) - great savings!
+    - cron: '*/15 10-23,0-5 * * *'
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
@@ -38,5 +40,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Endpoint**: https://kg-student-backend.ambitiouswave-220155c4.eastus2.azurecontainerapps.io" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: Pinged successfully ✅" >> $GITHUB_STEP_SUMMARY
-          echo "- **Frequency**: Every 15 minutes" >> $GITHUB_STEP_SUMMARY
-          echo "- **Purpose**: Prevent Azure Container Apps hibernation" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frequency**: Every 15 minutes (6am ET - 10pm PT)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Off Hours**: 10pm PT - 6am ET (hibernates to save costs)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Purpose**: Prevent Azure Container Apps hibernation during active hours" >> $GITHUB_STEP_SUMMARY
