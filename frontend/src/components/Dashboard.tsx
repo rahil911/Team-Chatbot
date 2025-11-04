@@ -62,6 +62,8 @@ export const Dashboard = () => {
     typingAgent,
     sendMessage,
     thinkTank,
+    backendLogs,
+    clearLogs,
   } = useWebSocket((highlightData: any) => {
     addHighlight(highlightData);
   });
@@ -260,6 +262,8 @@ export const Dashboard = () => {
             typingAgent={typingAgent}
             onSendMessage={handleSendMessage}
             onSendVoice={handleSendVoice}
+            backendLogs={backendLogs}
+            onClearLogs={clearLogs}
           />
         </Box>
 

@@ -4,6 +4,16 @@ import { config } from '../config';
 
 const WS_URL = config.wsUrl;
 
+// Backend log types
+export interface BackendLog {
+  level: 'info' | 'warning' | 'error' | 'debug' | 'success';
+  category: 'connection' | 'routing' | 'agent' | 'model' | 'think_tank' | 'mention' | 'research' | 'knowledge_graph' | 'processing' | 'error';
+  message: string;
+  timestamp: number;
+  metadata?: any;
+  duration_ms?: number;
+}
+
 export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -20,6 +30,14 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
   const [thinkTankRoundStatus, setThinkTankRoundStatus] = useState<'active' | 'complete' | 'waiting'>('waiting');
   const [thinkTankAgentsResponded, setThinkTankAgentsResponded] = useState<number>(0);
   const [thinkTankSummary, setThinkTankSummary] = useState<string>('');
+
+  // Backend log streaming state
+  const [backendLogs, setBackendLogs] = useState<BackendLog[]>([]);
+  const [showTerminal, setShowTerminal] = useState<boolean>(() => {
+    // Default to true, but respect user preference if stored
+    const saved = localStorage.getItem('show_terminal');
+    return saved !== null ? saved === 'true' : true;
+  });
 
   const wsRef = useRef<WebSocket | null>(null);
   const streamingMessagesRef = useRef<Record<string, string>>({});
@@ -41,6 +59,7 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
   useEffect(() => {
     let ws: WebSocket | null = null;
     let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+    let pingInterval: ReturnType<typeof setInterval> | null = null;  // FIX: Ping interval for keep-alive
 
     const connect = () => {
       // SINGLETON PATTERN: Prevent duplicate connections
@@ -78,13 +97,28 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
             }));
             console.log('📤 Sent browser_session_id to backend');
           }
+
+          // FIX: Start ping interval to keep connection alive and prevent Azure container sleep
+          if (pingInterval) clearInterval(pingInterval);
+          pingInterval = setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: 'ping' }));
+              console.log('🏓 Ping sent to keep connection alive');
+            }
+          }, 30000);  // Ping every 30 seconds
         };
         
         ws.onclose = () => {
           console.log('🔌 WebSocket disconnected');
           setConnected(false);
           wsRef.current = null;
-          
+
+          // FIX: Clear ping interval when disconnected
+          if (pingInterval) {
+            clearInterval(pingInterval);
+            pingInterval = null;
+          }
+
           // Auto-reconnect after 3 seconds
           reconnectTimeout = setTimeout(() => {
             console.log('🔄 Attempting to reconnect...');
@@ -112,10 +146,11 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
     
     // Initial connection with small delay
     const initTimeout = setTimeout(connect, 100);
-    
+
     return () => {
       clearTimeout(initTimeout);
       if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      if (pingInterval) clearInterval(pingInterval);  // FIX: Clear ping interval on cleanup
       if (ws) {
         ws.onclose = null; // Prevent reconnect on unmount
         ws.close();
@@ -214,7 +249,26 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
         break;
         
       case 'keepalive':
-        // Heartbeat - no action needed
+        // Heartbeat from server - no action needed
+        break;
+
+      case 'pong':
+        // FIX: Pong response to our ping - no action needed
+        console.log('🏓 Pong received from server');
+        break;
+
+      case 'log_stream':
+        // Backend log streaming
+        const log: BackendLog = {
+          level: data.level,
+          category: data.category,
+          message: data.message,
+          timestamp: data.timestamp,
+          metadata: data.metadata,
+          duration_ms: data.duration_ms
+        };
+        setBackendLogs(prev => [...prev, log]);
+        console.log(`[${data.category}] ${data.message}`, data.metadata);
         break;
 
       // Think Tank Mode messages
@@ -240,12 +294,28 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
 
   const handleThinkTankSystemMessage = useCallback((data: ThinkTankSystemMessage & any) => {
     switch (data.type) {
+      case 'think_tank_start':
+        // Think Tank session starting
+        setMessages(prev => [...prev, {
+          type: 'system',
+          content: `🧠 **Think Tank Session Started** - Multi-round brainstorming with consensus-building (max ${data.max_rounds} rounds)`,
+          timestamp: Date.now()
+        }]);
+        break;
+
       case 'round_start':
         setThinkTankCurrentRound(data.round || 0);
         setThinkTankMaxRounds(data.max_rounds || 5);
         setThinkTankRoundStatus('active');
         setThinkTankAgentsResponded(0);
         console.log(`🔄 [Think Tank] Round ${data.round}/${data.max_rounds} started`);
+
+        // Add round indicator to chat messages
+        setMessages(prev => [...prev, {
+          type: 'system',
+          content: `🔄 **Round ${data.round} of ${data.max_rounds}** - Multi-round discussion`,
+          timestamp: Date.now()
+        }]);
         break;
 
       case 'citations':
@@ -267,6 +337,15 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
         };
         setThinkTankConsensus(consensusData);
         console.log(`🎯 [Think Tank] Consensus: ${Math.round(data.consensus * 100)}%`);
+
+        // Add consensus update to chat
+        const consensusPercent = Math.round(data.consensus * 100);
+        const consensusIcon = consensusPercent >= 85 ? '✅' : '🎯';
+        setMessages(prev => [...prev, {
+          type: 'system',
+          content: `${consensusIcon} **Consensus Check:** ${consensusPercent}% agreement ${consensusPercent >= 85 ? '(Reached!)' : '(Continuing discussion...)'}`,
+          timestamp: Date.now()
+        }]);
         break;
 
       case 'round_complete':
@@ -280,6 +359,13 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
         thinkTankSummaryRef.current = '';
         setThinkTankSummary('');
         console.log(`📝 [Think Tank] Final summary starting...`);
+
+        // Add summary indicator to chat
+        setMessages(prev => [...prev, {
+          type: 'system',
+          content: `📝 **Final Summary** - Synthesizing unified answer from ${data.rounds_completed} rounds of discussion`,
+          timestamp: Date.now()
+        }]);
         break;
     }
   }, [thinkTankCurrentRound]);
@@ -361,6 +447,18 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
     thinkTankSummaryRef.current = '';
   }, []);
 
+  const toggleTerminal = useCallback(() => {
+    setShowTerminal(prev => {
+      const newValue = !prev;
+      localStorage.setItem('show_terminal', String(newValue));
+      return newValue;
+    });
+  }, []);
+
+  const clearLogs = useCallback(() => {
+    setBackendLogs([]);
+  }, []);
+
   return {
     connected,
     messages,
@@ -379,6 +477,11 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
       roundStatus: thinkTankRoundStatus,
       agentsResponded: thinkTankAgentsResponded,
       summary: thinkTankSummary,
-    }
+    },
+    // Backend log streaming
+    backendLogs,
+    showTerminal,
+    toggleTerminal,
+    clearLogs
   };
 };

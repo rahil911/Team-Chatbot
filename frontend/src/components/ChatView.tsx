@@ -12,7 +12,9 @@ import {
 } from '@chakra-ui/react';
 import { ChatIcon, ArrowUpIcon } from '@chakra-ui/icons';
 import { MessageFormatter } from './MessageFormatter';
+import { ActivityTimeline } from './ActivityTimeline';
 import type { Message, AgentMessage } from '../types';
+import type { BackendLog } from '../hooks/useWebSocket';
 import { useState } from 'react';
 
 interface ChatViewProps {
@@ -23,6 +25,8 @@ interface ChatViewProps {
   typingAgent: string | null;
   onSendMessage: (message: string) => void;
   onSendVoice: (audioBlob: Blob) => void;
+  backendLogs?: BackendLog[];
+  onClearLogs?: () => void;
 }
 
 const AGENTS = {
@@ -37,6 +41,8 @@ export const ChatView = ({
   isProcessing,
   typingAgent,
   onSendMessage,
+  backendLogs = [],
+  onClearLogs = () => {},
 }: ChatViewProps) => {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -160,6 +166,11 @@ export const ChatView = ({
         )}
         <div ref={messagesEndRef} />
       </VStack>
+
+      {/* Backend Activity Timeline */}
+      {backendLogs.length > 0 && (
+        <ActivityTimeline logs={backendLogs} onClear={onClearLogs} />
+      )}
 
       {/* Input Area */}
       <Box px={6} py={4} borderTop="1px" borderColor="whiteAlpha.100" bg="gray.900">

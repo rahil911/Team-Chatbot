@@ -244,26 +244,28 @@ Recent Conversation Context:
 
 User Message: "{user_query}"
 
-# SEMANTIC INTENT DETECTION (Multi-Language Support)
+# ROUTING PRIORITY (Check in this exact order)
 
-## 1. GREETING DETECTION → Route to: ["rahil"]
-Detect greetings semantically in ANY language:
+## 🔥 PRIORITY 1: EXPLICIT MENTIONS (HIGHEST PRIORITY - Check FIRST!)
+If the user explicitly mentions a specific team member by name (e.g., "Hi Siddarth", "@Mathew", "Rahil, can you..."), route ONLY to that person.
 
-Examples: "Hi", "Hello", "Hey team", "Hola", "Bonjour", "Namaste", "Konnichiwa", "你好", "Good morning", "What's up?", "How are you?", "Who are you?", "Tell me about yourself"
+Examples: "Hi Siddarth", "Hello Mathew", "@Rahil help me", "Shreyas, what do you think?", "Hey Siddarth, how are you?"
 
-If greeting detected, respond:
+CRITICAL: Even if message contains a greeting, if a specific person is mentioned, route to THAT person, NOT Rahil.
+
+If explicit mention detected, respond:
 {{
-    "agents": ["rahil"],
-    "is_targeted": false,
-    "reasoning": "Greeting detected - Rahil provides team introduction",
+    "agents": ["mentioned_agent_id"],
+    "is_targeted": true,
+    "reasoning": "User explicitly addressed [agent_name]",
     "confidence": 1.0,
-    "intent": "greeting"
+    "intent": "explicit_mention"
 }}
 
-## 2. TEAM ACTIVATION DETECTION → Route to: ["rahil", "mathew", "shreyas", "siddarth"]
-Detect requests to involve the ENTIRE team semantically in ANY language:
+## PRIORITY 2: TEAM ACTIVATION DETECTION
+Detect requests to involve the ENTIRE team (no specific person mentioned):
 
-Examples: "Bring in the team", "Let's hear from everyone", "I want all of you to respond", "Get everyone's input", "Involve the team", "Assemble the crew", "Traer al equipo", "Amenez l'équipe", "Loop everyone in"
+Examples: "Bring in the team", "Let's hear from everyone", "I want all of you to respond", "Get everyone's input"
 
 If team activation detected, respond:
 {{
@@ -274,22 +276,40 @@ If team activation detected, respond:
     "intent": "team_activation"
 }}
 
-## 3. EXPERTISE-BASED ROUTING (Standard Queries)
-If NOT a greeting or team activation:
+## PRIORITY 3: GENERAL GREETING (No specific person mentioned)
+If message is a general greeting WITHOUT mentioning a specific person (e.g., "Hi", "Hello", "Hey team"), route to Rahil.
 
-1. **Identify explicit mentions:** "@Mathew", "Mathew, can you...", "Rahil please..."
-   - If explicit mentions found, ONLY route to those agents
-   - Set intent: "explicit_mention"
+Examples: "Hi", "Hello", "Hey team", "Good morning", "What's up?", "Who are you?"
 
-2. **Match query content to agent expertise:**
-   - AI/ML, architecture, orchestration → rahil
-   - Data engineering, cloud, pipelines → mathew
-   - Product management, strategy, workflows → shreyas
-   - Software engineering, performance, systems → siddarth
+⚠️ IMPORTANT: Do NOT use this rule if a specific team member was mentioned!
 
-3. **Select 1-4 agents** (prefer fewer, focused responses)
-4. **Consider conversation context** for continuity
-5. Set intent: "expertise_match"
+If general greeting detected (no specific person), respond:
+{{
+    "agents": ["rahil"],
+    "is_targeted": false,
+    "reasoning": "General greeting - Rahil provides team introduction",
+    "confidence": 1.0,
+    "intent": "greeting"
+}}
+
+## PRIORITY 4: EXPERTISE-BASED ROUTING
+If none of the above apply, match query content to agent expertise:
+
+- AI/ML, architecture, orchestration → rahil
+- Data engineering, cloud, pipelines → mathew
+- Product management, strategy, workflows → shreyas
+- Software engineering, performance, systems → siddarth
+
+Select 1-4 agents (prefer fewer, focused responses).
+
+Respond:
+{{
+    "agents": ["agent_id1", "agent_id2"],
+    "is_targeted": false,
+    "reasoning": "Brief explanation",
+    "confidence": 0.0-1.0,
+    "intent": "expertise_match"
+}}
 
 # OUTPUT FORMAT
 Respond ONLY with valid JSON:
@@ -324,7 +344,7 @@ IMPORTANT: Detect intent semantically, not by exact string matching. Support ANY
 
         other_agents_str = "\n".join(other_agents)
 
-        prompt = f"""Analyze this agent's response ONLY for explicit delegation or requests for other team members to contribute.
+        prompt = f"""Analyze this agent's response to determine if they are ACTIVELY delegating or requesting another agent to respond.
 
 Agent: {agent_name} ({agent_id})
 
@@ -334,31 +354,58 @@ Response:
 Other Team Members:
 {other_agents_str}
 
-CRITICAL INSTRUCTIONS:
+# CRITICAL: PASSIVE vs ACTIVE MENTIONS
 
-⚠️ ONLY return agent IDs if there is EXPLICIT DELEGATION or a DIRECT REQUEST for them to respond.
+## ❌ PASSIVE MENTIONS (DO NOT ROUTE - Return empty agents list)
 
-✅ Examples of EXPLICIT delegation/requests (return these agents):
-- "@Mathew, can you help with this?"
-- "Let me hand this over to Siddarth"
-- "Mathew, please explain the data pipeline"
-- "I think Shreyas should weigh in here"
-- "Siddarth, what's your take on this?"
-- "@Rahil can you clarify?"
+Passive mentions are when an agent simply TALKS ABOUT or REFERENCES another team member without asking them to respond.
 
-❌ Examples of PASSIVE mentions (DO NOT return these agents):
-- "I work with Mathew" ❌
-- "Our team includes Mathew, Shreyas, Siddarth" ❌
+**Examples of PASSIVE mentions (return []):**
+- "I work with Mathew on data pipelines" ❌
+- "Our team includes Mathew, Shreyas, and Siddarth" ❌
 - "Mathew handles data engineering" ❌
-- "I'm Rahil, leading this crew. I work alongside Mathew, Shreyas..." ❌
-- "Welcome! Meet our team: Mathew (Data Engineer)..." ❌
-- General introductions or team descriptions ❌
+- "Thanks @Siddarth for the introduction" ❌
+- "Appreciate @Mathew's work on this" ❌
+- "I'm Rahil, leading this crew. I work alongside Mathew, Shreyas, Siddarth" ❌
+- "Welcome! Meet our team: Mathew (Data Engineer), Shreyas (Product Manager)..." ❌
+- "Building on @Mathew's earlier ping" ❌
+- "Following up on what @Shreyas mentioned" ❌
+- "@Siddarth and I worked on this together" ❌
+- "This aligns with @Rahil's vision" ❌
+- General introductions, acknowledgments, or team descriptions ❌
+- Thank you messages or appreciation ❌
+- Contextual references to past work ❌
 
-RULES:
-1. If you detect a passive mention (introduction, description, general reference), return EMPTY agents list: []
-2. Only return agent IDs if there is a DIRECT REQUEST or EXPLICIT @mention asking them to respond
-3. Be STRICT - when in doubt, return empty list []
-4. Introductions and team descriptions are NOT delegation
+## ✅ ACTIVE HANDOFFS (DO ROUTE - Return agent IDs)
+
+Active handoffs are when an agent explicitly ASKS, REQUESTS, or DELEGATES to another agent to respond or contribute.
+
+**Examples of ACTIVE handoffs (return agent IDs):**
+- "@Mathew, can you help with this?" ✅
+- "Mathew, please explain the data pipeline" ✅
+- "Let me hand this over to Siddarth" ✅
+- "I think Shreyas should weigh in here" ✅
+- "Siddarth, what's your take on this?" ✅
+- "@Rahil, can you clarify your approach?" ✅
+- "Mathew - could you confirm the ETA?" ✅
+- "Shreyas, what are your thoughts?" ✅
+- "Can @Siddarth review this?" ✅
+- "I'd like @Rahil to chime in on this" ✅
+- "Mathew, mind sharing the status?" ✅
+- Direct questions with agent's name ✅
+- Explicit delegation language ("hand over", "should weigh in", "can you") ✅
+
+# DETECTION RULES
+
+1. **Look for interrogative patterns**: Questions directed at specific agents (e.g., "Mathew, can you...", "What do you think, Shreyas?")
+2. **Look for imperative requests**: Commands or requests (e.g., "Mathew, please...", "Siddarth, help with...")
+3. **Look for delegation language**: "hand over", "should weigh in", "would like [agent] to", "let's ask [agent]"
+4. **Ignore gratitude/acknowledgment**: "Thanks @Mathew", "Appreciate @Siddarth", "Building on @Rahil's idea"
+5. **Ignore descriptive references**: "I work with X", "X handles Y", "Our team includes X"
+6. **Ignore introductions**: Team member lists, role descriptions, welcome messages
+7. **When in doubt, return EMPTY list []** - Better to miss an edge case than create unwanted loops
+
+# OUTPUT FORMAT
 
 Respond ONLY with valid JSON in this exact format:
 {{
@@ -368,7 +415,25 @@ Respond ONLY with valid JSON in this exact format:
     "confidence": 0.95
 }}
 
-Valid agent IDs: rahil, mathew, shreyas, siddarth (excluding {agent_id})"""
+Valid agent IDs: rahil, mathew, shreyas, siddarth (excluding {agent_id})
+
+# EXAMPLES
+
+**Example 1 - PASSIVE (return []):**
+Response: "Thanks @Mathew for the intro! I work with Siddarth on backend systems."
+Output: {{"agents": [], "is_targeted": false, "reasoning": "Only acknowledgment and descriptive reference, no delegation", "confidence": 0.95}}
+
+**Example 2 - ACTIVE (return ["mathew"]):**
+Response: "Good point! @Mathew, can you share the database schema?"
+Output: {{"agents": ["mathew"], "is_targeted": true, "reasoning": "Direct question asking Mathew to share information", "confidence": 0.95}}
+
+**Example 3 - PASSIVE (return []):**
+Response: "Our team includes @Mathew (Data Engineer), @Shreyas (PM), and @Siddarth (SWE)."
+Output: {{"agents": [], "is_targeted": false, "reasoning": "Team introduction, no requests for response", "confidence": 0.95}}
+
+**Example 4 - ACTIVE (return ["shreyas", "siddarth"]):**
+Response: "@Shreyas, what's your take on this? @Siddarth, can you help implement?"
+Output: {{"agents": ["shreyas", "siddarth"], "is_targeted": true, "reasoning": "Direct questions requesting Shreyas and Siddarth to respond", "confidence": 0.95}}"""
 
         return prompt
 

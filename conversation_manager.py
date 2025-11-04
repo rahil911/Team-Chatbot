@@ -1,13 +1,14 @@
 """
 Conversation Manager for Multi-Agent System
 Handles session state, conversation history, and context persistence
+FIX: Converted to use asyncio.Lock for proper async/await compatibility
 """
 import time
 import uuid
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
 from collections import defaultdict
-import threading
+import asyncio
 
 
 @dataclass
@@ -104,10 +105,10 @@ class ConversationManager:
         self.sessions: Dict[str, ConversationSession] = {}
         self.cleanup_interval = cleanup_interval
         self.session_timeout = session_timeout
-        self._lock = threading.Lock()
+        self._lock = asyncio.Lock()  # FIX: Use asyncio.Lock instead of threading.Lock
         self._last_cleanup = time.time()
 
-    def create_session(self, session_id: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> ConversationSession:
+    async def create_session(self, session_id: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> ConversationSession:
         """
         Create a new conversation session
 
@@ -118,7 +119,7 @@ class ConversationManager:
         Returns:
             ConversationSession instance
         """
-        with self._lock:
+        async with self._lock:
             if session_id is None:
                 session_id = str(uuid.uuid4())
 
@@ -127,10 +128,10 @@ class ConversationManager:
                 metadata=metadata or {}
             )
             self.sessions[session_id] = session
-            self._maybe_cleanup()
+            await self._maybe_cleanup()
             return session
 
-    def get_session(self, session_id: str) -> Optional[ConversationSession]:
+    async def get_session(self, session_id: str) -> Optional[ConversationSession]:
         """
         Get an existing session by ID
 
@@ -140,10 +141,10 @@ class ConversationManager:
         Returns:
             ConversationSession if found, None otherwise
         """
-        with self._lock:
+        async with self._lock:
             return self.sessions.get(session_id)
 
-    def get_or_create_session(self, session_id: str, metadata: Optional[Dict[str, Any]] = None) -> ConversationSession:
+    async def get_or_create_session(self, session_id: str, metadata: Optional[Dict[str, Any]] = None) -> ConversationSession:
         """
         Get existing session or create new one if not found
 
@@ -154,13 +155,14 @@ class ConversationManager:
         Returns:
             ConversationSession instance
         """
-        with self._lock:
+        async with self._lock:
             if session_id in self.sessions:
                 return self.sessions[session_id]
-            else:
-                return self.create_session(session_id, metadata)
+            # Release lock before calling create_session (which will acquire it again)
+        # If not found, create new session (will acquire lock internally)
+        return await self.create_session(session_id, metadata)
 
-    def add_user_message(self, session_id: str, message: str, metadata: Optional[Dict[str, Any]] = None) -> ConversationSession:
+    async def add_user_message(self, session_id: str, message: str, metadata: Optional[Dict[str, Any]] = None) -> ConversationSession:
         """
         Add a user message to a session
 
@@ -172,7 +174,7 @@ class ConversationManager:
         Returns:
             Updated ConversationSession
         """
-        session = self.get_or_create_session(session_id)
+        session = await self.get_or_create_session(session_id)
         session.add_message({
             'role': 'user',
             'content': message,
@@ -180,7 +182,7 @@ class ConversationManager:
         })
         return session
 
-    def add_agent_message(
+    async def add_agent_message(
         self,
         session_id: str,
         agent_id: str,
@@ -201,7 +203,7 @@ class ConversationManager:
         Returns:
             Updated ConversationSession
         """
-        session = self.get_or_create_session(session_id)
+        session = await self.get_or_create_session(session_id)
         session.add_message({
             'role': 'agent',
             'agent_id': agent_id,
@@ -211,7 +213,7 @@ class ConversationManager:
         })
         return session
 
-    def delete_session(self, session_id: str) -> bool:
+    async def delete_session(self, session_id: str) -> bool:
         """
         Delete a conversation session
 
@@ -221,13 +223,13 @@ class ConversationManager:
         Returns:
             True if deleted, False if not found
         """
-        with self._lock:
+        async with self._lock:
             if session_id in self.sessions:
                 del self.sessions[session_id]
                 return True
             return False
 
-    def clear_session_history(self, session_id: str) -> bool:
+    async def clear_session_history(self, session_id: str) -> bool:
         """
         Clear the message history for a session (keeps session alive)
 
@@ -237,7 +239,7 @@ class ConversationManager:
         Returns:
             True if cleared, False if session not found
         """
-        with self._lock:
+        async with self._lock:
             session = self.sessions.get(session_id)
             if session:
                 session.messages.clear()
@@ -245,24 +247,24 @@ class ConversationManager:
                 return True
             return False
 
-    def get_all_sessions(self) -> List[ConversationSession]:
+    async def get_all_sessions(self) -> List[ConversationSession]:
         """Get all active sessions"""
-        with self._lock:
+        async with self._lock:
             return list(self.sessions.values())
 
-    def get_session_count(self) -> int:
+    async def get_session_count(self) -> int:
         """Get the number of active sessions"""
-        with self._lock:
+        async with self._lock:
             return len(self.sessions)
 
-    def cleanup_stale_sessions(self) -> int:
+    async def cleanup_stale_sessions(self) -> int:
         """
         Remove stale sessions that have been inactive
 
         Returns:
             Number of sessions removed
         """
-        with self._lock:
+        async with self._lock:
             stale_ids = [
                 sid for sid, session in self.sessions.items()
                 if session.is_stale(self.session_timeout)
@@ -274,19 +276,19 @@ class ConversationManager:
             self._last_cleanup = time.time()
             return len(stale_ids)
 
-    def _maybe_cleanup(self):
+    async def _maybe_cleanup(self):
         """Run cleanup if enough time has passed"""
         if (time.time() - self._last_cleanup) > self.cleanup_interval:
-            self.cleanup_stale_sessions()
+            await self.cleanup_stale_sessions()
 
-    def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> Dict[str, Any]:
         """
         Get statistics about active sessions
 
         Returns:
             Dictionary with session statistics
         """
-        with self._lock:
+        async with self._lock:
             total_messages = sum(len(s.messages) for s in self.sessions.values())
             avg_messages = total_messages / len(self.sessions) if self.sessions else 0
 

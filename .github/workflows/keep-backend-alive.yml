@@ -2,11 +2,11 @@ name: Keep Backend Alive
 
 on:
   schedule:
-    # Ping every 15 minutes from 6am ET to 10pm PT (10am-6am UTC)
-    # Active hours: East Coast morning → West Coast night (~20 hours/day)
-    # Hibernates: 6am-10am UTC (~4 hours/night) - accepts morning cold start
-    # Usage: ~2,400 runs/month (80% of free tier) - great savings!
-    - cron: '*/15 10-23,0-5 * * *'
+    # FIX: Ping every 10 minutes 24/7 to prevent Azure Container sleep
+    # NO hibernation window - container must stay active to prevent crashes
+    # Usage: ~4,320 runs/month (86% of 5,000 free tier) - within limits!
+    # 10 min interval prevents cold starts and keeps WebSocket connections alive
+    - cron: '*/10 * * * *'
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
@@ -17,18 +17,19 @@ jobs:
       - name: Ping Student Backend
         id: ping
         run: |
-          echo "🏓 Pinging backend to keep it warm..."
+          echo "🏓 Pinging backend health endpoint..."
 
-          # Ping the API endpoint with timeout
-          RESPONSE=$(curl -s -w "\n%{http_code}" https://kg-student-backend.ambitiouswave-220155c4.eastus2.azurecontainerapps.io/api/graph --max-time 30 || echo -e "\ntimeout")
+          # FIX: Ping /health endpoint with timeout
+          RESPONSE=$(curl -s -w "\n%{http_code}" https://kg-student-backend.ambitiouswave-220155c4.eastus2.azurecontainerapps.io/health --max-time 30 || echo -e "\ntimeout")
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
 
           if [ "$HTTP_CODE" = "200" ]; then
             echo "✅ Backend is alive! (HTTP $HTTP_CODE)"
-            # Extract node/edge count from response
-            NODES=$(echo "$RESPONSE" | jq -r '.nodes' 2>/dev/null || echo "N/A")
-            EDGES=$(echo "$RESPONSE" | jq -r '.edges' 2>/dev/null || echo "N/A")
-            echo "📊 Graph Status: $NODES nodes, $EDGES edges"
+            # Extract health metrics from response
+            STATUS=$(echo "$RESPONSE" | jq -r '.status' 2>/dev/null || echo "N/A")
+            CONNECTIONS=$(echo "$RESPONSE" | jq -r '.websocket_metrics.active_connections' 2>/dev/null || echo "N/A")
+            UPTIME=$(echo "$RESPONSE" | jq -r '.uptime_hours' 2>/dev/null || echo "N/A")
+            echo "📊 Health Status: $STATUS | Active Connections: $CONNECTIONS | Uptime: ${UPTIME}h"
             echo "backend_status=healthy" >> $GITHUB_OUTPUT
           else
             echo "❌ Backend is DOWN! (HTTP code: $HTTP_CODE)"
@@ -36,7 +37,7 @@ jobs:
             exit 1  # Mark step as failed
           fi
 
-          echo "⏰ Next ping in 15 minutes"
+          echo "⏰ Next ping in 10 minutes"
 
       - name: Azure Login
         if: failure() && steps.ping.outputs.backend_status == 'down'
@@ -59,8 +60,8 @@ jobs:
           echo "⏳ Waiting 45 seconds for startup..."
           sleep 45
 
-          # Verify it's back up
-          if curl -sf https://kg-student-backend.ambitiouswave-220155c4.eastus2.azurecontainerapps.io/api/graph --max-time 30 > /dev/null; then
+          # Verify it's back up using health endpoint
+          if curl -sf https://kg-student-backend.ambitiouswave-220155c4.eastus2.azurecontainerapps.io/health --max-time 30 > /dev/null; then
             echo "✅ Backend is back online!"
           else
             echo "⚠️ Backend still not responding - may need manual intervention"
@@ -86,6 +87,6 @@ jobs:
             echo "- **Status**: ⚠️ Unknown" >> $GITHUB_STEP_SUMMARY
           fi
 
-          echo "- **Frequency**: Every 15 minutes (6am ET - 10pm PT)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Off Hours**: 10pm PT - 6am ET (hibernates to save costs)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frequency**: Every 10 minutes (24/7)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Endpoint**: /health (with connection metrics)" >> $GITHUB_STEP_SUMMARY
           echo "- **Auto-Restart**: Enabled (restarts if ping fails)" >> $GITHUB_STEP_SUMMARY

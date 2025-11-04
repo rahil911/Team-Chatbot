@@ -5,10 +5,12 @@ Implements 4 specialized agents + orchestrator for knowledge graph discussions
 import os
 import json
 from typing import Dict, List, Any, Generator, Optional, Tuple, Set
-from openai import OpenAI
+from openai import OpenAI, AsyncOpenAI
 from utils import get_openai_api_key, extract_entities, parse_agent_citations
 from intent_router import IntentRouter, IntentRouterError, MentionParser
 from web_search import get_web_search_tool
+import asyncio
+import threading  # FIX: Added for log_buffer thread safety
 
 
 # Agent metadata
@@ -49,6 +51,7 @@ class OpenAIClient:
 
     def __init__(self, use_gpt5=False, reasoning_model=None):
         self.client = OpenAI(api_key=get_openai_api_key())
+        self.async_client = AsyncOpenAI(api_key=get_openai_api_key())  # NEW: Async client for GPT-5
         self.use_gpt5 = use_gpt5
         self.reasoning_model = reasoning_model  # 'o1-preview', 'o1-mini', or None
 
@@ -144,7 +147,48 @@ class OpenAIClient:
         except Exception as e:
             print(f"Error generating response: {e}", flush=True)
             yield f"[Error: {str(e)}]"
-    
+
+    async def generate_async(self, messages: List[Dict[str, str]]) -> str:
+        """Async version of generate - used for GPT-5 to prevent blocking"""
+        try:
+            if self.use_gpt5:
+                # GPT-5: Responses API (async, non-blocking)
+                print(f"\n🧠 [GPT-5] Starting async generation...", flush=True)
+                input_text = self._messages_to_input(messages)
+
+                # Async API call - doesn't block event loop!
+                response = await self.async_client.responses.create(
+                    model=self.model,
+                    input=input_text,
+                    stream=False,  # Disabled until OpenAI organization is verified
+                    **self.config
+                )
+
+                print(f"✅ [GPT-5] Response generated successfully", flush=True)
+                return response.output_text
+            else:
+                # For non-GPT-5, use sync client in executor to avoid blocking
+                print(f"\n🤖 [{self.model}] Using sync client in executor...", flush=True)
+                loop = asyncio.get_event_loop()
+
+                # Run synchronous OpenAI call in thread pool
+                def _sync_generate():
+                    response = self.client.chat.completions.create(
+                        model=self.model,
+                        messages=messages,
+                        stream=False,
+                        **self.config
+                    )
+                    return response.choices[0].message.content
+
+                result = await loop.run_in_executor(None, _sync_generate)
+                print(f"✅ [{self.model}] Response generated successfully", flush=True)
+                return result
+
+        except Exception as e:
+            print(f"❌ [ERROR] Async generation failed: {e}", flush=True)
+            return f"[Error: {str(e)}]"
+
     def _messages_to_input(self, messages: List[Dict[str, str]]) -> str:
         """Convert messages to GPT-5 input format"""
         parts = []
@@ -567,7 +611,25 @@ Example:
         """
         messages = self.build_messages(user_query, conversation_history, mode, routing_context)
         return self.openai_client.generate(messages, stream=True)
-    
+
+    async def respond_async(
+        self,
+        user_query: str,
+        conversation_history: List[Dict[str, str]] = None,
+        mode: str = "group",
+        routing_context: str = None
+    ) -> str:
+        """Generate async non-streaming response (for GPT-5)
+
+        Args:
+            routing_context: Intent context from LLM router ("greeting", "team_activation", "expertise_match", "explicit_mention")
+
+        Returns:
+            Full response text
+        """
+        messages = self.build_messages(user_query, conversation_history, mode, routing_context)
+        return await self.openai_client.generate_async(messages)
+
     def extract_mentioned_nodes(self, response_text: str) -> List[str]:
         """Extract node IDs mentioned in response"""
         # Get all node names from KG
@@ -738,6 +800,32 @@ class MultiAgentSystem:
         self.conference_orchestrator = ConferenceOrchestrator(self.agents, self.openai_client)
         self.intent_router = IntentRouter(self.openai_client)
         self.max_agent_to_agent_rounds = 2  # Prevent infinite loops
+
+        # Log streaming support (buffered logs that server.py will emit)
+        self.log_buffer: List[Dict[str, Any]] = []
+        self._log_lock = threading.Lock()  # FIX: Thread-safe log buffer access
+
+    def clear_log_buffer(self):
+        """Clear the log buffer at the start of a new request"""
+        with self._log_lock:
+            self.log_buffer = []
+
+    def add_log(self, level: str, category: str, message: str, metadata: Optional[Dict[str, Any]] = None):
+        """Add a log entry to the buffer (synchronous, safe for generators)"""
+        with self._log_lock:
+            self.log_buffer.append({
+                "level": level,
+                "category": category,
+                "message": message,
+                "metadata": metadata or {}
+            })
+
+    def get_pending_logs(self) -> List[Dict[str, Any]]:
+        """Get all pending logs and clear the buffer"""
+        with self._log_lock:
+            logs = self.log_buffer.copy()
+            self.log_buffer = []
+            return logs
     
     def group_chat_mode(
         self,
@@ -814,6 +902,22 @@ class MultiAgentSystem:
             print(f"    Intent: {routing_decision.context}", flush=True)
             print(f"    Reasoning: {routing_decision.reasoning}", flush=True)
 
+            # Stream routing decision to frontend
+            agent_names = ", ".join([a.capitalize() for a in routing_decision.agent_ids]) if routing_decision.agent_ids else "None"
+            self.add_log(
+                level="success",
+                category="routing",
+                message=f"🎯 Routing to: {agent_names}",
+                metadata={
+                    "agents": routing_decision.agent_ids,
+                    "intent": routing_decision.context,
+                    "reasoning": routing_decision.reasoning,
+                    "confidence": routing_decision.confidence,
+                    "is_targeted": routing_decision.is_targeted,
+                    "query_preview": user_query[:100]
+                }
+            )
+
             # Track which agents have responded to avoid duplicates
             responded_agents: Set[str] = set()
 
@@ -860,6 +964,18 @@ class MultiAgentSystem:
                 else:
                     print(f"    No conversation history available", flush=True)
 
+                # Stream agent start log to frontend
+                self.add_log(
+                    level="info",
+                    category="agent",
+                    message=f"📨 {agent_id.capitalize()} is responding...",
+                    metadata={
+                        "agent_id": agent_id,
+                        "queue_remaining": agent_queue.copy(),
+                        "history_size": len(local_history)
+                    }
+                )
+
                 # Generate response with context from previous responses
                 response_chunks = []
                 for chunk in agent.respond(user_query, local_history, mode="group", routing_context=routing_decision.context):
@@ -878,22 +994,22 @@ class MultiAgentSystem:
                     'role': 'agent'
                 })
 
-                # Tier 2: Check if this agent mentioned other agents
+                # Tier 2: Check if this agent ACTIVELY delegated to other agents
+                # ✅ ENABLED: Agent-to-agent routing with STRICT passive vs active detection
+                # Only routes for explicit delegation/questions, ignores passive mentions
                 try:
                     # Quick pre-check with MentionParser
                     print(f"\n🔍 [{agent_id}] Checking for @mentions in response...", flush=True)
-                    print(f"    Response preview: {full_response[:150]}...", flush=True)
+                    print(f"    MentionParser.has_mentions() = {MentionParser.has_mentions(full_response)}", flush=True)
 
                     has_mentions = MentionParser.has_mentions(full_response)
-                    print(f"    MentionParser.has_mentions() = {has_mentions}", flush=True)
 
                     if has_mentions:
                         # Extract mentions for debugging
                         extracted_mentions = MentionParser.extract_mentions(full_response)
                         print(f"    Extracted mentions: {extracted_mentions}", flush=True)
 
-                        # Use LLM to analyze mentions and route
-                        print(f"    Calling LLM for mention routing analysis...", flush=True)
+                        # Use LLM to analyze mentions and route (STRICT passive vs active detection)
                         mention_routing = self.intent_router.route_agent_response(
                             agent_id,
                             full_response
@@ -901,7 +1017,6 @@ class MultiAgentSystem:
 
                         print(f"    LLM routing result: {mention_routing.agent_ids}", flush=True)
                         print(f"    Reasoning: {mention_routing.reasoning}", flush=True)
-                        print(f"    Responded agents so far: {responded_agents}", flush=True)
 
                         # Add mentioned agents to queue (if not already responded and not already in queue)
                         newly_added = []
@@ -915,19 +1030,291 @@ class MultiAgentSystem:
                             # Increment round counter only when we actually add new agents
                             agent_to_agent_round += 1
                         else:
-                            print(f"    ⚠️ No new agents added (all already responded or in queue)", flush=True)
+                            print(f"    ⏭️ No new agents to add (all already responded or queued)", flush=True)
                     else:
                         print(f"    No @mentions detected in response", flush=True)
 
                 except IntentRouterError as e:
                     # Log error but continue (agent-to-agent routing is optional)
-                    print(f"❌ Warning: Agent-to-agent routing failed for {agent_id}: {e}", flush=True)
+                    print(f"⚠️ Warning: Agent-to-agent routing failed for {agent_id}: {e}", flush=True)
                     pass
 
         except IntentRouterError as e:
             # LLM routing failed - raise error (no fallback per user requirement)
             error_msg = f"[Routing Error: {str(e)}]"
             yield ("system", error_msg)
+            raise
+
+    async def group_chat_mode_async(
+        self,
+        user_query: str,
+        conversation_history: List[Dict[str, str]] = None,
+        websocket = None,
+        log_streamer = None
+    ) -> List[Tuple[str, str]]:
+        """
+        Async version of group chat mode for non-blocking GPT-5 calls.
+        Returns list of (agent_id, full_response) tuples instead of streaming chunks.
+
+        Args:
+            user_query: The user's message
+            conversation_history: Previous conversation context
+            websocket: WebSocket for emitting logs
+            log_streamer: LogStreamer instance for log emissions
+
+        Returns:
+            List of (agent_id, full_response) tuples
+        """
+        local_history = conversation_history.copy() if conversation_history else []
+
+        try:
+            # Log: Intent analysis starting
+            if websocket and log_streamer:
+                routing_model = self.openai_client.model if hasattr(self.openai_client, 'model') else 'gpt-4o'
+                await log_streamer.emit(
+                    websocket,
+                    level="info",
+                    category="routing",
+                    message=f"🔍 Analyzing your message with {routing_model.upper()}...",
+                    metadata={
+                        "query_preview": user_query[:100],
+                        "routing_model": routing_model
+                    }
+                )
+
+            # Tier 1: Route user query to appropriate agents
+            routing_decision = self.intent_router.route_user_query(user_query, local_history)
+            agent_queue = routing_decision.agent_ids.copy()
+
+            # Log: Intent detected
+            if websocket and log_streamer:
+                intent_emoji_map = {
+                    "greeting": "👋",
+                    "team_activation": "👥",
+                    "expertise_match": "🎯",
+                    "explicit_mention": "📌"
+                }
+                intent = routing_decision.context or "unknown"
+                intent_emoji = intent_emoji_map.get(intent, "🔍")
+                intent_display = intent.replace('_', ' ').title() if intent != "unknown" else "Query Analysis"
+
+                await log_streamer.emit(
+                    websocket,
+                    level="info",
+                    category="routing",
+                    message=f"{intent_emoji} Detected: {intent_display}",
+                    metadata={
+                        "intent": intent,
+                        "query_preview": user_query[:100]
+                    }
+                )
+
+            # Log routing decision
+            print(f"\n🎯 [ROUTING DECISION]", flush=True)
+            print(f"    Query: '{user_query[:100]}'", flush=True)
+            print(f"    Agents: {routing_decision.agent_ids}", flush=True)
+            print(f"    Intent: {routing_decision.context}", flush=True)
+            print(f"    Reasoning: {routing_decision.reasoning}", flush=True)
+
+            # Stream routing decision to frontend
+            agent_names = ", ".join([a.capitalize() for a in routing_decision.agent_ids]) if routing_decision.agent_ids else "None"
+            self.add_log(
+                level="success",
+                category="routing",
+                message=f"🎯 Routing to: {agent_names}",
+                metadata={
+                    "agents": routing_decision.agent_ids,
+                    "intent": routing_decision.context,
+                    "reasoning": routing_decision.reasoning,
+                    "confidence": routing_decision.confidence,
+                    "is_targeted": routing_decision.is_targeted,
+                    "query_preview": user_query[:100]
+                }
+            )
+
+            # Emit pending logs
+            if websocket and log_streamer:
+                pending_logs = self.get_pending_logs()
+                for log in pending_logs:
+                    await log_streamer.emit(
+                        websocket,
+                        level=log["level"],
+                        category=log["category"],
+                        message=log["message"],
+                        metadata=log.get("metadata")
+                    )
+
+            # Track which agents have responded
+            responded_agents = set()
+            agent_to_agent_round = 0
+            max_total_iterations = 10
+            iteration_count = 0
+
+            responses = []
+
+            while agent_queue and agent_to_agent_round <= self.max_agent_to_agent_rounds and iteration_count < max_total_iterations:
+                iteration_count += 1
+                print(f"\n🔄 [ROUTING LOOP] Iteration {iteration_count}/{max_total_iterations}", flush=True)
+                print(f"    Queue: {agent_queue}, Responded: {responded_agents}, Round: {agent_to_agent_round}/{self.max_agent_to_agent_rounds}", flush=True)
+
+                # Get next agent from queue
+                agent_id = agent_queue.pop(0)
+
+                # Skip if already responded
+                if agent_id in responded_agents:
+                    continue
+
+                # Skip if agent doesn't exist
+                if agent_id not in self.agents:
+                    continue
+
+                agent = self.agents[agent_id]
+                responded_agents.add(agent_id)
+
+                # Log agent starting
+                print(f"\n📨 [{agent_id}] Starting async response generation...", flush=True)
+                print(f"    Agent queue remaining: {agent_queue}", flush=True)
+                print(f"    Conversation history size: {len(local_history)} messages", flush=True)
+
+                # Stream agent start log to frontend
+                self.add_log(
+                    level="info",
+                    category="agent",
+                    message=f"📨 {agent_id.capitalize()} is responding...",
+                    metadata={
+                        "agent_id": agent_id,
+                        "queue_remaining": agent_queue.copy(),
+                        "history_size": len(local_history),
+                        "using_gpt5": agent.openai_client.use_gpt5
+                    }
+                )
+
+                # Emit "GPT-5 is thinking..." log if using GPT-5
+                if agent.openai_client.use_gpt5:
+                    self.add_log(
+                        level="info",
+                        category="ai_model",
+                        message=f"🧠 GPT-5 is thinking deeply...",
+                        metadata={
+                            "agent_id": agent_id,
+                            "model": agent.openai_client.model,
+                            "thinking": True
+                        }
+                    )
+
+                # Emit pending logs
+                if websocket and log_streamer:
+                    pending_logs = self.get_pending_logs()
+                    for log in pending_logs:
+                        await log_streamer.emit(
+                            websocket,
+                            level=log["level"],
+                            category=log["category"],
+                            message=log["message"],
+                            metadata=log.get("metadata")
+                        )
+
+                # Generate response using async method (non-blocking!)
+                full_response = await agent.respond_async(
+                    user_query,
+                    local_history,
+                    mode="group",
+                    routing_context=routing_decision.context
+                )
+
+                print(f"✅ [{agent_id}] Response generated: {full_response[:100]}...", flush=True)
+
+                # Log GPT-5 completion
+                if agent.openai_client.use_gpt5:
+                    self.add_log(
+                        level="success",
+                        category="ai_model",
+                        message=f"✅ GPT-5 completed response for {agent_id}",
+                        metadata={
+                            "agent_id": agent_id,
+                            "response_length": len(full_response),
+                            "model": agent.openai_client.model,
+                            "thinking": False
+                        }
+                    )
+
+                # Log agent completion
+                self.add_log(
+                    level="success",
+                    category="agent",
+                    message=f"✅ {agent_id.capitalize()} completed response",
+                    metadata={
+                        "agent_id": agent_id,
+                        "response_preview": full_response[:100]
+                    }
+                )
+
+                # Add to responses
+                responses.append((agent_id, full_response))
+
+                # Add to history for next agent to see
+                local_history.append({
+                    'agent': agent.metadata['name'],
+                    'agent_id': agent_id,
+                    'message': full_response,
+                    'content': full_response,
+                    'role': 'agent'
+                })
+
+                # Check for @mentions (Tier 2 routing)
+                try:
+                    print(f"\n🔍 [{agent_id}] Checking for @mentions in response...", flush=True)
+                    has_mentions = MentionParser.has_mentions(full_response)
+                    print(f"    MentionParser.has_mentions() = {has_mentions}", flush=True)
+
+                    if has_mentions:
+                        extracted_mentions = MentionParser.extract_mentions(full_response)
+                        print(f"    Extracted mentions: {extracted_mentions}", flush=True)
+
+                        mention_routing = self.intent_router.route_agent_response(
+                            agent_id,
+                            full_response
+                        )
+
+                        print(f"    LLM routing result: {mention_routing.agent_ids}", flush=True)
+                        print(f"    Reasoning: {mention_routing.reasoning}", flush=True)
+
+                        # Add mentioned agents to queue
+                        newly_added = []
+                        for mentioned_agent_id in mention_routing.agent_ids:
+                            if mentioned_agent_id not in responded_agents and mentioned_agent_id not in agent_queue:
+                                agent_queue.append(mentioned_agent_id)
+                                newly_added.append(mentioned_agent_id)
+
+                        if newly_added:
+                            print(f"    ✅ Added {newly_added} to agent queue", flush=True)
+                            agent_to_agent_round += 1
+                        else:
+                            print(f"    ⏭️ No new agents to add (all already responded or queued)", flush=True)
+                    else:
+                        print(f"    ⏭️ No @mentions detected", flush=True)
+
+                except IntentRouterError as e:
+                    print(f"❌ Warning: Agent-to-agent routing failed for {agent_id}: {e}", flush=True)
+                    pass
+
+            # Log all agents completed
+            self.add_log(
+                level="success",
+                category="processing",
+                message=f"✅ All {len(responses)} agents completed",
+                metadata={
+                    "total_agents": len(responses),
+                    "agent_ids": [r[0] for r in responses]
+                }
+            )
+
+            return responses
+
+        except IntentRouterError as e:
+            # LLM routing failed - raise error
+            error_msg = f"[Routing Error: {str(e)}]"
+            print(f"❌ {error_msg}", flush=True)
             raise
 
     def think_tank_mode(
