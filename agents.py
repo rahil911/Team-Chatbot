@@ -113,12 +113,12 @@ class OpenAIClient:
                         print(f"    💭 Reasoning tokens used: {reasoning_tokens}", flush=True)
 
             elif self.use_gpt5:
-                # GPT-5: Responses API
+                # GPT-5: Responses API (non-streaming until organization verified)
                 input_text = self._messages_to_input(messages)
                 response = self.client.responses.create(
                     model=self.model,
                     input=input_text,
-                    stream=stream,
+                    stream=False,  # Disabled until OpenAI organization is verified
                     **self.config
                 )
 
