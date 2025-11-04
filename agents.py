@@ -73,7 +73,10 @@ class OpenAIClient:
                 'temperature': 0.7,
                 'max_tokens': 2048,
             }
-    
+
+        # Log which model is active
+        print(f"🤖 [AI Model] Initialized: {self.model}")
+
     def generate(self, messages: List[Dict[str, str]], stream: bool = True) -> Generator[str, None, None]:
         """Generate response with optional streaming"""
         try:
