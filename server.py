@@ -59,6 +59,11 @@ graph_analytics.compute_centrality_metrics()
 graph_analytics.detect_communities()
 print("Graph analytics ready!")
 
+# Pre-generate and cache cytoscape elements (performance optimization)
+print("Pre-generating cytoscape elements...")
+cached_cytoscape_elements = graph_view.generate_cytoscape_elements()
+print(f"Cytoscape cache ready! ({len([e for e in cached_cytoscape_elements if 'label' in e.get('data', {})])} nodes, {len([e for e in cached_cytoscape_elements if 'source' in e.get('data', {})])} edges)")
+
 # Active WebSocket connections
 active_connections: List[WebSocket] = []
 
@@ -140,12 +145,11 @@ async def root():
 
 @app.get("/api/graph")
 async def get_graph_data():
-    """Get knowledge graph data"""
-    elements = graph_view.generate_cytoscape_elements()
+    """Get knowledge graph data (using cached elements for performance)"""
     return {
         "nodes": len(kg_loader.node_data),
         "edges": kg_loader.merged_graph.number_of_edges(),
-        "elements": elements
+        "elements": cached_cytoscape_elements
     }
 
 
