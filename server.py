@@ -120,7 +120,7 @@ class ConnectionManager:
         print(f"✅ [SESSION-REG] Browser session {browser_session_id} registered (Total: {len(self.browser_sessions)} unique browsers)")
 
     def disconnect(self, websocket: WebSocket):
-        """Disconnect a WebSocket and clean up tracking"""
+        """Disconnect a WebSocket and clean up ALL tracking"""
         # Remove from active connections
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
@@ -134,6 +134,22 @@ class ConnectionManager:
             print(f"❌ [DISCONNECT] Browser session {browser_session_id} disconnected (Total: {len(self.browser_sessions)} unique browsers)")
         else:
             print(f"❌ [DISCONNECT] WebSocket disconnected (no session registered)")
+
+        # 🔧 FIX: Clean up processing state (prevents deadlock on crash)
+        if websocket in self.processing_websockets:
+            self.processing_websockets.remove(websocket)
+            print(f"🧹 [CLEANUP] Removed crashed websocket from processing set")
+
+        # 🔧 FIX: Clean up pending replacements (prevents memory leak)
+        if websocket in self.pending_replacements:
+            del self.pending_replacements[websocket]
+            print(f"🧹 [CLEANUP] Removed crashed websocket from pending replacements")
+
+        # 🔧 FIX: If this was a pending replacement target, remove it
+        for old_ws, new_ws in list(self.pending_replacements.items()):
+            if new_ws == websocket:
+                del self.pending_replacements[old_ws]
+                print(f"🧹 [CLEANUP] Removed websocket as pending replacement target")
 
     async def send_personal(self, message: dict, websocket: WebSocket):
         """
