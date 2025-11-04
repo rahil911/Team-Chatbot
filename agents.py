@@ -115,6 +115,7 @@ class OpenAIClient:
             elif self.use_gpt5:
                 # GPT-5: Responses API (non-streaming until organization verified)
                 input_text = self._messages_to_input(messages)
+                # Always use stream=False until organization is verified
                 response = self.client.responses.create(
                     model=self.model,
                     input=input_text,
@@ -122,12 +123,8 @@ class OpenAIClient:
                     **self.config
                 )
 
-                if stream:
-                    for chunk in response:
-                        if hasattr(chunk, 'output_text_delta') and chunk.output_text_delta:
-                            yield chunk.output_text_delta
-                else:
-                    yield response.output_text
+                # Non-streaming response - yield full response at once
+                yield response.output_text
             else:
                 # GPT-4o: Chat Completions API
                 response = self.client.chat.completions.create(
