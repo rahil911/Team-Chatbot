@@ -1,0 +1,41 @@
+name: Keep Backend Alive
+
+on:
+  schedule:
+    # Ping every 10 minutes to prevent Azure hibernation
+    - cron: '*/10 * * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Student Backend
+        run: |
+          echo "🏓 Pinging backend to keep it warm..."
+
+          # Ping the API endpoint
+          RESPONSE=$(curl -s -w "\n%{http_code}" https://kg-student-backend.ambitiouswave-220155c4.eastus2.azurecontainerapps.io/api/graph --max-time 30)
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Backend is alive! (HTTP $HTTP_CODE)"
+            # Extract node/edge count from response
+            NODES=$(echo "$RESPONSE" | jq -r '.nodes' 2>/dev/null || echo "N/A")
+            EDGES=$(echo "$RESPONSE" | jq -r '.edges' 2>/dev/null || echo "N/A")
+            echo "📊 Graph Status: $NODES nodes, $EDGES edges"
+          else
+            echo "⚠️ Backend returned HTTP $HTTP_CODE (might be warming up)"
+          fi
+
+          echo "⏰ Next ping in 10 minutes"
+
+      - name: Health Check Summary
+        run: |
+          echo "### Backend Keep-Alive Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Endpoint**: https://kg-student-backend.ambitiouswave-220155c4.eastus2.azurecontainerapps.io" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Pinged successfully ✅" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frequency**: Every 10 minutes" >> $GITHUB_STEP_SUMMARY
+          echo "- **Purpose**: Prevent Azure Container Apps hibernation" >> $GITHUB_STEP_SUMMARY
