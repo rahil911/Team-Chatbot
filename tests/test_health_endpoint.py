@@ -7,11 +7,12 @@ import time
 import asyncio
 import websockets
 import json
+import os
 from typing import Dict, Any
 
 
-BACKEND_URL = "http://localhost:8000"
-WS_URL = "ws://localhost:8000/ws"
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
+WS_URL = BACKEND_URL.replace("http://", "ws://").replace("https://", "wss://") + "/ws"
 
 
 def test_root_endpoint():
@@ -192,10 +193,14 @@ def test_health_response_time():
     print(f"✅ Average response time: {avg_time*1000:.2f}ms")
     print(f"✅ Max response time: {max_time*1000:.2f}ms")
 
-    # Should be fast (< 100ms)
-    assert avg_time < 0.1, f"Health check too slow: {avg_time*1000:.2f}ms"
+    # Different thresholds for local vs production
+    # Local should be < 100ms, production can be slower due to network/Azure
+    is_production = "azurecontainerapps.io" in BACKEND_URL
+    threshold = 1.0 if is_production else 0.1  # 1s for prod, 100ms for local
 
-    print("✅ TEST 5 PASSED: Response time acceptable")
+    assert avg_time < threshold, f"Health check too slow: {avg_time*1000:.2f}ms (threshold: {threshold*1000:.0f}ms)"
+
+    print(f"✅ TEST 5 PASSED: Response time acceptable ({'production' if is_production else 'local'} threshold: {threshold*1000:.0f}ms)")
 
 
 def test_api_graph_endpoint():

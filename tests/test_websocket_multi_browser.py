@@ -8,10 +8,11 @@ import json
 import pytest
 from typing import List
 import time
+import os
 
 
-WS_URL = "ws://localhost:8000/ws"
-BACKEND_URL = "http://localhost:8000"
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
+WS_URL = BACKEND_URL.replace("http://", "ws://").replace("https://", "wss://") + "/ws"
 
 
 class WebSocketClient:
