@@ -772,14 +772,15 @@ async def websocket_endpoint(websocket: WebSocket):
                 message_type = data.get("type")
                 print(f"📨 Received WebSocket message type: {message_type}")
 
-                # Stream message received log
-                await log_streamer.emit(
-                    websocket,
-                    level="info",
-                    category="processing",
-                    message=f"📨 Received message: {message_type}",
-                    metadata={"message_type": message_type}
-                )
+                # Stream message received log (skip ping/pong keepalive messages)
+                if message_type not in ["ping", "pong"]:
+                    await log_streamer.emit(
+                        websocket,
+                        level="info",
+                        category="processing",
+                        message=f"📨 Received message: {message_type}",
+                        metadata={"message_type": message_type}
+                    )
 
                 if message_type == "register_session":
                     # PRODUCTION-READY: Register browser session ID for connection deduplication
