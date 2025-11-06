@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, lazy, Suspense } from 'react';
 import {
   Box,
   VStack,
@@ -9,10 +9,18 @@ import {
   Textarea,
   IconButton,
   Badge,
+  Spinner,
 } from '@chakra-ui/react';
 import { ChatIcon, ArrowUpIcon } from '@chakra-ui/icons';
 import { MessageFormatter } from './MessageFormatter';
-import { ActivityTimeline } from './ActivityTimeline';
+
+// Lazy load ActivityTimeline to prevent tree-shaking
+const ActivityTimeline = lazy(() =>
+  import('./ActivityTimeline').then(module => ({
+    default: module.ActivityTimeline
+  }))
+);
+
 import type { Message, AgentMessage } from '../types';
 import type { BackendLog } from '../hooks/useWebSocket';
 import { useState } from 'react';
@@ -169,7 +177,9 @@ export const ChatView = ({
 
       {/* Backend Activity Timeline */}
       {backendLogs.length > 0 && (
-        <ActivityTimeline logs={backendLogs} onClear={onClearLogs} />
+        <Suspense fallback={<Spinner size="sm" color="brand.blue" />}>
+          <ActivityTimeline logs={backendLogs} onClear={onClearLogs} />
+        </Suspense>
       )}
 
       {/* Input Area */}
