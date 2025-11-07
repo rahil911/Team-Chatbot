@@ -105,8 +105,29 @@ class ConversationManager:
         self.sessions: Dict[str, ConversationSession] = {}
         self.cleanup_interval = cleanup_interval
         self.session_timeout = session_timeout
-        self._lock = asyncio.Lock()  # FIX: Use asyncio.Lock instead of threading.Lock
+        self._lock_instance = None  # Lazy initialization to avoid event loop issues
+        self._lock_loop = None  # Track which event loop the lock belongs to
         self._last_cleanup = time.time()
+
+    @property
+    def _lock(self):
+        """Lazy initialization of asyncio.Lock to ensure it uses the current event loop"""
+        try:
+            current_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            # No running loop, return None - let the caller handle it
+            return None
+
+        # If we have a lock but it's from a different event loop, reset it
+        if self._lock_instance is not None and self._lock_loop is not current_loop:
+            self._lock_instance = None
+
+        # Create new lock if needed
+        if self._lock_instance is None:
+            self._lock_instance = asyncio.Lock()
+            self._lock_loop = current_loop
+
+        return self._lock_instance
 
     async def create_session(self, session_id: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> ConversationSession:
         """
