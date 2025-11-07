@@ -50,8 +50,19 @@ export const ActivityTimeline = ({ logs, onClear }: ActivityTimelineProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { isOpen: isExpanded, onToggle } = useDisclosure({ defaultIsOpen: true });
 
-  // Filter out infrastructure logs (connection category)
-  const aiLogs = logs.filter(log => log.category !== 'connection');
+  // Filter out infrastructure logs (connection, ping/pong, register_session)
+  const aiLogs = logs.filter(log => {
+    // Filter out connection category
+    if (log.category === 'connection') return false;
+
+    // Filter out ping/pong messages
+    if (log.message?.includes('Ping sent') || log.message?.includes('Pong received')) return false;
+
+    // Filter out register_session messages
+    if (log.message?.includes('register_session') || log.message?.includes('Session registered')) return false;
+
+    return true;
+  });
 
   // Auto-scroll to latest event
   useEffect(() => {
