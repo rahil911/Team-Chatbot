@@ -849,16 +849,26 @@ async def websocket_endpoint(websocket: WebSocket):
                                 manager.mark_processing(websocket)
 
                                 try:
-                                    # Use async method for non-blocking GPT-5 calls with timeout
-                                    responses = await asyncio.wait_for(
-                                        agent_system.group_chat_mode_async(
-                                            user_message,
-                                            conversation_history,
-                                            websocket=websocket,
-                                            log_streamer=log_streamer
-                                        ),
-                                        timeout=40.0  # 40 second timeout (frontend has 45s)
+                                    # FIX: Use SYNC version (same as HTTP endpoint - known to work!)
+                                    # The async version fails silently in production
+                                    print(f"🔄 Using sync group_chat_mode (proven to work)")
+
+                                    response_gen = agent_system.group_chat_mode(
+                                        user_message,
+                                        conversation_history
                                     )
+
+                                    # Collect responses from generator (same logic as HTTP endpoint)
+                                    agent_responses_dict = {}
+                                    for agent_id, chunk in response_gen:
+                                        if agent_id not in agent_responses_dict:
+                                            agent_responses_dict[agent_id] = ""
+                                        if not chunk.startswith('[Error'):
+                                            agent_responses_dict[agent_id] += chunk
+
+                                    # Convert to expected format for WebSocket processing
+                                    responses = [(agent_id, response) for agent_id, response in agent_responses_dict.items()]
+                                    print(f"✅ Collected {len(responses)} agent responses")
                                 except asyncio.TimeoutError:
                                     # Timeout occurred
                                     print(f"⏱️ [TIMEOUT] Agent processing exceeded 40 seconds")
