@@ -159,10 +159,10 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
     };
   }, []);
 
-  // Processing timeout - Reset state if backend doesn't respond within 45 seconds
+  // Processing timeout - Reset state if backend doesn't respond within 135 seconds
   useEffect(() => {
     if (isProcessing) {
-      console.log('⏱️ Starting 45-second processing timeout');
+      console.log('⏱️ Starting 135-second processing timeout');
 
       processingTimeoutRef.current = setTimeout(() => {
         console.warn('⏱️ Processing timeout reached - resetting state');
@@ -179,7 +179,7 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
           timestamp: Date.now(),
           agent_id: 'system'
         }]);
-      }, 45000); // 45 second timeout
+      }, 135000); // 135 second timeout (backend 120s + 15s buffer)
 
       return () => {
         if (processingTimeoutRef.current) {

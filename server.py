@@ -872,20 +872,21 @@ async def websocket_endpoint(websocket: WebSocket):
                                         return [(agent_id, response) for agent_id, response in agent_responses_dict.items()]
 
                                     # Run in thread pool with timeout to not block event loop
+                                    # 120 seconds allows multiple agents to respond via OpenAI API
                                     responses = await asyncio.wait_for(
                                         asyncio.to_thread(run_sync_chat),
-                                        timeout=40.0
+                                        timeout=120.0
                                     )
                                     print(f"✅ Collected {len(responses)} agent responses from thread")
                                 except asyncio.TimeoutError:
                                     # Timeout occurred
-                                    print(f"⏱️ [TIMEOUT] Agent processing exceeded 40 seconds")
+                                    print(f"⏱️ [TIMEOUT] Agent processing exceeded 120 seconds")
                                     await log_streamer.emit(
                                         websocket,
                                         level="error",
                                         category="error",
                                         message="⏱️ Request timeout - OpenAI API took too long",
-                                        metadata={"timeout_seconds": 40}
+                                        metadata={"timeout_seconds": 120}
                                     )
                                     await manager.send_personal({
                                         "type": "error",
