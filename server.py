@@ -878,6 +878,7 @@ async def websocket_endpoint(websocket: WebSocket):
                                         timeout=120.0
                                     )
                                     print(f"✅ Collected {len(responses)} agent responses from thread")
+                                    print(f"🔍 DEBUG: inner_error={inner_error}, responses={[(aid, len(r)) for aid, r in responses]}")
                                 except asyncio.TimeoutError:
                                     # Timeout occurred
                                     print(f"⏱️ [TIMEOUT] Agent processing exceeded 120 seconds")
@@ -920,9 +921,12 @@ async def websocket_endpoint(websocket: WebSocket):
                                         await manager.unmark_processing(websocket)
 
                                 # Skip response processing if error occurred
+                                print(f"🔍 DEBUG: About to check inner_error={inner_error}")
                                 if inner_error:
                                     print(f"⚠️ Skipping response processing due to error: {inner_error}")
                                     continue
+
+                                print(f"🔍 DEBUG: Proceeding to send {len(responses)} responses")
 
                                 # Process each agent's full response
                                 for agent_id, full_response in responses:
