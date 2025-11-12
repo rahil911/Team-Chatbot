@@ -50,8 +50,10 @@ class OpenAIClient:
     """Wrapper for OpenAI API - supports GPT-5, GPT-4o, and o1 reasoning models"""
 
     def __init__(self, use_gpt5=False, reasoning_model=None):
+        # ALWAYS use async client for better concurrency - works with all models!
+        self.async_client = AsyncOpenAI(api_key=get_openai_api_key())
+        # Keep sync client ONLY for backward compatibility (will phase out)
         self.client = OpenAI(api_key=get_openai_api_key())
-        self.async_client = AsyncOpenAI(api_key=get_openai_api_key())  # NEW: Async client for GPT-5
         self.use_gpt5 = use_gpt5
         self.reasoning_model = reasoning_model  # 'o1-preview', 'o1-mini', or None
 
@@ -149,9 +151,34 @@ class OpenAIClient:
             yield f"[Error: {str(e)}]"
 
     async def generate_async(self, messages: List[Dict[str, str]]) -> str:
-        """Async version of generate - used for GPT-5 to prevent blocking"""
+        """Fully async generation for ALL models - no blocking, no threads!"""
         try:
-            if self.use_gpt5:
+            if self.reasoning_model:
+                # o1 reasoning models: Async chat completions
+                print(f"\n🧠 [REASONING] {self.reasoning_model} starting async generation...", flush=True)
+
+                # Convert system messages to user messages (o1 doesn't support system role)
+                processed_messages = []
+                for msg in messages:
+                    if msg['role'] == 'system':
+                        processed_messages.append({
+                            'role': 'user',
+                            'content': f"[System Instructions]\n{msg['content']}"
+                        })
+                    else:
+                        processed_messages.append(msg)
+
+                # Async API call - doesn't block event loop!
+                response = await self.async_client.chat.completions.create(
+                    model=self.model,
+                    messages=processed_messages,
+                    **self.config
+                )
+
+                print(f"✅ [{self.reasoning_model}] Response generated successfully", flush=True)
+                return response.choices[0].message.content
+
+            elif self.use_gpt5:
                 # GPT-5: Responses API (async, non-blocking)
                 print(f"\n🧠 [GPT-5] Starting async generation...", flush=True)
                 input_text = self._messages_to_input(messages)
@@ -167,23 +194,19 @@ class OpenAIClient:
                 print(f"✅ [GPT-5] Response generated successfully", flush=True)
                 return response.output_text
             else:
-                # For non-GPT-5, use sync client in executor to avoid blocking
-                print(f"\n🤖 [{self.model}] Using sync client in executor...", flush=True)
-                loop = asyncio.get_event_loop()
+                # GPT-4o: NOW FULLY ASYNC - NO THREADS NEEDED!
+                print(f"\n🤖 [{self.model}] Using async client (thread-free!)...", flush=True)
 
-                # Run synchronous OpenAI call in thread pool
-                def _sync_generate():
-                    response = self.client.chat.completions.create(
-                        model=self.model,
-                        messages=messages,
-                        stream=False,
-                        **self.config
-                    )
-                    return response.choices[0].message.content
+                # Direct async API call - no executor, no threads!
+                response = await self.async_client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    stream=False,
+                    **self.config
+                )
 
-                result = await loop.run_in_executor(None, _sync_generate)
-                print(f"✅ [{self.model}] Response generated successfully", flush=True)
-                return result
+                print(f"✅ [{self.model}] Response generated successfully (pure async)", flush=True)
+                return response.choices[0].message.content
 
         except Exception as e:
             print(f"❌ [ERROR] Async generation failed: {e}", flush=True)

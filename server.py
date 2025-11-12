@@ -912,69 +912,41 @@ async def websocket_endpoint(websocket: WebSocket):
                                 manager.mark_processing(websocket)
 
                                 try:
-                                    # Check if we have capacity before processing
-                                    if not CONCURRENCY_LIMITER.acquire(blocking=False):
-                                        # At capacity - reject gracefully
-                                        print(f"⚠️ Thread pool at capacity ({max_workers} active tasks)")
-                                        await manager.send_personal({
-                                            "type": "error",
-                                            "message": f"Server at capacity. Please try again in a moment. (Active: {max_workers})"
-                                        }, websocket)
-                                        await log_streamer.emit(
-                                            websocket,
-                                            level="warning",
-                                            category="capacity",
-                                            message=f"Thread pool at capacity - request rejected",
-                                            metadata={"active_workers": max_workers}
-                                        )
-                                        continue  # Skip processing this message
+                                    # 🚀 PURE ASYNC PATH - NO THREADS NEEDED!
+                                    print(f"🔥 Using PURE ASYNC group_chat_mode_async (thread-free!)")
+                                    print(f"⚡ No thread pool, no limits - pure async/await")
 
-                                    # Track this task
+                                    # Track concurrent requests (for monitoring only, no limits!)
                                     global task_counter
                                     task_counter += 1
-                                    task_id = f"task_{task_counter}"
+                                    task_id = f"async_task_{task_counter}"
                                     active_tasks.add(task_id)
 
                                     try:
-                                        # ULTRA FIX: Run sync generator in thread pool to prevent event loop blocking
-                                        # Azure production requires this - sync code blocks the async event loop
-                                        print(f"🔄 [{task_id}] Running sync group_chat_mode in thread pool")
-                                        print(f"📊 Active tasks: {len(active_tasks)}/{max_workers}")
+                                        # Direct async call - no threads, no executor, pure async!
+                                        print(f"🌟 [{task_id}] Starting async agent processing")
+                                        print(f"📊 Active async tasks: {len(active_tasks)} (no limit!)")
 
-                                        def run_sync_chat():
-                                            """Execute sync chat in separate thread"""
-                                            response_gen = agent_system.group_chat_mode(
-                                                user_message,
-                                                conversation_history
-                                            )
-
-                                            # Collect responses from generator
-                                            agent_responses_dict = {}
-                                            for agent_id, chunk in response_gen:
-                                                if agent_id not in agent_responses_dict:
-                                                    agent_responses_dict[agent_id] = ""
-                                                if not chunk.startswith('[Error'):
-                                                    agent_responses_dict[agent_id] += chunk
-
-                                            # Return in expected format
-                                            return [(agent_id, response) for agent_id, response in agent_responses_dict.items()]
-
-                                        # Run in DEDICATED thread pool to prevent thread starvation
-                                        # Using our custom pool ensures multiple messages can be processed concurrently
-                                        print(f"🧵 [{task_id}] Submitting to thread pool (capacity: {max_workers - len(active_tasks) + 1}/{max_workers})")
+                                        # Call the async version directly
                                         responses = await asyncio.wait_for(
-                                            asyncio.get_event_loop().run_in_executor(
-                                                AGENT_THREAD_POOL,  # Use our dedicated pool instead of default
-                                                run_sync_chat
+                                            agent_system.group_chat_mode_async(
+                                                user_message,
+                                                conversation_history,
+                                                websocket=websocket,
+                                                log_streamer=log_streamer
                                             ),
                                             timeout=120.0
                                         )
-                                        print(f"✅ [{task_id}] Collected {len(responses)} agent responses from thread pool")
+
+                                        print(f"✅ [{task_id}] Collected {len(responses)} agent responses (pure async)")
+
+                                        # Note: group_chat_mode_async already handles log streaming internally
+                                        # No need to retrieve buffered logs separately
+
                                     finally:
-                                        # Always release semaphore and remove from active tasks
+                                        # Remove from active tasks (just for monitoring)
                                         active_tasks.discard(task_id)
-                                        CONCURRENCY_LIMITER.release()
-                                        print(f"🔓 [{task_id}] Released thread pool slot (remaining: {len(active_tasks)})")
+                                        print(f"🌟 [{task_id}] Async task completed (active: {len(active_tasks)})")
                                     print(f"🔍 DEBUG: inner_error={inner_error}, responses={[(aid, len(r)) for aid, r in responses]}")
 
                                     # FIX: Retrieve and emit buffered logs from the sync generator
