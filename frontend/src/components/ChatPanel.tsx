@@ -5,6 +5,7 @@ import { AgentCard } from './AgentCard';
 import { VoiceInput } from './VoiceInput';
 import { TextInput } from './TextInput';
 import { ModeSelector } from './ModeSelector';
+import { ModelSelector, type ModelType } from './ModelSelector';
 import { MessageFormatter } from './MessageFormatter';
 import { ConsensusMeter } from './ConsensusMeter';
 import { RoundIndicator } from './RoundIndicator';
@@ -27,6 +28,8 @@ interface ThinkTankState {
 interface ChatPanelProps {
   mode: ChatMode;
   onModeChange: (mode: ChatMode) => void;
+  model: ModelType;
+  onModelChange: (model: ModelType) => void;
   messages: Message[];
   agentMessages: AgentMessage;
   activeAgents: string[];
@@ -80,6 +83,8 @@ const TABS = [
 export const ChatPanel = ({
   mode,
   onModeChange,
+  model,
+  onModelChange,
   messages,
   agentMessages,
   activeAgents,
@@ -141,7 +146,17 @@ export const ChatPanel = ({
       <div className="relative border-b border-white/5 bg-surface-900/70 px-6 pb-5 pt-6 shadow-panel">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/6 to-transparent" />
         <div className="relative z-10 space-y-4">
-        <ModeSelector mode={mode} onChange={onModeChange} />
+          {/* Model Selector at the top */}
+          <div className="flex items-center gap-3">
+            <ModelSelector
+              value={model}
+              onChange={onModelChange}
+              className="flex-1 max-w-xs"
+            />
+            <div className="flex-1" />
+          </div>
+
+          <ModeSelector mode={mode} onChange={onModeChange} />
 
           {/* Think Tank Mode: Show ConsensusMeter and RoundIndicator */}
           {isThinkTankMode && thinkTank && thinkTank.currentRound > 0 ? (

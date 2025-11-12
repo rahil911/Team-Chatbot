@@ -828,6 +828,32 @@ class MultiAgentSystem:
         self.log_buffer: List[Dict[str, Any]] = []
         self._log_lock = threading.Lock()  # FIX: Thread-safe log buffer access
 
+    def set_model(self, model_name: str):
+        """Update the model used by all agents dynamically"""
+        print(f"🔄 Switching model to: {model_name}")
+
+        # Map frontend model names to backend configuration
+        if model_name == 'gpt-4o':
+            self.openai_client = OpenAIClient(use_gpt5=False)
+        elif model_name == 'gpt-5':
+            self.openai_client = OpenAIClient(use_gpt5=True)
+        elif model_name in ['o1-preview', 'o1-mini']:
+            self.openai_client = OpenAIClient(reasoning_model=model_name)
+        else:
+            print(f"⚠️ Unknown model: {model_name}, defaulting to gpt-4o")
+            self.openai_client = OpenAIClient(use_gpt5=False)
+
+        # Update all agents with the new OpenAI client
+        for agent in self.agents.values():
+            agent.openai_client = self.openai_client
+
+        # Update orchestrators and router
+        self.orchestrator.openai_client = self.openai_client
+        self.conference_orchestrator.openai_client = self.openai_client
+        self.intent_router.openai_client = self.openai_client
+
+        print(f"✅ Model switched to: {self.openai_client.model}")
+
     def clear_log_buffer(self):
         """Clear the log buffer at the start of a new request"""
         with self._log_lock:

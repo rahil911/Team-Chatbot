@@ -465,6 +465,21 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
     }));
   }, []);
 
+  const setModel = useCallback((model: string) => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      console.error('WebSocket not connected');
+      return;
+    }
+
+    // Send model change via WebSocket
+    wsRef.current.send(JSON.stringify({
+      type: 'set_model',
+      model
+    }));
+
+    console.log(`🤖 Switched to model: ${model}`);
+  }, []);
+
   const clearMessages = useCallback(() => {
     setMessages([]);
     setAgentMessages({});
@@ -499,6 +514,7 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
     isProcessing,
     typingAgent,
     sendMessage,
+    setModel,
     clearMessages,
     // Think Tank state
     thinkTank: {

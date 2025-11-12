@@ -4,9 +4,11 @@ import { KnowledgeGraphView } from './KnowledgeGraphView';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { useGraphHighlight } from '../hooks/useGraphHighlight';
 import type { ChatMode } from '../types';
+import type { ModelType } from './ModelSelector';
 
 export const ModernDashboard = () => {
   const [mode, setMode] = useState<ChatMode>('group');
+  const [model, setModel] = useState<ModelType>('gpt-4o');
 
   const { addHighlight, highlights } = useGraphHighlight();
 
@@ -16,6 +18,7 @@ export const ModernDashboard = () => {
     activeAgents,
     isProcessing,
     sendMessage,
+    setModel: setWsModel,
     thinkTank
   } = useWebSocket((highlightData: any) => {
     addHighlight(highlightData);
@@ -23,6 +26,11 @@ export const ModernDashboard = () => {
 
   const handleSendMessage = (message: string) => {
     sendMessage(message, mode);
+  };
+
+  const handleModelChange = (newModel: ModelType) => {
+    setModel(newModel);
+    setWsModel(newModel); // Send model change to WebSocket
   };
 
   const handleSendVoice = (_audioBlob: Blob) => {
@@ -36,6 +44,8 @@ export const ModernDashboard = () => {
         <ChatPanel
           mode={mode}
           onModeChange={setMode}
+          model={model}
+          onModelChange={handleModelChange}
           messages={messages}
           agentMessages={agentMessages}
           activeAgents={activeAgents}

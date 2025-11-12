@@ -863,6 +863,28 @@ async def websocket_endpoint(websocket: WebSocket):
                         )
                     continue
 
+                if message_type == "set_model":
+                    # Handle model selection from frontend
+                    model = data.get("model", "gpt-4o")
+                    agent_system.set_model(model)
+
+                    # Send acknowledgment
+                    await manager.send_personal({
+                        "type": "model_changed",
+                        "model": model,
+                        "message": f"Model switched to {model}"
+                    }, websocket)
+
+                    # Stream model change log
+                    await log_streamer.emit(
+                        websocket,
+                        level="success",
+                        category="system",
+                        message=f"🔄 Model switched to {model}",
+                        metadata={"model": model}
+                    )
+                    continue
+
                 if message_type == "chat":
                     # Increment message counter
                     manager.message_count += 1
