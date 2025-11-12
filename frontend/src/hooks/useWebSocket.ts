@@ -42,6 +42,7 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
   const wsRef = useRef<WebSocket | null>(null);
   const streamingMessagesRef = useRef<Record<string, string>>({});
   const thinkTankSummaryRef = useRef<string>('');
+  const processingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // PRODUCTION-READY: Persistent browser session ID (shared across tabs)
   const getBrowserSessionId = (): string => {
@@ -157,7 +158,38 @@ export const useWebSocket = (onHighlight?: (highlightData: any) => void) => {
       }
     };
   }, []);
-  
+
+  // Processing timeout - Reset state if backend doesn't respond within 45 seconds
+  useEffect(() => {
+    if (isProcessing) {
+      console.log('⏱️ Starting 45-second processing timeout');
+
+      processingTimeoutRef.current = setTimeout(() => {
+        console.warn('⏱️ Processing timeout reached - resetting state');
+        console.warn('This usually means the backend is experiencing issues with OpenAI API');
+
+        setIsProcessing(false);
+        setTypingAgent(null);
+        setActiveAgents([]);
+
+        // Add error message to chat
+        setMessages(prev => [...prev, {
+          type: 'agent',
+          content: '⚠️ **Request Timeout**\n\nThe backend took too long to respond. This might be due to:\n- High server load\n- OpenAI API rate limits\n- Network connectivity issues\n\nPlease try again in a moment.',
+          timestamp: Date.now(),
+          agent_id: 'system'
+        }]);
+      }, 45000); // 45 second timeout
+
+      return () => {
+        if (processingTimeoutRef.current) {
+          clearTimeout(processingTimeoutRef.current);
+          processingTimeoutRef.current = null;
+        }
+      };
+    }
+  }, [isProcessing]);
+
   const handleWebSocketMessage = useCallback((data: any) => {
     const { type } = data;
     

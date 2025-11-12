@@ -849,16 +849,61 @@ async def websocket_endpoint(websocket: WebSocket):
                                 manager.mark_processing(websocket)
 
                                 try:
-                                    # Use async method for non-blocking GPT-5 calls
-                                    responses = await agent_system.group_chat_mode_async(
-                                        user_message,
-                                        conversation_history,
-                                        websocket=websocket,
-                                        log_streamer=log_streamer
+                                    # Use async method for non-blocking GPT-5 calls with timeout
+                                    responses = await asyncio.wait_for(
+                                        agent_system.group_chat_mode_async(
+                                            user_message,
+                                            conversation_history,
+                                            websocket=websocket,
+                                            log_streamer=log_streamer
+                                        ),
+                                        timeout=40.0  # 40 second timeout (frontend has 45s)
                                     )
+                                except asyncio.TimeoutError:
+                                    # Timeout occurred
+                                    print(f"⏱️ [TIMEOUT] Agent processing exceeded 40 seconds")
+                                    await log_streamer.emit(
+                                        websocket,
+                                        level="error",
+                                        category="error",
+                                        message="⏱️ Request timeout - OpenAI API took too long",
+                                        metadata={"timeout_seconds": 40}
+                                    )
+                                    await manager.send_personal({
+                                        "type": "error",
+                                        "message": "Request timeout. The AI service is taking too long to respond. Please try again."
+                                    }, websocket)
+                                    await manager.send_personal({"type": "all_complete"}, websocket)
+                                    await manager.unmark_processing(websocket)
+                                    inner_error = "timeout"
+                                except Exception as e:
+                                    # Other errors (API failures, rate limits, etc.)
+                                    error_msg = str(e)
+                                    print(f"❌ [ERROR] Agent processing failed: {error_msg}")
+                                    await log_streamer.emit(
+                                        websocket,
+                                        level="error",
+                                        category="error",
+                                        message=f"❌ Agent processing failed: {error_msg[:100]}",
+                                        metadata={"error": error_msg}
+                                    )
+                                    await manager.send_personal({
+                                        "type": "error",
+                                        "message": f"Failed to process request: {error_msg[:200]}"
+                                    }, websocket)
+                                    await manager.send_personal({"type": "all_complete"}, websocket)
+                                    await manager.unmark_processing(websocket)
+                                    inner_error = error_msg
                                 finally:
                                     # UNMARK PROCESSING and handle any pending replacements
-                                    await manager.unmark_processing(websocket)
+                                    # Only run if not already unmarked in except blocks
+                                    if websocket in manager.processing_websockets:
+                                        await manager.unmark_processing(websocket)
+
+                                # Skip response processing if error occurred
+                                if inner_error:
+                                    print(f"⚠️ Skipping response processing due to error: {inner_error}")
+                                    continue
 
                                 # Process each agent's full response
                                 for agent_id, full_response in responses:
