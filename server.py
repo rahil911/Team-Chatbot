@@ -801,6 +801,9 @@ async def websocket_endpoint(websocket: WebSocket):
                     continue
 
                 if message_type == "chat":
+                    # Increment message counter
+                    manager.message_count += 1
+
                     # COMPREHENSIVE ERROR HANDLING: Wrap entire chat processing to prevent crashes
                     try:
                         user_message = data.get("message", "")
