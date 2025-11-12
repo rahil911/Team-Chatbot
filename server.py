@@ -23,9 +23,26 @@ from conversation_manager import get_conversation_manager
 from graph_analytics import GraphAnalytics
 from log_streamer import LogStreamer
 import uuid
+import concurrent.futures
 
 # Initialize
 app = FastAPI(title="AI Team Multi-Agent API")
+
+# Create dedicated thread pool for agent processing
+# Azure Container Apps has limited resources, but we need concurrent message handling
+AGENT_THREAD_POOL = concurrent.futures.ThreadPoolExecutor(
+    max_workers=10,  # Support up to 10 concurrent messages
+    thread_name_prefix="agent_worker"
+)
+print(f"🔧 Created dedicated thread pool with 10 workers for agent processing")
+
+# Shutdown handler to clean up thread pool
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean shutdown of thread pool"""
+    print("🛑 Shutting down thread pool...")
+    AGENT_THREAD_POOL.shutdown(wait=True, cancel_futures=True)
+    print("✅ Thread pool shutdown complete")
 
 # CORS for React frontend (includes Azure Static Web App)
 app.add_middleware(
@@ -871,13 +888,17 @@ async def websocket_endpoint(websocket: WebSocket):
                                         # Return in expected format
                                         return [(agent_id, response) for agent_id, response in agent_responses_dict.items()]
 
-                                    # Run in thread pool with timeout to not block event loop
-                                    # 120 seconds allows multiple agents to respond via OpenAI API
+                                    # Run in DEDICATED thread pool to prevent thread starvation
+                                    # Using our custom pool ensures multiple messages can be processed concurrently
+                                    print(f"🧵 Submitting to thread pool (10 workers available)")
                                     responses = await asyncio.wait_for(
-                                        asyncio.to_thread(run_sync_chat),
+                                        asyncio.get_event_loop().run_in_executor(
+                                            AGENT_THREAD_POOL,  # Use our dedicated pool instead of default
+                                            run_sync_chat
+                                        ),
                                         timeout=120.0
                                     )
-                                    print(f"✅ Collected {len(responses)} agent responses from thread")
+                                    print(f"✅ Collected {len(responses)} agent responses from thread pool")
                                     print(f"🔍 DEBUG: inner_error={inner_error}, responses={[(aid, len(r)) for aid, r in responses]}")
 
                                     # FIX: Retrieve and emit buffered logs from the sync generator
