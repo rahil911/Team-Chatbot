@@ -24,23 +24,54 @@ from graph_analytics import GraphAnalytics
 from log_streamer import LogStreamer
 import uuid
 import concurrent.futures
+import os
+from threading import BoundedSemaphore
+import logging
 
 # Initialize
 app = FastAPI(title="AI Team Multi-Agent API")
 
+# Configure thread pool based on environment
+# Azure Container Apps typically has 0.5-2 CPUs, but we need more threads for I/O-bound operations
+DEFAULT_WORKERS = 10
+MAX_WORKERS = 50  # Hard cap to prevent resource exhaustion
+
+# Calculate optimal worker count
+cpu_count = os.cpu_count() or 1
+# For I/O-bound operations (API calls), use 5x CPU count as baseline
+calculated_workers = cpu_count * 5
+# Use environment variable to override if needed
+env_workers = os.environ.get("AGENT_THREAD_WORKERS", "").strip()
+if env_workers.isdigit():
+    max_workers = int(env_workers)
+else:
+    max_workers = max(DEFAULT_WORKERS, min(calculated_workers, MAX_WORKERS))
+
 # Create dedicated thread pool for agent processing
-# Azure Container Apps has limited resources, but we need concurrent message handling
 AGENT_THREAD_POOL = concurrent.futures.ThreadPoolExecutor(
-    max_workers=10,  # Support up to 10 concurrent messages
+    max_workers=max_workers,
     thread_name_prefix="agent_worker"
 )
-print(f"🔧 Created dedicated thread pool with 10 workers for agent processing")
+
+# Create a semaphore to limit concurrent executions (prevent queue overflow)
+# This ensures we reject new requests gracefully when at capacity
+CONCURRENCY_LIMITER = BoundedSemaphore(max_workers)
+
+print(f"🔧 Thread Pool Configuration:")
+print(f"   CPU Count: {cpu_count}")
+print(f"   Max Workers: {max_workers}")
+print(f"   Environment: {'Production' if os.environ.get('AZURE_CONTAINER_APP_NAME') else 'Development'}")
+print(f"   Override via AGENT_THREAD_WORKERS env var")
+
+# Track active tasks for monitoring
+active_tasks = set()
+task_counter = 0
 
 # Shutdown handler to clean up thread pool
 @app.on_event("shutdown")
 async def shutdown_event():
     """Clean shutdown of thread pool"""
-    print("🛑 Shutting down thread pool...")
+    print(f"🛑 Shutting down thread pool (active tasks: {len(active_tasks)})...")
     AGENT_THREAD_POOL.shutdown(wait=True, cancel_futures=True)
     print("✅ Thread pool shutdown complete")
 
@@ -84,6 +115,21 @@ print(f"Cytoscape cache ready! ({len([e for e in cached_cytoscape_elements if 'l
 
 # Active WebSocket connections
 active_connections: List[WebSocket] = []
+
+# Thread pool status endpoint for monitoring
+@app.get("/health/thread-pool")
+async def thread_pool_health():
+    """Monitor thread pool status and capacity"""
+    return {
+        "status": "healthy" if len(active_tasks) < max_workers else "at_capacity",
+        "max_workers": max_workers,
+        "active_tasks": len(active_tasks),
+        "available_slots": max_workers - len(active_tasks),
+        "cpu_count": cpu_count,
+        "environment": "production" if os.environ.get('AZURE_CONTAINER_APP_NAME') else "development",
+        "task_ids": list(active_tasks),
+        "uptime_seconds": int(time.time() - (manager.start_time if 'manager' in globals() else time.time()))
+    }
 
 
 class ConnectionManager:
@@ -866,39 +912,69 @@ async def websocket_endpoint(websocket: WebSocket):
                                 manager.mark_processing(websocket)
 
                                 try:
-                                    # ULTRA FIX: Run sync generator in thread pool to prevent event loop blocking
-                                    # Azure production requires this - sync code blocks the async event loop
-                                    print(f"🔄 Running sync group_chat_mode in thread pool (non-blocking)")
-
-                                    def run_sync_chat():
-                                        """Execute sync chat in separate thread"""
-                                        response_gen = agent_system.group_chat_mode(
-                                            user_message,
-                                            conversation_history
+                                    # Check if we have capacity before processing
+                                    if not CONCURRENCY_LIMITER.acquire(blocking=False):
+                                        # At capacity - reject gracefully
+                                        print(f"⚠️ Thread pool at capacity ({max_workers} active tasks)")
+                                        await manager.send_personal({
+                                            "type": "error",
+                                            "message": f"Server at capacity. Please try again in a moment. (Active: {max_workers})"
+                                        }, websocket)
+                                        await log_streamer.emit(
+                                            websocket,
+                                            level="warning",
+                                            category="capacity",
+                                            message=f"Thread pool at capacity - request rejected",
+                                            metadata={"active_workers": max_workers}
                                         )
+                                        continue  # Skip processing this message
 
-                                        # Collect responses from generator
-                                        agent_responses_dict = {}
-                                        for agent_id, chunk in response_gen:
-                                            if agent_id not in agent_responses_dict:
-                                                agent_responses_dict[agent_id] = ""
-                                            if not chunk.startswith('[Error'):
-                                                agent_responses_dict[agent_id] += chunk
+                                    # Track this task
+                                    global task_counter
+                                    task_counter += 1
+                                    task_id = f"task_{task_counter}"
+                                    active_tasks.add(task_id)
 
-                                        # Return in expected format
-                                        return [(agent_id, response) for agent_id, response in agent_responses_dict.items()]
+                                    try:
+                                        # ULTRA FIX: Run sync generator in thread pool to prevent event loop blocking
+                                        # Azure production requires this - sync code blocks the async event loop
+                                        print(f"🔄 [{task_id}] Running sync group_chat_mode in thread pool")
+                                        print(f"📊 Active tasks: {len(active_tasks)}/{max_workers}")
 
-                                    # Run in DEDICATED thread pool to prevent thread starvation
-                                    # Using our custom pool ensures multiple messages can be processed concurrently
-                                    print(f"🧵 Submitting to thread pool (10 workers available)")
-                                    responses = await asyncio.wait_for(
-                                        asyncio.get_event_loop().run_in_executor(
-                                            AGENT_THREAD_POOL,  # Use our dedicated pool instead of default
-                                            run_sync_chat
-                                        ),
-                                        timeout=120.0
-                                    )
-                                    print(f"✅ Collected {len(responses)} agent responses from thread pool")
+                                        def run_sync_chat():
+                                            """Execute sync chat in separate thread"""
+                                            response_gen = agent_system.group_chat_mode(
+                                                user_message,
+                                                conversation_history
+                                            )
+
+                                            # Collect responses from generator
+                                            agent_responses_dict = {}
+                                            for agent_id, chunk in response_gen:
+                                                if agent_id not in agent_responses_dict:
+                                                    agent_responses_dict[agent_id] = ""
+                                                if not chunk.startswith('[Error'):
+                                                    agent_responses_dict[agent_id] += chunk
+
+                                            # Return in expected format
+                                            return [(agent_id, response) for agent_id, response in agent_responses_dict.items()]
+
+                                        # Run in DEDICATED thread pool to prevent thread starvation
+                                        # Using our custom pool ensures multiple messages can be processed concurrently
+                                        print(f"🧵 [{task_id}] Submitting to thread pool (capacity: {max_workers - len(active_tasks) + 1}/{max_workers})")
+                                        responses = await asyncio.wait_for(
+                                            asyncio.get_event_loop().run_in_executor(
+                                                AGENT_THREAD_POOL,  # Use our dedicated pool instead of default
+                                                run_sync_chat
+                                            ),
+                                            timeout=120.0
+                                        )
+                                        print(f"✅ [{task_id}] Collected {len(responses)} agent responses from thread pool")
+                                    finally:
+                                        # Always release semaphore and remove from active tasks
+                                        active_tasks.discard(task_id)
+                                        CONCURRENCY_LIMITER.release()
+                                        print(f"🔓 [{task_id}] Released thread pool slot (remaining: {len(active_tasks)})")
                                     print(f"🔍 DEBUG: inner_error={inner_error}, responses={[(aid, len(r)) for aid, r in responses]}")
 
                                     # FIX: Retrieve and emit buffered logs from the sync generator
