@@ -879,6 +879,20 @@ async def websocket_endpoint(websocket: WebSocket):
                                     )
                                     print(f"✅ Collected {len(responses)} agent responses from thread")
                                     print(f"🔍 DEBUG: inner_error={inner_error}, responses={[(aid, len(r)) for aid, r in responses]}")
+
+                                    # FIX: Retrieve and emit buffered logs from the sync generator
+                                    # The group_chat_mode() adds logs to buffer but they're never sent
+                                    pending_logs = agent_system.get_pending_logs()
+                                    for log in pending_logs:
+                                        await log_streamer.emit(
+                                            websocket,
+                                            level=log["level"],
+                                            category=log["category"],
+                                            message=log["message"],
+                                            metadata=log.get("metadata")
+                                        )
+                                    print(f"📊 Emitted {len(pending_logs)} buffered logs to Activity Timeline")
+
                                 except asyncio.TimeoutError:
                                     # Timeout occurred
                                     print(f"⏱️ [TIMEOUT] Agent processing exceeded 120 seconds")
