@@ -8,7 +8,7 @@ import type { ModelType } from './ModelSelector';
 
 export const ModernDashboard = () => {
   const [mode, setMode] = useState<ChatMode>('group');
-  const [model, setModel] = useState<ModelType>('gpt-4o');
+  const [model, setModel] = useState<ModelType>('gpt-4o');  // Default to GPT-4o (stable)
 
   const { addHighlight, highlights } = useGraphHighlight();
 
