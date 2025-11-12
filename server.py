@@ -928,66 +928,138 @@ async def websocket_endpoint(websocket: WebSocket):
 
                                 print(f"🔍 DEBUG: Proceeding to send {len(responses)} responses")
 
-                                # Process each agent's full response
-                                for agent_id, full_response in responses:
-                                    # Skip invalid agent IDs
-                                    if agent_id not in AGENTS:
-                                        print(f"⚠️ Skipping invalid agent_id: {agent_id}")
-                                        continue
+                                # CRITICAL FIX: Add granular exception handling for response sending
+                                agents_sent = []
+                                send_errors = []
 
-                                    current_timestamp = int(time.time() * 1000)
+                                try:
+                                    # Process each agent's full response
+                                    for agent_id, full_response in responses:
+                                        try:
+                                            print(f"📤 Starting to send response for {agent_id}")
 
-                                    # Send typing indicator
-                                    await manager.send_personal({
-                                        "type": "agent_typing",
-                                        "agent_id": agent_id,
-                                        "agent_name": AGENTS[agent_id]['name']
-                                    }, websocket)
+                                            # Skip invalid agent IDs
+                                            if agent_id not in AGENTS:
+                                                print(f"⚠️ Skipping invalid agent_id: {agent_id}")
+                                                continue
 
-                                    # Small delay for typing indicator visibility
-                                    await asyncio.sleep(0.5)
+                                            current_timestamp = int(time.time() * 1000)
 
-                                    # Signal agent started
-                                    await manager.send_personal({
-                                        "type": "agent_start",
-                                        "agent_id": agent_id,
-                                        "agent_name": AGENTS[agent_id]['name'],
-                                        "timestamp": current_timestamp
-                                    }, websocket)
+                                            try:
+                                                # Send typing indicator
+                                                print(f"  → Sending typing indicator for {agent_id}")
+                                                await manager.send_personal({
+                                                    "type": "agent_typing",
+                                                    "agent_id": agent_id,
+                                                    "agent_name": AGENTS[agent_id]['name']
+                                                }, websocket)
+                                            except Exception as typing_err:
+                                                print(f"  ❌ Failed to send typing for {agent_id}: {typing_err}")
 
-                                    # Stream response in chunks for animation
-                                    words = full_response.split()
-                                    chunk_size = 3  # Words per chunk
-                                    for i in range(0, len(words), chunk_size):
-                                        chunk = " ".join(words[i:i+chunk_size]) + " "
-                                        await manager.send_personal({
-                                            "type": "agent_chunk",
-                                            "agent_id": agent_id,
-                                            "chunk": chunk,
-                                            "timestamp": current_timestamp
-                                        }, websocket)
-                                        await asyncio.sleep(0.05)  # Typing animation delay
+                                            # Small delay for typing indicator visibility
+                                            await asyncio.sleep(0.5)
 
-                                    # Extract graph highlights
-                                    entities = graph_highlighter.extract_entities(full_response, agent_id)
-                                    highlight_data = graph_highlighter.get_highlight_data(agent_id, entities)
+                                            try:
+                                                # Signal agent started
+                                                print(f"  → Sending agent_start for {agent_id}")
+                                                await manager.send_personal({
+                                                    "type": "agent_start",
+                                                    "agent_id": agent_id,
+                                                    "agent_name": AGENTS[agent_id]['name'],
+                                                    "timestamp": current_timestamp
+                                                }, websocket)
+                                            except Exception as start_err:
+                                                print(f"  ❌ Failed to send start for {agent_id}: {start_err}")
 
-                                    # Add agent response to session
-                                    await conversation_manager.add_agent_message(
-                                        session_id,
-                                        agent_id,
-                                        AGENTS[agent_id]['name'],
-                                        full_response,
-                                        metadata={"highlights": highlight_data}
-                                    )
+                                            # Stream response in chunks for animation
+                                            try:
+                                                print(f"  → Sending response chunks for {agent_id}")
+                                                words = full_response.split()
+                                                chunk_size = 3  # Words per chunk
+                                                chunks_sent = 0
+                                                for i in range(0, len(words), chunk_size):
+                                                    chunk = " ".join(words[i:i+chunk_size]) + " "
+                                                    await manager.send_personal({
+                                                        "type": "agent_chunk",
+                                                        "agent_id": agent_id,
+                                                        "chunk": chunk,
+                                                        "timestamp": current_timestamp
+                                                    }, websocket)
+                                                    chunks_sent += 1
+                                                    await asyncio.sleep(0.05)  # Typing animation delay
+                                                print(f"  ✓ Sent {chunks_sent} chunks for {agent_id}")
+                                            except Exception as chunk_err:
+                                                print(f"  ❌ Failed to send chunks for {agent_id}: {chunk_err}")
+                                                # Try to send full response as fallback
+                                                try:
+                                                    print(f"  → Attempting fallback full send for {agent_id}")
+                                                    await manager.send_personal({
+                                                        "type": "agent_response",
+                                                        "agent_id": agent_id,
+                                                        "content": full_response,
+                                                        "timestamp": current_timestamp
+                                                    }, websocket)
+                                                    print(f"  ✓ Fallback send succeeded for {agent_id}")
+                                                except Exception as fallback_err:
+                                                    print(f"  ❌❌ Fallback also failed for {agent_id}: {fallback_err}")
 
-                                    # Send completion
-                                    await manager.send_personal({
-                                        "type": "agent_complete",
-                                        "agent_id": agent_id,
-                                        "full_response": full_response,
-                                        "highlights": highlight_data
-                                    }, websocket)
+                                            # Extract graph highlights (may fail, non-critical)
+                                            highlight_data = None
+                                            try:
+                                                print(f"  → Extracting highlights for {agent_id}")
+                                                entities = graph_highlighter.extract_entities(full_response, agent_id)
+                                                highlight_data = graph_highlighter.get_highlight_data(agent_id, entities)
+                                                print(f"  ✓ Extracted {len(entities)} entities for {agent_id}")
+                                            except Exception as highlight_err:
+                                                print(f"  ⚠️ Failed to extract highlights for {agent_id}: {highlight_err}")
+                                                highlight_data = None  # Continue without highlights
+
+                                            # Add agent response to session (may fail, non-critical)
+                                            try:
+                                                print(f"  → Adding to conversation history for {agent_id}")
+                                                await conversation_manager.add_agent_message(
+                                                    session_id,
+                                                    agent_id,
+                                                    AGENTS[agent_id]['name'],
+                                                    full_response,
+                                                    metadata={"highlights": highlight_data} if highlight_data else {}
+                                                )
+                                                print(f"  ✓ Added to history for {agent_id}")
+                                            except Exception as history_err:
+                                                print(f"  ⚠️ Failed to add to history for {agent_id}: {history_err}")
+
+                                            # Send completion
+                                            try:
+                                                print(f"  → Sending completion for {agent_id}")
+                                                await manager.send_personal({
+                                                    "type": "agent_complete",
+                                                    "agent_id": agent_id,
+                                                    "full_response": full_response,
+                                                    "highlights": highlight_data
+                                                }, websocket)
+                                                print(f"  ✓ Sent completion for {agent_id}")
+                                            except Exception as complete_err:
+                                                print(f"  ❌ Failed to send completion for {agent_id}: {complete_err}")
+
+                                            agents_sent.append(agent_id)
+                                            print(f"✅ Successfully processed response for {agent_id}")
+
+                                        except Exception as agent_err:
+                                            error_msg = f"Failed to process {agent_id}: {str(agent_err)}"
+                                            print(f"❌ {error_msg}")
+                                            send_errors.append(error_msg)
+                                            import traceback
+                                            traceback.print_exc()
+                                            # Continue with next agent
+
+                                except Exception as loop_err:
+                                    print(f"❌❌ CRITICAL ERROR in response loop: {loop_err}")
+                                    import traceback
+                                    traceback.print_exc()
+
+                                print(f"📊 Response sending summary: {len(agents_sent)}/{len(responses)} sent successfully")
+                                if send_errors:
+                                    print(f"⚠️ Errors occurred: {send_errors}")
 
                                 # Emit final completion log
                                 await log_streamer.emit(
@@ -1147,8 +1219,9 @@ async def websocket_endpoint(websocket: WebSocket):
                                 }, websocket)
 
                         except Exception as e:
-                            inner_error = e
-                            print(f"❌ ERROR in chat processing (inner): {e}")
+                            # REMOVED: inner_error = e (was causing bug - set too late after response checks)
+                            print(f"❌ ERROR in chat processing (outer catch): {e}")
+                            print(f"⚠️ NOTE: This error occurred AFTER response processing checks")
                             import traceback
                             traceback.print_exc()
 
