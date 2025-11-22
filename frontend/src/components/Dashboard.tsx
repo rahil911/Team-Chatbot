@@ -15,6 +15,7 @@ import { ChatView } from './ChatView';
 import { KnowledgeGraphView } from './KnowledgeGraphView';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { useGraphHighlight } from '../hooks/useGraphHighlight';
+import { RestartTimer } from './RestartTimer';
 import type { ChatMode } from '../types';
 
 const AGENTS = {
@@ -119,6 +120,7 @@ export const Dashboard = () => {
                 >
                   {connected ? 'CONNECTED' : 'DISCONNECTED'}
                 </Badge>
+                <RestartTimer />
               </HStack>
             </VStack>
           </HStack>

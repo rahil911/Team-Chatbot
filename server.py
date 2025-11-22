@@ -81,6 +81,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:3000",
+        "http://172.200.76.28:5173",
         "http://localhost:3001",
         "https://calm-forest-029210d0f.3.azurestaticapps.net",
         "https://kg-frontend-app-free.azurestaticapps.net",
@@ -1535,7 +1536,7 @@ if __name__ == "__main__":
     uvicorn.run(
         app,
         host="0.0.0.0",
-        port=8000,
+        port=8001,
         log_level="info"
     )
 
